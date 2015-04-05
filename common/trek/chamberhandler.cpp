@@ -1,10 +1,10 @@
 ﻿#include <limits>
-#include <iostream>
-#include "chamberhandler.hpp" ///
+#include "chamberhandler.hpp"
 
 
 namespace trek {
 
+using std::array;
 using std::runtime_error;
 using std::numeric_limits;
 
@@ -17,66 +17,74 @@ template <typename T> int sign(T val) {
 }
 
 ChamberEventHandler::ChamberEventHandler(uint32_t pedestal, double speed)
-	: mPedestal(pedestal), mSpeed(speed), mHasUraganTrack(false),
-	  mHasChamberTrack(false), mHasChamberSystem(false),
+	: mPedestal(pedestal), mSpeed(speed), mHasChamberData(false), mHasTrack(false),
 	  mWires{ {Vec2{41., 0.75}, Vec2{51., -0.75}, Vec2{61., 0.75}, Vec2{71., -0.75}} }
 {}
 
 void ChamberEventHandler::setChamberData(const ChamberData& chamberData) {
-	if(checkDepth(chamberData)) {
-		for(size_t i = 0; i < mChamberTrack.times.size(); ++i) {
-			if( chamberData[i].front() > mPedestal )
-				mChamberTrack.times[i] = (chamberData[i].front() - mPedestal) * mSpeed;
-			else {
-				mHasChamberTrack = false;
-				return;
-			}
-		}
-		mHasChamberTrack = createProjection();
-		if(mHasChamberTrack)
-			for(size_t i = 0; i < mChamberTrack.times.size(); ++i)
-				mChamberTrack.times[i] = chamberData[i].front();
-	} else
-		mHasChamberTrack = false;
-
+	for(size_t i = 0; i < chamberData.size(); ++i) {
+		mChamberData.at(i).clear();
+		for(auto msr :  chamberData.at(i))
+			if(msr > mPedestal)
+				mChamberData.at(i).push_back((msr - mPedestal)*mSpeed);
+	}
+	mHasChamberData = true;
+	if(getDepth(chamberData) == 1)
+		mHasTrack = createProjection();
+	else
+		mHasTrack = false;
 }
 
-void ChamberEventHandler::setUraganData(const UraganEvent& event) {
-	if(mHasChamberSystem == true) {
-		auto point1 = Vec3( event.chp0[0], event.chp0[1], event.chp0[2] );
-		auto point2 = Vec3( event.chp1[0], event.chp1[1], event.chp1[2] );
+//void ChamberEventHandler::setUraganData(const Line3& line) {
+//	Line3 tmpLine = line;
+//	mChamberSystem.convertTo(tmpLine.dot());
+//	mChamberSystem.convertTo(tmpLine.vec());
 
-		mChamberSystem.convertTo(point1);
-		mChamberSystem.convertTo(point2);
+//	auto point1 = tmpLine.dot() + tmpLine.vec()*5;
 
-		mUraganTrack = Line2( Vec2(point1.x(), point1.y()),
-							  Vec2(point2.x(), point2.y()));
-		if(!mHasUraganTrack)
-			mHasUraganTrack = true;
-	} else
-		mHasUraganTrack = false;
-}
+//	mUraganTrack = Line2(Vec2(tmpLine.dot().x(), tmpLine.dot().y()),
+//						 Vec2(point1.x(), point1.y()));
+//	if(!mHasUraganTrack)
+//		mHasUraganTrack = true;
+//}
 
-const TrackDesc& ChamberEventHandler::getChamberTrack() const {
-	if(mHasChamberTrack == false)
-		throw runtime_error("No Chamber Track");
-	return mChamberTrack;
-}
+//void ChamberEventHandler::setUraganData(const UraganEvent& event) {
+//	if(mHasChamberSystem == true) {
+//		auto point1 = Vec3( event.chp0[0], event.chp0[1], event.chp0[2] );
+//		auto point2 = Vec3( event.chp1[0], event.chp1[1], event.chp1[2] );
 
-const Line2& ChamberEventHandler::getUraganTrack() const {
-	if(mHasUraganTrack == false)
-		throw runtime_error("No Uragan Track");
-	return mUraganTrack;
-}
+//		mChamberSystem.convertTo(point1);
+//		mChamberSystem.convertTo(point2);
+
+//		mUraganTrack = Line2( Vec2(point1.x(), point1.y()),
+//							  Vec2(point2.x(), point2.y()));
+//		if(!mHasUraganTrack)
+//			mHasUraganTrack = true;
+//	} else
+//		mHasUraganTrack = false;
+//}
 
 bool ChamberEventHandler::createProjection() {
-	auto flag = createProjection(mChamberTrack);
-	auto ret = flag != -1 ? true : false;
-	return ret;
-//	if(flag != -1)
-//		return systemError(mChamberTrack);
-//	else
-//		return false;
+	if(!mHasChamberData)
+		throw std::runtime_error("ChamberEventHandler::createProjection: no chamber data");
+	TrackDesc tmpTrack;
+	mChamberTrack.dev = numeric_limits<double>::infinity();
+	array<size_t, 4> ind;
+	for(ind.at(0) = 0; ind.at(0) != mChamberData.at(0).size(); ++ind.at(0))
+		for(ind.at(1) = 0; ind.at(1) != mChamberData.at(1).size(); ++ind.at(1))
+			for(ind.at(2) = 0; ind.at(2) != mChamberData.at(2).size(); ++ind.at(2))
+				for(ind.at(3) = 0; ind.at(3) != mChamberData.at(3).size(); ++ind.at(3)) {
+					createVariation(mChamberData,ind, 0, tmpTrack.times);
+					createProjection(tmpTrack);
+					if(tmpTrack.dev != -1 && tmpTrack.dev < mChamberTrack.dev)
+						mChamberTrack = tmpTrack;
+				}
+	if(mChamberTrack.dev < numeric_limits<double>::infinity()) {
+		for(auto& time : mChamberTrack.times)
+			time = time/mSpeed + mPedestal;
+		return systemError(mChamberTrack);
+	} else
+		return false;
 }
 
 size_t ChamberEventHandler::getDepth(const ChamberData& chamData) {
@@ -85,13 +93,6 @@ size_t ChamberEventHandler::getDepth(const ChamberData& chamData) {
 		if(wireData.size() < depth)
 			depth = wireData.size();
 	return depth;
-}
-
-bool ChamberEventHandler::checkDepth(const ChamberData& chamData) {
-	for(const auto& wireData : chamData)
-		if(wireData.size() != 1)
-			return false;
-	return true;
 }
 
 bool ChamberEventHandler::systemError(ChamberEventHandler::TrackDesc& track) {
@@ -106,7 +107,6 @@ bool ChamberEventHandler::systemError(ChamberEventHandler::TrackDesc& track) {
 				r = (std::abs(track.points[i].y()) > 3.6) ? 3.6 : track.points[i].y();
 				break;
 			default:
-				std::cout << "sys = " << std::endl;
 				return false;
 		}
 		track.points[i].y() += trackSign*getSystemError(r, std::atan(track.line.k()) );
@@ -115,27 +115,24 @@ bool ChamberEventHandler::systemError(ChamberEventHandler::TrackDesc& track) {
 	return true;
 }
 
+//void ChamberEventHandler::setChamberPosition(const array<Vec3, 3>& pos) {
+//	setChamberPosition(getChamberSystem(pos));
+//}
 
-void ChamberEventHandler::setChamberPosition(const ChamberPosition& pos) {
-	setChamberPosition(getChamberSystem(pos));
+//void ChamberEventHandler::setChamberPosition(const CoordSystem3& system) {
+//	mChamberSystem = system;
+//	mHasChamberSystem = true;
+//}
+
+
+
+void ChamberEventHandler::createVariation(const ChamberData& chamData,  const array<size_t, 4>& indices,
+										  size_t offset, std::array<uint32_t, 4>& variant) {
+	for(size_t i = 0; i < variant.size(); ++i)
+		variant.at(i) = chamData.at(i).at((indices.at(i) + offset)%chamData.at(i).size());
 }
 
-void ChamberEventHandler::setChamberPosition(const CoordSystem3& system) {
-	mChamberSystem = system;
-	mHasChamberSystem = true;
-}
-
-CoordSystem3 ChamberEventHandler::getChamberSystem(const ChamberPosition& pos) {
-	auto xAxis = Vec3( pos.vertices[1] - pos.vertices[0] ).ort();
-	auto zAxis = Vec3( pos.vertices[2] - pos.vertices[0] ).ort();
-	return CoordSystem3(pos.vertices[0], xAxis, zAxis);
-}
-
-void ChamberEventHandler::resetPosition() {
-	mHasUraganTrack = false;
-}
-
-double ChamberEventHandler::createProjection(TrackDesc& track) {
+void ChamberEventHandler::createProjection(TrackDesc& track) {
 	static PointVector tempPoints = {mWires[0], mWires[1], mWires[2], mWires[3]};
 	static Line2 tempLine;
 	size_t numPermutations = std::pow(2, track.times.size());
@@ -159,7 +156,6 @@ double ChamberEventHandler::createProjection(TrackDesc& track) {
 		}
 	}
 	track.dev = leastSquares(track.points, track.line);
-	return track.dev;
 }
 
 double ChamberEventHandler::leastSquares(const PointVector& points, Line2& line) {

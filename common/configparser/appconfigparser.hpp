@@ -1,5 +1,5 @@
-#ifndef APPCONFIGPARSER_HPP
-#define APPCONFIGPARSER_HPP
+#ifndef TREKVIEWER_APPCONFIGPARSER_HPP
+#define TREKVIEWER_APPCONFIGPARSER_HPP
 
 #include <unordered_map>
 #include "configparser/configparser.hpp"
@@ -9,7 +9,7 @@ using AppConfig = std::unordered_map<std::string, std::string>;
 
 class AppConfigParser : public AbstractConfigParser {
 public:
-	AppConfigParser();
+	AppConfigParser(const AppConfig&& defaultConf);
 
 	virtual void load(const std::string& fileName) override;
 	virtual void save(const std::string& fileName) override;
@@ -22,4 +22,4 @@ private:
 	AppConfig mConfig;
 };
 
-#endif // APPCONFIGPARSER_HPP
+#endif // TREKVIEWER_APPCONFIGPARSER_HPP

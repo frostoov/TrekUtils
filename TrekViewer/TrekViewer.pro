@@ -1,25 +1,17 @@
 QT = core gui widgets
 
-TARGET   = TUVisualization
+TARGET = TrekViewer
 TEMPLATE = app
-CONFIG   += exceptions c++11 warn_on
+CONFIG += c++11
 
 QMAKE_CXXFLAGS_RELEASE -= -O1
 QMAKE_CXXFLAGS_RELEASE -= -O2
 QMAKE_CXXFLAGS_RELEASE += -O3
 
-HEADERS += \
-	appconfigparser.hpp \
-	mainwindow.hpp
-
-SOURCES += \
-	appconfigparser.cpp \
-	main.cpp \
-	mainwindow.cpp
-
 INCLUDEPATH += ../common
+
 OBJECTS += \
-	../common/chamber.o \
+	../common/appconfigparser.o \
 	../common/chamberconfigparser.o \
 	../common/chamberhandler.o \
 	../common/chamberrender.o \
@@ -27,3 +19,14 @@ OBJECTS += \
 	../common/event.o \
 	../common/eventhandler.o \
 	../common/paramshandler.o \
+	../common/chamber.o \
+	../common/trekhandler.o \
+
+HEADERS += \
+    mainwindow.hpp \
+    trackglwidget.hpp
+
+SOURCES += \
+    main.cpp \
+    mainwindow.cpp \
+    trackglwidget.cpp

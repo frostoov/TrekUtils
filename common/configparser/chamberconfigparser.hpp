@@ -6,25 +6,13 @@
 #include <cstdint>
 
 #include "configparser.hpp"
-#include "math/vec.hpp"
-
-/**
- * @class ChamberPosition
- * @author frostoov
- * @date 03/18/15
- * @file chamberconfigparser.hpp
- * @brief Описание положения дрейфовой камеры
- */
-struct ChamberPosition {
-	std::array<vecmath::Vec3, 3> vertices;  /*!< Точки дрейфовой камеры */
-	uint plane;								/*!< Номер плоскости дрейфовой камеры */
-	uint group;								/*!< Номер группы дрейфовой камеры */
-};
+#include "trek/chamberhandler.hpp"
 
 using AppConfig     = std::unordered_map<std::string, std::string>;
-using ChamberConfig = std::unordered_map<uintmax_t, ChamberPosition>;
 
 class ChamberConfigParser : public AbstractConfigParser {
+	using ChamberPosition = trek::ChamberPosition;
+	using ChamberConfig   = trek::ChamberConfig;
   public:
 	virtual void load(const std::string& fileName);
 	virtual void save(const std::string&) {}

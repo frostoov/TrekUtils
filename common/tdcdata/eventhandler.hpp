@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <fstream>
 
+#include "math/coordsystem.hpp"
 
 #include "event.hpp"
 #include "trek/chamberhandler.hpp"
@@ -12,10 +13,12 @@
 namespace tdcdata {
 
 class EventHandler : public AbstractEventHandler {
+	using CoordSystem3        = vecmath::CoordSystem3;
+	using ChamberSystems      = std::unordered_map<uintmax_t, CoordSystem3>;
+	using ChamberConfig       = trek::ChamberConfig;
 	using ChamberEventHandler = trek::ChamberEventHandler;
 	using Matrix	       = vecmath::TMatrix<uintmax_t>;
 	using DMatrix	       = vecmath::TMatrix<double>;
-	using CoordSystem3     = ChamberEventHandler::CoordSystem3;
 	using StreamsMap       = std::unordered_map<std::uintmax_t, std::ofstream*>;
 	using MatricesMap      = std::unordered_map<std::uintmax_t, Matrix>;
 	using CoordSystemsMap  = std::unordered_map<std::uintmax_t, CoordSystem3>;
@@ -33,9 +36,8 @@ class EventHandler : public AbstractEventHandler {
 			return *this;
 		}
 	};
-	EventHandler(const ChamberConfig& config, uint32_t pedestal, double speed)
-		: mChamHandler(pedestal, speed), mConfig(config), mMatrixN(matrixRows, matrixCols) {}
-	EventHandler() {closeStreams(); clear();}
+	EventHandler(const ChamberConfig& config, uint32_t pedestal, double speed);
+	~EventHandler() {closeStreams(); clear();}
 
 	virtual void handleEvent(const TUEvent& event) override;
 	virtual void flush() override;
@@ -50,7 +52,6 @@ class EventHandler : public AbstractEventHandler {
 	void loadMatrix(const TUEvent& event);
 	void createTrackStream(StreamsMap& streams, uintmax_t cham);
 	void createListStream(StreamsMap& streams, uintmax_t cham);
-	void setChamberPosition(uintmax_t cham);
 
 	template<typename T>
 	void outputMatrix(const vecmath::TMatrix<T>& mat, const std::string& pattern);
@@ -58,7 +59,7 @@ class EventHandler : public AbstractEventHandler {
 	void outputMatrix(std::ostream& str, const vecmath::TMatrix<T>& matrix);
   private:
 	ChamberEventHandler mChamHandler;
-	ChamberConfig		mConfig;
+	ChamberSystems		mChamberSystems;
 	StreamsMap			mTrackStreams;
 	StreamsMap			mListStreams;
 	Matrix				mMatrixN;

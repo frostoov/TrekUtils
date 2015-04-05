@@ -2,7 +2,6 @@
 #define VECMATH_MATRIX_HPP
 #include <cstdint>
 #include <vector>
-#include <iostream>
 #include <iomanip>
 #include "vec.hpp"
 
@@ -37,19 +36,16 @@ class TMatrix : protected std::vector<T> {
 		mData.clear();
 	}
 
+	void free() {
+		clear();
+		mData.shrink_to_fit();
+	}
+
 	T& operator()(size_t row, size_t col) {
-		return mData[row*mCol + col];
-	}
-
-	const T& operator()(size_t i, size_t j) const {
-		return mData[i*mCol + j];
-	}
-
-	T& at(size_t row, size_t col) {
 		return mData.at(row*mCol + col);
 	}
 
-	const T& at(size_t row, size_t col) const {
+	const T& operator()(size_t row, size_t col) const {
 		return mData.at(row*mCol + col);
 	}
 
@@ -69,7 +65,7 @@ class TMatrix : protected std::vector<T> {
 	size_t mCol;
 };
 
-}
+} //vecmath
 
 
 #endif // MATRIX

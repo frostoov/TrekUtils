@@ -1,57 +1,80 @@
+#include <iostream>
 #include "chamber.hpp"
 
 namespace trek {
 
+using vecmath::Line2;
+using vecmath::Vec2;
+using vecmath::CoordSystem3;
+using std::runtime_error;
+
 Chamber::Chamber(const ChamberPosition& position)
-	: mPlane(position.plane), mGroup(position.group),
-	  mIsHit(false), mHasTrack(false), mIsSelected(false) {
-	mOct = getOctahedron(position.vertices.at(0),
-						 position.vertices.at(1),
-						 position.vertices.at(2));
+	: mPosition(position), mChamberSystem(getChamberSystem(position.points)),
+	  mOct(getOctahedron(position.points)), mIsHit(false), mHasTrack(false)
+{}
+
+CoordSystem3 Chamber::getChamberSystem(const ChamberPoints& pos) {
+	auto xAxis = Vec3( pos[1] - pos[0] ).ort();
+	auto zAxis = Vec3( pos[2] - pos[0] ).ort();
+	return CoordSystem3(pos[0], xAxis, zAxis);
 }
 
-void Chamber::loadVertices(std::vector<float>& vertex) const
-{
-	for(auto& octVertex : mOct.vertices())
-		for(int i = 0; i < 3; ++i)
-			vertex.push_back(octVertex[i]);
+
+
+Line2 Chamber::getUraganProjection(Line3 track, const CoordSystem3& system) {
+	system.convertTo(track);
+
+	auto& dot1 = track.dot();
+	auto  dot2 = track.dot() + track.vec();
+
+	return Line2(Vec2(dot1.x(), dot1.y()),
+				 Vec2(dot2.x(), dot2.y()));
 }
 
-void Chamber::loadPlgColors(std::vector<float>& colors) const
-{
+Chamber::Line2 Chamber::getUraganProjection(Vec3 p1, Vec3 p2, const CoordSystem3& system) {
+	system.convertTo(p1);
+	system.convertTo(p2);
+
+	return Line2(Vec2(p1.x(), p1.y()),
+				 Vec2(p2.x(), p2.y()));
+}
+
+
+
+void Chamber::loadVertices(std::vector<float>& vertex) const {
+	for(const auto& octVertex : mOct.vertices())
+		for(const auto& val : octVertex)
+			vertex.push_back(val);
+}
+
+void Chamber::loadPlgColors(std::vector<float>& colors) const {
 	for(int k = 0 ; k < 8 ; ++k) {
 		for(int i = 0; i < 3; ++i) {
 			if(isHit()) {
-				if(!i) colors.push_back(0.8f);
-				else   colors.push_back(0.1f);
-			} else
-				colors.push_back(0.5f);
-		}
-		colors.push_back(0.7f);
-	}
-}
-
-void Chamber::loadLineColors(std::vector<float>& colors) const
-{
-	for(short k = 0 ; k < 8 ; ++k) {
-		for(short i = 0; i < 3; ++i) {
-			if(isSelected()) {
-				if(i == 2)
-					colors.push_back(0.8f);
+				if(i == 0)
+					colors.push_back(0.8);
 				else
-					colors.push_back(0.1f);
+					colors.push_back(0.1);
 			} else
-				colors.push_back(0.0);
+				colors.push_back(0.5);
 		}
 		colors.push_back(1.0);
 	}
 }
 
-void Chamber::loadPlgFace(std::vector<uint>& face, uint start) const
-{
-	for(char i = 0 ; i < 4 ; ++ i)
+void Chamber::loadLineColors(std::vector<float>& colors) const {
+	for(int k = 0 ; k < 8 ; ++k) {
+		for(int i = 0; i < 3; ++i) {
+			colors.push_back(0.0);
+		}
+		colors.push_back(1.0);
+	}
+}
+
+void Chamber::loadPlgFace(std::vector<uint>& face, uint start) const {
+	for(int i = 0 ; i < 4 ; ++ i)
 		face.push_back(start + i);
-	for(char i = 4 ; i < 8; ++i)
+	for(int i = 4 ; i < 8; ++i)
 		face.push_back(start + i);
 
 	face.push_back(start + 1);
@@ -75,56 +98,66 @@ void Chamber::loadPlgFace(std::vector<uint>& face, uint start) const
 	face.push_back(start + 7);
 }
 
-void Chamber::loadLineFace(std::vector<uint>& face, uint start) const
-{
-	for(char  k = 0; k <= 4; k += 4) {
-		for(char i = k ; i < k + 3; ++i) {
+void Chamber::loadLineFace(std::vector<uint>& face, uint start) const {
+	for(int  k = 0; k <= 4; k += 4) {
+		for(int i = k ; i < k + 3; ++i) {
 			face.push_back(start + i);
 			face.push_back(start + i + 1);
 		}
 		face.push_back(start + 3 + k);
 		face.push_back(start + k);
 	}
-	for(char i = 0 ; i < 4 ; ++i) {
+	for(int i = 0 ; i < 4 ; ++i) {
 		face.push_back(start + i);
 		face.push_back(start + i + 4);
 	}
 }
 
-Chamber::Plane Chamber::getTrackPlane()
-{
+void Chamber::setTrack(const ChamberEventHandler& handler) {
+	if(handler.hasChamberTrack()) {
+		setTrack(handler.getChamberTrack().line);
+		mHasTrack = true;
+	}
+	if(handler.hasChamberData())
+		for(const auto& wireData : handler.getChamberEvent())
+			if(!wireData.empty()) {
+				mIsHit = true;
+				break;
+			}
+}
+
+Chamber::Plane Chamber::getTrackPlane() const {
 	if(mHasTrack == false)
-		throw std::runtime_error("Chamber: getTrackPlane: no track");
-	auto dot1 = (mOct[0] + mOct[1]) * 0.5;
-	auto dot2 = (mOct[2] + mOct[3]) * 0.5;
-	auto dot3 = (mOct[4] + mOct[5]) * 0.5;
+		throw runtime_error("Chamber: getTrackPlane: no track");
+	return getTrackPlane(mTrack, mPosition.points);
+}
 
-	auto p13 = dot3 - dot1;
-	auto p12 = dot2 - dot1;
-	auto wVec = (p13&p12).ort();
+Chamber::Plane Chamber::getTrackPlane(const Line2& track, const ChamberPoints& pos) {
+	/*Вспомогательные векторы*/
+	const auto p13 = pos.at(2) - pos.at(0);
+	const auto p12 = pos.at(1) - pos.at(0);
+	const auto wVec = (p12&p13).ort();
 
-	auto pt1 = dot1 + wVec*mTrack.line.b();
-	auto pt2 = dot2 + wVec*(mTrack.line.b() + mTrack.line.k() * chamberHeight);
-	auto pt3 = dot3 + wVec*mTrack.line.b();
+	auto pt1 = pos.at(0) + wVec* track.b();
+	auto pt2 = pos.at(1) + wVec*(track.b() + track.k() * mChamberHeight);
+	auto pt3 = pos.at(2) + wVec* track.b();
 
 	return Plane(pt1, pt2, pt3);
 }
 
-Chamber::Octahedron Chamber::getOctahedron(const Vec3& dot1, const Vec3& dot2, const Vec3& dot3) const
-{
+Chamber::Octahedron Chamber::getOctahedron(const ChamberPoints& pos) {
 	Octahedron ret;
-	const int chamWidth = 250;
+	const int chamWidth = mChamberWidth/2;
 
 	/*Вспомогательные векторы*/
-	const auto p13 = dot3 - dot1;
-	const auto p12 = dot2 - dot1;
+	const auto p13 = pos.at(2) - pos.at(0);
+	const auto p12 = pos.at(1) - pos.at(0);
 
-	auto widthVec = p12&p13;
-	widthVec = widthVec.ort()*chamWidth;
+	const auto wVec = (p12&p13).ort();
 
 	/*Развертывание первого полигона*/
-	ret[0] = dot1 + widthVec;
-	ret[1] = dot1 - widthVec;
+	ret[0] = pos.at(0) + wVec*chamWidth;
+	ret[1] = pos.at(0) - wVec*chamWidth;
 	ret[2] = ret[1] + p12;
 	ret[3] = ret[0] + p12;
 
@@ -133,6 +166,15 @@ Chamber::Octahedron Chamber::getOctahedron(const Vec3& dot1, const Vec3& dot2, c
 		ret[i] = ret[i - 4] + p13;
 
 	return ret;
+}
+
+ChamberPoints Chamber::getPoints(const Chamber::Octahedron& oct)
+{
+	auto dot1 = (oct[0] + oct[1])*0.5;
+	auto dot2 = (oct[2] + oct[3])*0.5;
+	auto dot3 = (oct[4] + oct[5])*0.5;
+
+	return {{dot1, dot2, dot3}};
 }
 
 } //trek

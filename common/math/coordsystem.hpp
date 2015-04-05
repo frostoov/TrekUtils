@@ -39,9 +39,7 @@ public:
 		//Line of nodes
 		auto n = (z & Z).ort();
 		//Euler angles
-		auto mAlpha = X.angle(n);
-		auto mGama  = x.angle(n);
-		auto mBeta  = z.angle(Z);
+		auto mAlpha = X.angle(n), mGama = x.angle(n), mBeta = z.angle(Z);
 
 		auto sinA = std::sin(mAlpha), sinB = std::sin(mBeta), sinY = std::sin(mGama);
 		auto cosA = std::cos(mAlpha), cosB = std::cos(mBeta), cosY = std::cos(mGama);
@@ -50,7 +48,7 @@ public:
 		V2[0] = sinA*cosY + cosA*cosB*sinY, V2[1] = -sinA*sinY + cosA*cosB*cosY, V2[2] = -cosA*sinB;
 		V3[0] = sinB*sinY,					V3[1] = sinB*cosY,				     V3[2] = cosB;
 	}
-	void convertTo(Vec3& vec) {
+	void convertTo(Vec3& vec) const {
 		vec -= mOffset;
 		vec = {
 			vec.x()* V1[0] + vec.y()* V1[1] + vec.z()* V1[2],
@@ -58,6 +56,11 @@ public:
 			vec.x()* V3[0] + vec.y()* V3[1] + vec.z()* V3[2],
 		};
 	}
+	void convertTo(Line3& line) const {
+		convertTo(line.vec());
+		convertTo(line.dot());
+	}
+
 private:
 	Vec3 mOffset;
 	T V1[3];
@@ -65,7 +68,10 @@ private:
 	T V3[3];
 };
 
-}
+using CoordSystem2 = TCoordSystem2<double>;
+using CoordSystem3 = TCoordSystem3<double>;
+
+} //vecmath
 
 #endif // VECMATH_COORDSYSTEM_HPP
 

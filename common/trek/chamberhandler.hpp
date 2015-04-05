@@ -2,26 +2,42 @@
 #define CHAMBERMANAGER_HPP
 
 #include <cstdint>
+#include <unordered_map>
 #include <array>
 
 #include "tdcdata/structs.hpp"
-#include "configparser/chamberconfigparser.hpp"
 #include "math/lines.hpp"
 #include "math/coordsystem.hpp"
-#include "math/typedefs.hpp"
 
 namespace trek {
+
+using ChamberPoints = std::array<vecmath::Vec3, 3>;
+/**
+ * @class ChamberPosition
+ * @author frostoov
+ * @date 03/18/15
+ * @file chamberconfigparser.hpp
+ * @brief Описание положения дрейфовой камеры
+ */
+struct ChamberPosition {
+	ChamberPoints points;  /*!< Точки дрейфовой камеры */
+	uint plane;								/*!< Номер плоскости дрейфовой камеры */
+	uint group;								/*!< Номер группы дрейфовой камеры */
+};
+
+using ChamberConfig = std::unordered_map<uintmax_t, ChamberPosition>;
 
 /**
  * @class ChamberEventHandler
  * @author frostoov
  * @date 03/15/15
  * @file chambermanager.hpp
- * @brief Обработка данны события дрейфовой камеры
+ * @brief Обработка mChamberTrackданны события дрейфовой камеры
  */
 class ChamberEventHandler {
-  public:
+public:
 	using Line2			= vecmath::Line2;
+	using Line3			= vecmath::Line3;
 	using Vec2			= vecmath::Vec2;
 	using Vec3			= vecmath::Vec3;
 	using CoordSystem3	= vecmath::CoordSystem3;
@@ -53,20 +69,34 @@ class ChamberEventHandler {
 	 * @brief Устанока данных события дрейфовой камеры и реконструкция трека
 	 * @param chamberData Событие дрейфовой камеры
 	 */
+
 	void setChamberData(const ChamberData& chamberData);
 	/**
-	 * @brief Устанока данных события с УРАГАНа
-	 * @param event Событие с УРАГАНа
+	 * @brief Проверка наличия данных события с дрейфовых камер
+	 * @return флаг наличия реконтрукции трека дрейфовых камер
 	 */
-	void setUraganData(const UraganEvent& event);
+	bool hasChamberData() const  {return mHasChamberData;}
+	/**
+	 * @brief Получение ссылки на событие с дрейфовых камер
+	 */
+	const ChamberData& getChamberEvent() const {
+		if(mHasChamberData)
+			return mChamberData;
+		throw std::runtime_error("ChamberEventHandler: getChamberData: no chamber data");
+	}
+	/**
+	 * @brief Проверка наличия реконструированного трека дрейфовых камер
+	 * @return флаг наличия реконтрукции трека дрейфовых камер
+	 */
+	bool hasChamberTrack()	const { return mHasTrack; }
 	/**
 	 * @brief Получение ссылки на трек, восстановленного по данным дрейфовых камер
 	 */
-	const TrackDesc& getChamberTrack() const;
-	/**
-	 * @brief Получение ссылки на трек, восстановленного по данным c УРАГАНа
-	 */
-	const Line2& getUraganTrack() const;
+	const TrackDesc& getChamberTrack() const {
+		if(mHasTrack)
+			return mChamberTrack;
+		throw std::runtime_error("ChamberEventHandler::getChamberTrack: no chamber track");
+	}
 	/**
 	 * @brief Устанока пьедестала для данных с дрейфовой камеры
 	 * @param pedestal значение пьедестала в [нс]
@@ -77,53 +107,26 @@ class ChamberEventHandler {
 	 * @param speed скорость дрейфа электронов в [мм/нс]
 	 */
 	void setSpeed(double speed) { mSpeed = speed; }
-	/**
-	 * @brief Устанока положения дрейфовой камеры
-	 * @param pos Положения камеры в глобальных координатах НЕВОДа
-	 */
-	void setChamberPosition(const ChamberPosition& pos);
-	void setChamberPosition(const CoordSystem3& system);
-	static CoordSystem3 getChamberSystem(const ChamberPosition& pos);
-	/**
-	 * @brief Сброс положения дрейфовой камеры
-	 */
-	void resetPosition();
-	/**
-	 * @brief Проверка наличия реконструированного трека УРАГАНа
-	 * @return флаг наличия реконтрукции трека УРАГАНа
-	 */
-	bool hasUraganTrack() const { return mHasUraganTrack; }
-	/**
-	 * @brief Проверка наличия реконструированного трека дрейфовых камер
-	 * @return флаг наличия реконтрукции трека дрейфовых камер
-	 */
-	bool hasChamberTrack()	const { return mHasChamberTrack; }
-	/**
-	 * @brief Проверяет, задана ли система координат дрейфовой камеры в системе координа НЕВОД
-	 * @return флаг наличия системы координат дрейфовой камеры
-	 */
-	bool hasChamberSystem() const { return mHasChamberSystem; }
-  protected:
-	size_t	getDepth(const ChamberData& mChamData);
+protected:
+	void	createVariation(const ChamberData& chamData, const std::array<size_t, 4>& indices,
+							size_t offset, std::array<uint32_t, 4>& variant);
+	size_t	getDepth(const ChamberData& chamData);
 	bool	createProjection();
-	double	createProjection(TrackDesc& track);
+	void    createProjection(TrackDesc& track);
 	double	leastSquares(const PointVector& points, Line2& line);
-	bool	checkDepth(const ChamberData& chamData);
 	bool	systemError(TrackDesc& track);
 	double	getSystemError(double r, double ang) { return r*(1/std::cos(ang) - 1); }
-  private:
+private:
+	ChamberData mChamberData;
 	TrackDesc	mChamberTrack;
-	Line2		mUraganTrack;
 
 	uint32_t	mPedestal;
 	double		mSpeed;
 
-	bool		mHasUraganTrack;
-	bool		mHasChamberTrack;
-	bool		mHasChamberSystem;
+	bool		mHasChamberData;
+	bool		mHasTrack;
 
 	const std::array<Vec2, 4> mWires;
-	CoordSystem3	mChamberSystem;
 };
 
 } //trek

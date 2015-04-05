@@ -14,7 +14,7 @@ class AbstractConfigParser {
   protected:
 	AbstractConfigParser() {}
 	template<typename iterator>
-	iterator getToken(iterator iter, const iterator& end, std::string& token) __attribute__((noinline)) {
+	iterator getToken(iterator iter, const iterator& end, std::string& token) {
 		token.clear();
 		if(iter == end)
 			return end;

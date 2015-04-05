@@ -15,9 +15,13 @@
 
 #include "tdcdata/dataset.hpp"
 #include "trek/chamberrender.hpp"
+
 #include "appconfigparser.hpp"
+#include "configparser/chamberconfigparser.hpp"
 
 class MainWindow : public QMainWindow {
+	using Line2         = vecmath::Line2;
+	using ChamberConfig = trek::ChamberConfig;
 	using ChamberEventHandler = trek::ChamberEventHandler;
 	using TUDataSet = tdcdata::DataSet;
 	Q_OBJECT
@@ -46,11 +50,12 @@ class MainWindow : public QMainWindow {
 	QLineEdit*	 currentEventL;
 	QListWidget* chamberList;
 
-	TUDataSet mEventBuffer;
+	TUDataSet			mEventBuffer;
 	ChamberEventHandler mChamberHandler;
 	ChamberRender		mChamberRender;
-	size_t		 mCurrentEvent;
-	size_t		 mCurrentChamber;
+	Line2				uraganProjection;
+	size_t				mCurrentEvent;
+	size_t				mCurrentChamber;
 
 	ChamberConfig mChamberConfig;
 	AppConfig	  mAppConfig;

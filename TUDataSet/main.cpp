@@ -1,9 +1,11 @@
 #include <stdexcept>
 #include <iostream>
 
+#include "tracktest.hpp"
 #include "tdcdata/dataset.hpp"
 #include "tdcdata/paramshandler.hpp"
 #include "tdcdata/eventhandler.hpp"
+#include "configparser/chamberconfigparser.hpp"
 #include "tools.hpp"
 
 using tdcdata::DataSet;
@@ -19,7 +21,7 @@ using std::endl;
 int main(int argc, char* argv[]) {
 	DataSet buffer;
 	ios_base::sync_with_stdio(false);
-	AppFlags flags{{false, false, false}, false, false, false, 0, 0, "./"};
+	AppFlags flags{{false, false, false}, false, false, false, false, 0, 0, "./"};
 	loadFlags(argc, argv, flags);
 
 	ChamberConfigParser parser;
@@ -30,8 +32,8 @@ int main(int argc, char* argv[]) {
 	}
 	cout << "Config has been read" << endl;
 
-	if(flags.handleFlags.tracks ||
-			!(flags.handleFlags.tracks || flags.handleFlags.listing ||flags.handleFlags.matrix)) {
+	if(flags.handleFlags.tracks || flags.fullTrackFlag ||
+			!(flags.handleFlags.tracks || flags.handleFlags.listing ||flags.handleFlags.matrix || flags.fullTrackFlag)) {
 		if (!flags.pedestalFlag || !flags.speedFlag) {
 			ParametersHandler handler;
 			try {
@@ -46,6 +48,16 @@ int main(int argc, char* argv[]) {
 		cout << "pedestal = " << flags.pedestal << endl;
 		cout << "speed = "    << flags.speed << endl;
 	}
+	if(flags.fullTrackFlag) {
+		try {
+			cout << "full track..." << endl;
+			TrackTest testObj(parser.getConfig(), flags.pedestal, flags.speed);
+			handleData(flags.dirName, buffer, testObj);
+		} catch(const exception& e) {
+			cout << e.what() << endl;
+		}
+	}
+
 	if(flags.handleFlags.tracks || flags.handleFlags.listing ||flags.handleFlags.matrix) {
 		EventHandler eventHandler(parser.getConfig(), flags.pedestal, flags.speed);
 		eventHandler.setFlags(flags.handleFlags);

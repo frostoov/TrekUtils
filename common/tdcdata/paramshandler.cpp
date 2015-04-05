@@ -34,7 +34,10 @@ void ParametersHandler::flush() {
 			break;
 		}
 	pedestal = t1;
-	speed = 250. / (t2 - t1);
+	auto delta = (t2 - t1);
+	if(delta == 0)
+		throw std::overflow_error("ParametersHandler::flush: Division by zero");
+	speed = 250./delta;
 	hasChars = true;
 }
 

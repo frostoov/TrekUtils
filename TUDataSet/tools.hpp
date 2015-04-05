@@ -12,6 +12,7 @@
 
 struct AppFlags {
 	tdcdata::EventHandler::HandleFlags handleFlags;
+	bool		fullTrackFlag;
 	bool		pedestalFlag;
 	bool		speedFlag;
 	bool		dirFlag;

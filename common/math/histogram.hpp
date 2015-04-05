@@ -10,7 +10,7 @@ namespace vecmath {
 
 template<typename T>
 class Histogram {
-	using vector = std::vector<uintmax_t>;
+	using vector    = std::vector<uintmax_t>;
 	using size_type = vector::size_type;
   public:
 	using cell = std::pair<T, uintmax_t>;
@@ -39,7 +39,7 @@ class Histogram {
 		return buffer.at(i);
 	}
 	T range(size_t i) {
-		return mBottom + i * mBin;
+		return mBottom + i*mBin;
 	}
 	cell operator [](size_t n) {
 		return {mBottom + n * mBin, buffer.at(n)};

@@ -5,4 +5,5 @@ CONFIG  += oredered
 
 SUBDIRS += \
 	TUDataSet \
-	TUVisualization
+	TUVisualization \
+	TrekViewer

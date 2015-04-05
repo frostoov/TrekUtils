@@ -8,9 +8,6 @@
 
 namespace vecmath {
 
-template<typename T> class TCoordSystem2;
-template<typename T> class TCoordSystem3;
-
 template<typename T>
 class TPlane {
 	using Plane = TPlane<T>;
@@ -120,7 +117,7 @@ class TQuadrangle3 {
 	TQuadrangle3(const Vec3& vtx1,const Vec3& vtx2, const Vec3& vtx3 ,const Vec3& vtx4)
 		:mVertices{{vtx1,vtx2,vtx3,vtx4}} {}
 	Vec3&	operator[](std::size_t i) {
-		return mVertices[i];
+		return mVertices.at(i);
 	}
 	bool checkPoint(const Vec3& vec) {
 		for(short i = 0,j = 1 ; i < 3; ++i,++j) {
@@ -139,7 +136,7 @@ class TQuadrangle3 {
 	}
 
 	bool checkIntersection(const Line3& line, Vec3& point) {
-		point = getPlane().intersectionPoint(line);
+		point = getPlane().getIntersectionPoint(line);
 		return checkPoint(point);
 	}
 
@@ -155,6 +152,7 @@ class TQuadrangle3 {
 
 template<typename T>
 class TOctahedron {
+	using Quadrangle3 = TQuadrangle3<T>;
 	using Octahedron = TOctahedron<T>;
 	using Vec3 = TVec3<T>;
 	using Line3 = TLine3<T>;
@@ -163,15 +161,54 @@ class TOctahedron {
 	TOctahedron(const Vec3& vtx1, const Vec3& vtx2, const Vec3& vtx3, const Vec3& vtx4,
 			   const Vec3& vtx5, const Vec3& vtx6, const Vec3& vtx7, const Vec3& vtx8)
 		: mVertices{{vtx1, vtx2, vtx3, vtx4, vtx5, vtx6, vtx7, vtx8}} {}
-	std::vector<Vec3> checkIntersection(const Line3& line) const;
-	Vec3& operator[](size_t i) { return mVertices.at(i); }
+	std::vector<Vec3> checkIntersection(const Line3& line) const {
+		Vec3 inPoint;
+		std::vector<Vec3> retVec;
+		Quadrangle3 plg(mVertices[0],mVertices[1],mVertices[2],mVertices[3]);
+		if(plg.checkIntersection(line,inPoint))
+			retVec.push_back(inPoint);
+
+		for(auto i = 4 ; i < 8 ; ++i)
+			plg[i - 4] = mVertices[i];
+		if(plg.checkIntersection(line,inPoint))
+			retVec.push_back(inPoint);
+
+		plg[2] = mVertices[1];
+		plg[3] = mVertices[0];
+		if(plg.checkIntersection(line,inPoint))
+			retVec.push_back(inPoint);
+
+		plg[0] = mVertices[6];
+		plg[3] = mVertices[2];
+		if(plg.checkIntersection(line,inPoint))
+			retVec.push_back(inPoint);
+
+		plg[1] = mVertices[7];
+		plg[2] = mVertices[3];
+		if(plg.checkIntersection(line,inPoint))
+			retVec.push_back(inPoint);
+
+		plg[0] = mVertices[4];
+		plg[3] = mVertices[0];
+		if(plg.checkIntersection(line,inPoint))
+			retVec.push_back(inPoint);
+
+		return retVec;
+	}
+	Vec3&       operator[](size_t i)       { return mVertices.at(i); }
 	const Vec3& operator[](size_t i) const { return mVertices.at(i); }
-	std::array<Vec3, 8>& vertices() { return mVertices; }
+
+	std::array<Vec3, 8>&       vertices()       { return mVertices; }
 	const std::array<Vec3, 8>& vertices() const { return mVertices; }
   private:
 	std::array<Vec3, 8> mVertices;
 };
 
-}
+using Plane       = TPlane<double>;
+using Quadrangle2 = TQuadrangle2<double>;
+using Quadrangle3 = TQuadrangle3<double>;
+using Octahedron  = TOctahedron<double>;
+
+} //vecmath
 
 #endif // VECMATH_POLYGON_HPP

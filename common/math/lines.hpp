@@ -2,6 +2,7 @@
 #define VECMATH_LINES_HPP
 
 #include <vector>
+#include <limits>
 #include "vec.hpp"
 
 namespace vecmath {
@@ -16,8 +17,16 @@ public:
 
 	TLine2(const Vec2& dot1, const Vec2& dot2) {
 		auto dirVec = dot1 - dot2;
-		koefK = dirVec.y() / dirVec.x();
+//		if(dirVec.x() != 0) {
+			koefK = dirVec.y() / dirVec.x();
+//		} else {
+//			if(std::numeric_limits<T>::has_infinity)
+//				koefK = std::numeric_limits<T>::infinity();
+//			else
+//				koefK = std::numeric_limits<T>::max();
+//		}
 		koefB = dot1.y() - koefK * dot1.x();
+
 	}
 
 	T& k() { return koefK; }
@@ -77,10 +86,10 @@ public:
 	TLine3() {}
 	TLine3(const Vec3& dot1,const Vec3& dot2) {
 		if(dot1.abs() < dot2.abs()) {
-			mVec = dot2 - dot1;
+			mVec = (dot2 - dot1).ort();
 			mDot = dot1;
 		} else {
-			mVec = dot1 - dot2;
+			mVec = (dot1 - dot2).ort();
 			mDot = dot2;
 		}
 	}
@@ -112,7 +121,10 @@ private:
 	Vec3 mVec;
 };
 
-}
+using Line2 = TLine2<double>;
+using Line3 = TLine3<double>;
+
+} //vecmath
 
 
 #endif // VECMATH_LINES_HPP

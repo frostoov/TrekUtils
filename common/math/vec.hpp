@@ -181,6 +181,9 @@ class TVec3 {
 	TVec3(T x = 0,T y = 0, T z = 0)
 		: mData{x,y,z} {}
 
+	TVec3(const T* data)
+		: mData{data[0], data[1], data[2]} {}
+
 	const T operator*(const Vec3& vec) const {
 		return  mData[0]*vec.mData[0] +
 				mData[1]*vec.mData[1] +
@@ -188,9 +191,14 @@ class TVec3 {
 	}
 
 	const Vec3 operator*(const T& num) const {
-		return {mData[0]* num,
-				mData[1]* num,
-				mData[2]* num};
+		return {mData[0]*num,
+				mData[1]*num,
+				mData[2]*num};
+	}
+	const Vec3 operator/(const T& num) const {
+		return {mData[0]/num,
+				mData[1]/num,
+				mData[2]/num};
 	}
 	const Vec3 operator&(const Vec3& vec) const {
 		return {
@@ -238,6 +246,11 @@ class TVec3 {
 						  std::pow(mData[1], 2) +
 						  std::pow(mData[2], 2) );
 	}
+
+	T range(const Vec3& vec) const {
+		return (*this - vec).abs();
+	}
+
 	const T angle(const Vec3& vec) const {
 		return std::acos((*this*vec)/(this->abs()*vec.abs()) );
 	}
@@ -261,6 +274,9 @@ class TVec3 {
 		return mData[2];
 	}
 
+	T* data() {return mData;}
+	const T* data() const {return mData;}
+
 	T& operator[](unsigned int i) {
 		if(i < 3)
 			return mData[i];
@@ -279,7 +295,7 @@ class TVec3 {
 		mData[2] = Y * s + Z * c;
 	}
 	void rotateY(T ang) {
-		auto c = std::cos(ang),s = std::sin(ang);
+		auto c = std::cos(ang), s = std::sin(ang);
 		auto X = x(),Z = z();
 		mData[0] = X * c + Z * s;
 		mData[2] = Z * c - X * s;
@@ -304,6 +320,13 @@ class TVec3 {
 			V3[0]* x() + V3[1]* y() + V3[2]* z(),
 		};
 	}
+
+	T* begin() {return mData;}
+	T* end()   {return mData + 3;}
+
+	const T* begin() const {return mData;}
+	const T* end()   const {return mData + 3;}
+
   private:
 	T mData[3];
 };

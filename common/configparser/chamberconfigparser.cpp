@@ -42,13 +42,13 @@ bool ChamberConfigParser::parseLine(string& inputString, ChamberPosition& chPos,
 				ndc = stoul(token) - 1;
 				break;
 			case 1:
-				chPos.plane = stoul(token);
-				break;
-			case 2:
 				chPos.group = stoul(token);
 				break;
+			case 2:
+				chPos.plane = stoul(token);
+				break;
 			default:
-				chPos.vertices[(n - 3)/3][(n - 3)%3] = stol(token);
+				chPos.points[(n - 3)/3][(n - 3)%3] = stol(token);
 				break;
 		}
 		++n;

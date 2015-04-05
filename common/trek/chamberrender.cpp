@@ -1,34 +1,31 @@
 #include <stdexcept>
 #include "chamberrender.hpp"
 
-QPixmap const& ChamberRender::getPixmap(int width, int height) {
-	if(mHandler == nullptr)
-		throw std::runtime_error("No mHandler for chamber render");
-
-	if(mPixmapWidth != width && mPixmapHeight != height)
-		mPixmap = QPixmap(width, height);
+QPixmap ChamberRender::getPixmap(int width, int height, const TrackDesc& tTrack,
+								 const Line2& uTrack, const ChamberEvent& event)
+{
+	auto pixmap = QPixmap(width, height);
+	pixmap.fill();
 
 	double scaleX = (double)width/500.;
 	double scaleY = (double)height/112.;
 
-	mPixmap.fill();
-
-	drawPixmap(mPixmap,scaleX,scaleY);
-	mPixmapWidth	 = width;
-	mPixmapHeight	 = height;
-	return mPixmap;
+	drawPixmap(pixmap,scaleX,scaleY, tTrack, uTrack, event);
+	return pixmap;
 }
 
-void ChamberRender::drawPixmap(QPixmap& pix, double scaleX, double scaleY) {
+void ChamberRender::drawPixmap(QPixmap& pix, double scaleX, double scaleY, const TrackDesc& tTrack,
+							   const Line2& uTrack, const ChamberEvent& event) {
 	QPainter painter(&pix);
 	painter.setRenderHint(QPainter::Antialiasing, true);
-	drawWires(painter,scaleX,scaleY);
-	drawChamberPoints(painter,scaleX,scaleY);
-	drawChamberTracks(painter,scaleX,scaleY);
-	drawUraganTracks(painter,scaleX,scaleY);
+	drawWires(painter,scaleX,scaleY, event);
+	drawChamberPoints(painter,scaleX,scaleY, tTrack);
+	drawChamberTracks(painter,scaleX,scaleY, tTrack);
+	drawUraganTracks(painter,scaleX,scaleY,  uTrack);
 }
 
-void ChamberRender::drawWires(QPainter& painter, double scaleX, double scaleY) {
+void ChamberRender::drawWires(QPainter& painter, double scaleX, double scaleY,
+							  const ChamberEvent& event) {
 	painter.setBrush(Qt::white);
 	painter.setPen(Qt::black);
 
@@ -45,17 +42,23 @@ void ChamberRender::drawWires(QPainter& painter, double scaleX, double scaleY) {
 		static_cast<int>(255 * scaleX),
 	};
 
-	for(unsigned i = 0; i < 4; ++i)
-		painter.drawEllipse(X[i] - 5, Y[i] - 5,
-		                    10, 10);
+	for(unsigned i = 0; i < 4; ++i) {
+		if(!event.at(i).empty()) {
+			if(event.at(i).size() == 1)
+				painter.setBrush(Qt::gray);
+			else
+				painter.setBrush(Qt::black);
+		} else
+			painter.setBrush(Qt::white);
+		painter.drawEllipse(X[i] - 5, Y[i] - 5, 10, 10);
+	}
 }
 
-void ChamberRender::drawChamberPoints(QPainter& painter, double scaleX, double scaleY) {
-	if(!mHandler->hasChamberTrack())
-		return;
+void ChamberRender::drawChamberPoints(QPainter& painter, double scaleX, double scaleY,
+									  const TrackDesc& tTrack) {
 	painter.setBrush(Qt::red);
 	painter.setPen( {Qt::white, 0} );
-	auto points = mHandler->getChamberTrack().points;
+	auto points = tTrack.points;
 	convertPoints(points);
 	int x,y;
 	for(const auto p : points) {
@@ -65,21 +68,19 @@ void ChamberRender::drawChamberPoints(QPainter& painter, double scaleX, double s
 	}
 }
 
-void ChamberRender::drawChamberTracks(QPainter& painter, double scaleX, double scaleY) {
-	if(!mHandler->hasChamberTrack())
-		return;
+void ChamberRender::drawChamberTracks(QPainter& painter, double scaleX, double scaleY,
+									  const TrackDesc& tTrack) {
 	painter.setPen( {Qt::green, 2} );
-	auto trackPoints = createTrack( mHandler->getChamberTrack().line );
+	auto trackPoints = createTrack( tTrack.line );
 	convertPoints(trackPoints);
 	auto lines = getLine(trackPoints,scaleX,scaleY);
 	painter.drawLines(lines);
 }
 
-void ChamberRender::drawUraganTracks(QPainter& painter, double scaleX, double scaleY) {
-	if(!mHandler->hasUraganTrack())
-		return;
+void ChamberRender::drawUraganTracks(QPainter& painter, double scaleX, double scaleY,
+									 const Line2& uTrack) {
 	painter.setPen({Qt::blue,2});
-	auto uraganPoints = createTrack( mHandler->getUraganTrack() );
+	auto uraganPoints = createTrack( uTrack );
 	convertPoints(uraganPoints);
 	auto lines = getLine(uraganPoints,scaleX,scaleY);
 	painter.drawLines(lines);
@@ -102,7 +103,7 @@ QVector<QLine> ChamberRender::getLine(const pVector& points, double scaleX, doub
 	QVector<QLine> lines;
 	for(size_t i = 0,l = 1; l < points.size(); i += 2, l += 2)
 		lines.push_back(QLine(points[i].x() * scaleX, points[i].y() * scaleY,
-		                      points[l].x() * scaleX, points[l].y() * scaleY) );
+							  points[l].x() * scaleX, points[l].y() * scaleY) );
 	return lines;
 }
 

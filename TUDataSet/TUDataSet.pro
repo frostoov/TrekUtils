@@ -9,11 +9,13 @@ QMAKE_CXXFLAGS_RELEASE += -O3
 INCLUDEPATH += ../common
 
 HEADERS += \
-	tools.hpp
+	tools.hpp \
+	tracktest.hpp
 
 SOURCES += \
 	main.cpp \
-	tools.cpp
+	tools.cpp \
+	tracktest.cpp
 
 OBJECTS += \
 	../common/chamberconfigparser.o \
@@ -22,3 +24,6 @@ OBJECTS += \
 	../common/event.o \
 	../common/eventhandler.o \
 	../common/paramshandler.o \
+	../common/chamber.o \
+	../common/trekhandler.o \
+

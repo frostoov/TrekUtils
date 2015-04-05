@@ -1,8 +1,8 @@
 #include <iomanip>
 #include <cmath>
 #include <stdexcept>
-#include <iostream>
 
+#include "trek/chamber.hpp"
 #include "event.hpp"
 #include "eventhandler.hpp"
 
@@ -16,10 +16,21 @@ using std::atan;
 using std::pair;
 using std::string;
 
+using vecmath::Vec3;
+
 static constexpr double PI    = 3.14159265358979323846;
 static constexpr double todeg = 180/PI;
 
+EventHandler::EventHandler(const EventHandler::ChamberConfig& config, uint32_t pedestal, double speed)
+	: mChamHandler(pedestal, speed), mMatrixN(matrixRows, matrixCols)
+{
+	using trek::Chamber;
+	for(const auto& chamberPos : config)
+		mChamberSystems.insert( {chamberPos.first, Chamber::getChamberSystem(chamberPos.second.points)} );
+}
+
 void EventHandler::handleEvent(const TUEvent& event) {
+
 	if(mHandleFlags.tracks)
 		printTrack(event);
 	if(mHandleFlags.listing)
@@ -70,8 +81,8 @@ void EventHandler::outputMatriciesMap() {
 		auto cham = matrixTPair.first;
 		for (size_t i = 0; i < matrixE.rows(); ++i)
 			for (size_t j = 0; j < matrixE.columns(); ++j)
-				if(mMatrixN.at(i,j) != 0)
-					matrixE.at(i, j) =  static_cast<double>(matrixT.at(i, j)) / mMatrixN.at(i, j);
+				if(mMatrixN(i,j) != 0)
+					matrixE(i, j) =  static_cast<double>(matrixT(i, j)) / mMatrixN(i, j);
 		outputMatrix(matrixE,"matrixE" + to_string(cham+1));
 	}
 }
@@ -138,34 +149,35 @@ void EventHandler::loadMatrix(const TUEvent& event) {
 		size_t ix= (x/22.+0)+0.5;   		// 22 - размер ячейки
 		size_t iy= (y/22.+0)+0.5;
 		if(ix < mMatrixN.columns() && iy < mMatrixN.rows()) {
-			++mMatrixN.at(iy, ix);
+			++mMatrixN(iy, ix);
 			auto triggChambers = event.getTriggeredChambers();
 			for(auto cham : triggChambers) {
 				if(!mMatricesT.count(cham))
 					mMatricesT.insert({cham, Matrix(matrixRows,matrixCols)});
 				auto& tMatrix = mMatricesT.at(cham);
 				if(eventChecker(event.getTrekEventRaw(), cham) &&
-						iy < tMatrix.rows() && ix < tMatrix.columns())
-					++tMatrix.at(iy, ix);
+				   iy < tMatrix.rows() && ix < tMatrix.columns())
+					++tMatrix(iy, ix);
 			}
 		}
 	}
 }
 
 void EventHandler::printTrack(const TUEvent& event) {
+	using trek::Chamber;
 	auto trekEvent = event.getTrekEvent();
 	for(const auto& chamEvent : trekEvent) {
 		//chamEvent.first  - номер камеры
 		//chamEvent.second - событие
 
-		//Устанавливаем систему координат камеры
-		setChamberPosition(chamEvent.first);
-		//Загружаем данные
-		mChamHandler.setChamberData(chamEvent.second);
-		mChamHandler.setUraganData(event.getUraganEvent());
-		if(!mChamHandler.hasChamberTrack() || !mChamHandler.hasUraganTrack())
+		if( !mChamberSystems.count(chamEvent.first) )
 			continue;
 
+		auto& system = mChamberSystems.at(chamEvent.first);
+		//Загружаем данные
+		mChamHandler.setChamberData(chamEvent.second);
+		if( !mChamHandler.hasChamberTrack() )
+			continue;
 
 		//Если для камеры нет потока, то создаем его
 		if(!mTrackStreams.count(chamEvent.first))
@@ -173,7 +185,8 @@ void EventHandler::printTrack(const TUEvent& event) {
 		auto& str = *mTrackStreams.at(chamEvent.first);
 
 		auto& track  = mChamHandler.getChamberTrack();
-		auto& uragan = mChamHandler.getUraganTrack();
+		auto  uragan = Chamber::getUraganProjection(event.getUraganEvent().chp0,
+													event.getUraganEvent().chp1, system);
 
 		int32_t k1 = track.times[0] - track.times[1] - track.times[2] + track.times[3];
 		int32_t k2 = track.times[0] - 3*track.times[1] + 3*track.times[2] - track.times[3];
@@ -186,14 +199,12 @@ void EventHandler::printTrack(const TUEvent& event) {
 			<< setw(8)  << setfill(' ') << track.dev << '\t'
 			<< setw(8)  << setfill(' ') << trackAngle << '\t'
 			<< setw(8)  << setfill(' ') << track.line.b();
-		if( mChamHandler.hasUraganTrack() ) {
-			auto uraganAngle = atan(uragan.k()) * todeg;
-			str << '\t';
-			str << setw(8)  << setfill(' ') << uraganAngle << '\t'
-				<< setw(8)  << setfill(' ') << uragan.b() << '\t'
-				<< setw(8)  << setfill(' ') << trackAngle - uraganAngle << '\t'
-				<< setw(8)  << setfill(' ') << track.line.b() - uragan.b();
-		}
+		auto uraganAngle = atan(uragan.k()) * todeg;
+		str << '\t';
+		str << setw(8)  << setfill(' ') << uraganAngle << '\t'
+			<< setw(8)  << setfill(' ') << uragan.b() << '\t'
+			<< setw(8)  << setfill(' ') << trackAngle - uraganAngle << '\t'
+			<< setw(8)  << setfill(' ') << track.line.b() - uragan.b();
 		str << '\n';
 	}
 }
@@ -223,20 +234,7 @@ void EventHandler::printListing(const TUEvent& event) {
 	}
 }
 
-void EventHandler::setChamberPosition(uintmax_t cham) {
-	if(mConfig.count(cham)) {
-		if(!mChamSystems.count(cham)) {
-			auto system = ChamberEventHandler::getChamberSystem(mConfig.at(cham) );
-			mChamSystems.insert({cham, system});
-		}
-		mChamHandler.setChamberPosition(mChamSystems.at(cham));
-	} else
-		mChamHandler.resetPosition();
-}
-
 void EventHandler::createTrackStream(StreamsMap& streams, uintmax_t cham) {
-
-	std::cout << "createTrackStream" << std::endl;
 	if(streams.count(cham))
 		return;
 	auto str = new ofstream;
@@ -253,13 +251,11 @@ void EventHandler::createTrackStream(StreamsMap& streams, uintmax_t cham) {
 		 << setw(8)  << setfill(' ') << "dev" << '\t'
 		 << setw(8)  << setfill(' ') << "ang" << '\t'
 		 << setw(8)  << setfill(' ') << "b";
-	if( mChamHandler.hasChamberSystem() ) {
-		*str << '\t';
-		*str << setw(8)  << setfill(' ') << "ang[u]" << '\t'
-			 << setw(8)  << setfill(' ') << "b  [u]" << '\t'
-			 << setw(8)  << setfill(' ') << "dang"   << '\t'
-			 << setw(8)  << setfill(' ') << "db";
-	}
+	*str << '\t';
+	*str << setw(8)  << setfill(' ') << "ang[u]" << '\t'
+		 << setw(8)  << setfill(' ') << "b  [u]" << '\t'
+		 << setw(8)  << setfill(' ') << "dang"   << '\t'
+		 << setw(8)  << setfill(' ') << "db";
 	*str << '\n';
 	streams.insert({cham, str});
 }
@@ -304,6 +300,5 @@ void EventHandler::outputMatrix(std::ostream& str, const vecmath::TMatrix<T>& ma
 		str << '\n';
 	}
 }
-
 
 } //tudata

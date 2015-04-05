@@ -1,7 +1,7 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "appconfigparser.hpp"
+#include "trek/chamber.hpp"
 #include "mainwindow.hpp"
 
 using tdcdata::DataSet;
@@ -13,7 +13,6 @@ using std::set;
 
 MainWindow::MainWindow(QWidget* parent) :
 	QMainWindow(parent), mCurrentEvent(0), mCurrentChamber(0) {
-	mChamberRender.setManager(&mChamberHandler);
 	createWidgets();
 	packWidgets();
 	createAction();
@@ -74,7 +73,12 @@ void MainWindow::loadEvent() {
 		auto  chamberEvent = mEventBuffer.at(mCurrentEvent).getChamberEvent(mCurrentChamber);
 		auto& uraganEvent  = mEventBuffer.at(mCurrentEvent).getUraganEvent();
 		mChamberHandler.setChamberData( chamberEvent );
-		mChamberHandler.setUraganData( uraganEvent );
+
+		if(chamberList->currentItem() != nullptr) {
+			auto system = trek::Chamber::getChamberSystem(mChamberConfig.at(mCurrentChamber).points);
+			uraganProjection = trek::Chamber::getUraganProjection(uraganEvent.chp0, uraganEvent.chp1,
+																  system);
+		}
 	} catch(const exception& e) {
 		errorMessage("Exception", e.what());
 	}
@@ -117,7 +121,6 @@ void MainWindow::setCurrentChamber() {
 		return;
 	try {
 		mCurrentChamber = chamberList->currentItem()->text().toULong() - 1;
-		mChamberHandler.setChamberPosition(mChamberConfig.at(mCurrentChamber));
 		loadEvent();
 		setPixmap();
 		update();
@@ -186,6 +189,11 @@ void MainWindow::errorMessage(const QString& title, const QString& message) {
 }
 
 void MainWindow::setPixmap() {
-	imageLabel->setPixmap( mChamberRender.getPixmap(imageLabel->width(), imageLabel->height()) );
-	update();
+	if(chamberList->currentItem() != nullptr) {
+		auto pixmap = mChamberRender.getPixmap(imageLabel->width(), imageLabel->height(),
+											   mChamberHandler.getChamberTrack(),
+											   uraganProjection, mChamberHandler.getChamberEvent());
+		imageLabel->setPixmap( pixmap );
+		update();
+	}
 }

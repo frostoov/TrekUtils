@@ -68,6 +68,11 @@ void loadFlags(int argc, char* argv[], AppFlags& flags) {
 		}  else if (*argv[i] != '-' && !flags.dirFlag) {
 			flags.dirName = argv[i];
 			flags.dirFlag = true;
+		} else if (!strcmp(argv[i], "-T") || !strcmp(argv[i], "--fulltrack")) {
+			if (!flags.fullTrackFlag)
+				flags.fullTrackFlag = true;
+			else
+				panic("Full Track is already set");
 		} else
 			panic("Unknown flag");
 	}
@@ -75,6 +80,7 @@ void loadFlags(int argc, char* argv[], AppFlags& flags) {
 }
 
 void handleData(const string& path, DataSet& buffer, AbstractEventHandler& handler) {
+	buffer.clear();
 	struct stat fileStat;
 	stat(path.c_str(), &fileStat);
 	if(S_ISDIR(fileStat.st_mode)) {
@@ -104,6 +110,8 @@ void handleData(const string& path, DataSet& buffer, AbstractEventHandler& handl
 			}
 			fileStream.clear(), fileStream.close();
 		}
+		for(const auto& event : buffer)
+			handler.handleEvent(event);
 		handler.flush();
 		closedir(dir);
 		string err(errors.str());
