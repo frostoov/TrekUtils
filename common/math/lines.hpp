@@ -11,14 +11,14 @@ template<typename T>
 class TLine2 {
 	using Line2 = TLine2<T>;
 	using Vec2  = TVec2<T>;
-public:
+  public:
 	TLine2()
 		: koefK(0),koefB(0) {}
 
 	TLine2(const Vec2& dot1, const Vec2& dot2) {
 		auto dirVec = dot1 - dot2;
 //		if(dirVec.x() != 0) {
-			koefK = dirVec.y() / dirVec.x();
+		koefK = dirVec.y() / dirVec.x();
 //		} else {
 //			if(std::numeric_limits<T>::has_infinity)
 //				koefK = std::numeric_limits<T>::infinity();
@@ -73,7 +73,7 @@ public:
 		checkRectangle(x0, x1, y0, y1, points);
 		return points;
 	}
-private:
+  private:
 	T koefK;
 	T koefB;
 };
@@ -82,7 +82,7 @@ template<typename T>
 class TLine3 {
 	using Line3 = TLine3<T>;
 	using Vec3  = TVec3<T>;
-public:
+  public:
 	TLine3() {}
 	TLine3(const Vec3& dot1,const Vec3& dot2) {
 		if(dot1.abs() < dot2.abs()) {
@@ -116,7 +116,7 @@ public:
 		mDot.rotate(vec,ang);
 		mVec.rotate(vec,ang);
 	}
-private:
+  private:
 	Vec3 mDot;
 	Vec3 mVec;
 };

@@ -1,11 +1,16 @@
 #include <fstream>
 #include <stdexcept>
 #include <sstream>
+#include <iostream>
+#include <list>
+#include <cstring>
+#include <unordered_set>
 
 #include "dataset.hpp"
 
 namespace tdcdata {
 
+using sstream = std::stringstream;
 using std::istream;
 using std::ios_base;
 using std::set;
@@ -14,11 +19,14 @@ using std::runtime_error;
 using std::exception;
 using std::ifstream;
 using std::stringstream;
+using std::list;
+using std::unordered_set;
+
 
 static size_t getStreamSize(istream& stream) {
 	auto startPosition = stream.tellg();
 	stream.seekg(0, ios_base::end);
-	auto fileSize = static_cast<size_t>(stream.tellg() );
+	auto fileSize = static_cast<size_t>(stream.tellg());
 	stream.seekg(startPosition);
 	return fileSize;
 }
@@ -42,16 +50,15 @@ std::set<uintmax_t> DataSet::getTriggeredChambers() {
 	return triggChams;
 }
 
-void DataSet::loadTriggeredChambers(std::set<uintmax_t>& triggChams)
-{
+void DataSet::loadTriggeredChambers(std::set<uintmax_t>& triggChams) {
 	for(const auto& event : *this)
 		event.loadTriggeredChambers(triggChams);
 }
 
 void DataSet::append(const string& path) {
 	ifstream fileStream;
-	fileStream.exceptions (ifstream::badbit);
-	fileStream.open(path,ios_base::binary);
+	fileStream.exceptions(ifstream::failbit | ifstream::badbit);
+	fileStream.open(path,ifstream::binary);
 	deserializeStream(fileStream);
 }
 
@@ -69,10 +76,13 @@ void DataSet::deserializeStream(istream& stream) {
 }
 
 void DataSet::parseStream(istream& stream, size_t streamSize) {
-	static uint32_t measurementSize;
-	auto koef = mCurrentHeader.getLSBKoef();
+	uint32_t measurementSize;
 	TUEvent event;
+	auto koef = mCurrentHeader.getLSBKoef();
+
 	while(stream) {
+		if(static_cast<size_t>(stream.tellg()) + getSize<decltype(event.mUraganEvent)>() >= streamSize)
+			break;
 		deserialize(stream, event.mUraganEvent);
 		deserialize(stream, measurementSize);
 		if(streamSize < measurementSize)

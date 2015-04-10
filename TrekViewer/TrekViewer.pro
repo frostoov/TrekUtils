@@ -3,6 +3,7 @@ QT = core gui widgets
 TARGET = TrekViewer
 TEMPLATE = app
 CONFIG += c++11
+CONFIG -= debug_and_release
 
 QMAKE_CXXFLAGS_RELEASE -= -O1
 QMAKE_CXXFLAGS_RELEASE -= -O2
@@ -23,10 +24,10 @@ OBJECTS += \
 	../common/trekhandler.o \
 
 HEADERS += \
-    mainwindow.hpp \
-    trackglwidget.hpp
+	mainwindow.hpp \
+	trackglwidget.hpp
 
 SOURCES += \
-    main.cpp \
-    mainwindow.cpp \
-    trackglwidget.cpp
+	main.cpp \
+	mainwindow.cpp \
+	trackglwidget.cpp

@@ -10,13 +10,13 @@ namespace trek {
 class Chamber {
 	using CoordSystem3 = vecmath::CoordSystem3;
 	using ChamberEvent = tdcdata::TDCEvent::ChamberEvent;
-	using TrackDesc = ChamberEventHandler::TrackDesc;
+	using TrackDesc = ChamberHandler::TrackDesc;
 	using Octahedron = vecmath::Octahedron;
 	using Vec3  = vecmath::Vec3;
 	using Line2 = vecmath::Line2;
 	using Line3 = vecmath::Line3;
 	using Plane = vecmath::Plane;
-public:
+  public:
 	Chamber(const ChamberPosition& position);
 	void loadVertices	(std::vector<float>& vertex) const;
 	void loadPlgColors	(std::vector<float>& colors) const;
@@ -26,7 +26,7 @@ public:
 
 	const Octahedron& octahedron() const { return mOct; }
 
-	void setTrack(const ChamberEventHandler& handler);
+	void setTrack(const ChamberHandler& handler);
 	void setTrack(const Line2& track) {
 		mTrack = track;
 		mHasTrack = true;
@@ -55,10 +55,10 @@ public:
 	Line2 getUraganProjection(const Line3& track) const { return getUraganProjection(track); }
 	static Line2 getUraganProjection(Line3 track, const CoordSystem3& system);
 	static Line2 getUraganProjection(Vec3 p1, Vec3 p2, const CoordSystem3& system);
-protected:
+  protected:
 	static Octahedron getOctahedron(const ChamberPoints& pos);
 	static ChamberPoints getPoints(const Octahedron& oct);
-private:
+  private:
 	ChamberPosition mPosition;
 	CoordSystem3    mChamberSystem;
 	Octahedron      mOct;

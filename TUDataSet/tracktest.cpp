@@ -1,34 +1,37 @@
-#include <iostream>
-#include "tracktest.hpp"
+//#include <iostream>
+//#include "tracktest.hpp"
 
-using namespace std;
+//using namespace std;
 
-TrackTest::TrackTest(const ChamberConfig& config, uint32_t pedestal, double speed)
-	: mTrekHandler(config, pedestal, speed) {
+//static constexpr double PI    = 3.14159265358979323846;
+//static constexpr double todeg = 180./PI;
 
-}
+//TrackTest::TrackTest(const ChamberConfig& config, uint32_t pedestal, double speed)
+//	: mTrekHandler(config, pedestal, speed) {
 
-TrackTest::~TrackTest()
-{
-}
+//}
 
-void TrackTest::handleEvent(const TUEvent& event) {
-	using vecmath::Line3;
-	using vecmath::Vec3;
-	mTrekHandler.loadEvent(event);
-	mTrekHandler.createTrack();
-	if(mTrekHandler.hasTrack()) {
-		const auto& tTrack = mTrekHandler.getTTrack();
-		const auto& uTrack = mTrekHandler.getUTrack();
+//TrackTest::~TrackTest()
+//{
+//}
 
-		auto uVec = uTrack.vec().ort();
-		auto tVec = tTrack.vec().ort();
+//void TrackTest::handleEvent(const TUEvent& event) {
+//	using vecmath::Line3;
+//	using vecmath::Vec3;
+//	mTrekHandler.loadEvent(event);
+//	mTrekHandler.createTrack();
+//	if(mTrekHandler.hasTrack()) {
+//		const auto& tTrack = mTrekHandler.getTTrack();
+//		const auto& uTrack = mTrekHandler.getUTrack();
 
-		double angle = uVec.angle(tVec)*180./3.14;
-		if(angle > 90)
-			angle -= 90;
+//		auto uVec = uTrack.vec().ort();
+//		auto tVec = tTrack.vec().ort();
 
-		cout << angle << std::endl;
-	}
+//		double angle = uVec.angle(tVec)*todeg;
+//		if(angle > 90)
+//			angle = 180 - angle;
 
-}
+//		cout << angle << std::endl;
+//	}
+
+//}

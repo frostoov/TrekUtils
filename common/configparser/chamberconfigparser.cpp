@@ -9,17 +9,15 @@ void ChamberConfigParser::load(const string& fileName) {
 	config.clear();
 
 	ifstream configFile;
-	configFile.exceptions ( std::ofstream::failbit | std::ofstream::badbit );
+	configFile.exceptions (ifstream::failbit | ifstream::badbit );
 	configFile.open(fileName,ios_base::binary);
 
 	string inputString;
-	while(getline(configFile,inputString,'\n')) {
+	while(configFile && getline(configFile,inputString, '\n')) {
 		ChamberPosition chPos;
 		size_t ndc;
 		if( parseLine(inputString,chPos, ndc) && !config.count(ndc))
 			config.insert({ndc, chPos});
-		if(configFile.eof())
-			break;
 	}
 }
 
@@ -34,7 +32,7 @@ bool ChamberConfigParser::parseLine(string& inputString, ChamberPosition& chPos,
 	auto iter = begin(inputString);
 	short n = 0;
 	while( (iter = getToken(iter, end(inputString), token)) != end(inputString) ||
-			!token.empty()) {
+	        !token.empty()) {
 		if(token.empty())
 			continue;
 		switch(n) {

@@ -8,7 +8,7 @@ namespace tdcdata {
 
 class ParametersHandler : public AbstractEventHandler {
 	using Histogram = vecmath::Histogram<uintmax_t>;
-public:
+  public:
 	ParametersHandler()
 		: timeHist(0, 10000, 5), hasChars(false) {}
 	virtual void handleEvent(const TUEvent& event) override;
@@ -24,7 +24,7 @@ public:
 		throw std::runtime_error("ParametersHandler: no speed");
 	}
 
-private:
+  private:
 	Histogram timeHist;
 	uint32_t pedestal;
 	double speed;

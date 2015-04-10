@@ -1,9 +1,8 @@
 #include <stdexcept>
 #include "chamberrender.hpp"
 
-QPixmap ChamberRender::getPixmap(int width, int height, const TrackDesc& tTrack,
-								 const Line2& uTrack, const ChamberEvent& event)
-{
+QPixmap ChamberRender::getPixmap(int width, int height, const TrackDesc* tTrack,
+                                 const Line2* uTrack, const ChamberEvent* event) {
 	auto pixmap = QPixmap(width, height);
 	pixmap.fill();
 
@@ -14,8 +13,8 @@ QPixmap ChamberRender::getPixmap(int width, int height, const TrackDesc& tTrack,
 	return pixmap;
 }
 
-void ChamberRender::drawPixmap(QPixmap& pix, double scaleX, double scaleY, const TrackDesc& tTrack,
-							   const Line2& uTrack, const ChamberEvent& event) {
+void ChamberRender::drawPixmap(QPixmap& pix, double scaleX, double scaleY, const TrackDesc* tTrack,
+                               const Line2* uTrack, const ChamberEvent* event) {
 	QPainter painter(&pix);
 	painter.setRenderHint(QPainter::Antialiasing, true);
 	drawWires(painter,scaleX,scaleY, event);
@@ -25,7 +24,7 @@ void ChamberRender::drawPixmap(QPixmap& pix, double scaleX, double scaleY, const
 }
 
 void ChamberRender::drawWires(QPainter& painter, double scaleX, double scaleY,
-							  const ChamberEvent& event) {
+                              const ChamberEvent* event) {
 	painter.setBrush(Qt::white);
 	painter.setPen(Qt::black);
 
@@ -43,8 +42,8 @@ void ChamberRender::drawWires(QPainter& painter, double scaleX, double scaleY,
 	};
 
 	for(unsigned i = 0; i < 4; ++i) {
-		if(!event.at(i).empty()) {
-			if(event.at(i).size() == 1)
+		if(event != nullptr && !event->at(i).empty()) {
+			if(event->at(i).size() == 1)
 				painter.setBrush(Qt::gray);
 			else
 				painter.setBrush(Qt::black);
@@ -55,35 +54,41 @@ void ChamberRender::drawWires(QPainter& painter, double scaleX, double scaleY,
 }
 
 void ChamberRender::drawChamberPoints(QPainter& painter, double scaleX, double scaleY,
-									  const TrackDesc& tTrack) {
-	painter.setBrush(Qt::red);
-	painter.setPen( {Qt::white, 0} );
-	auto points = tTrack.points;
-	convertPoints(points);
-	int x,y;
-	for(const auto p : points) {
-		x = p.x() * scaleX;
-		y = p.y() * scaleY;
-		painter.drawEllipse(x - 5, y - 5, 10, 10);
+                                      const TrackDesc* tTrack) {
+	if(tTrack != nullptr) {
+		painter.setBrush(Qt::red);
+		painter.setPen( {Qt::white, 0} );
+		auto points = tTrack->points;
+		convertPoints(points);
+		int x,y;
+		for(const auto p : points) {
+			x = p.x() * scaleX;
+			y = p.y() * scaleY;
+			painter.drawEllipse(x - 5, y - 5, 10, 10);
+		}
 	}
 }
 
 void ChamberRender::drawChamberTracks(QPainter& painter, double scaleX, double scaleY,
-									  const TrackDesc& tTrack) {
-	painter.setPen( {Qt::green, 2} );
-	auto trackPoints = createTrack( tTrack.line );
-	convertPoints(trackPoints);
-	auto lines = getLine(trackPoints,scaleX,scaleY);
-	painter.drawLines(lines);
+                                      const TrackDesc* tTrack) {
+	if(tTrack != nullptr) {
+		painter.setPen( {Qt::green, 2} );
+		auto trackPoints = createTrack( tTrack->line );
+		convertPoints(trackPoints);
+		auto lines = getLine(trackPoints,scaleX,scaleY);
+		painter.drawLines(lines);
+	}
 }
 
 void ChamberRender::drawUraganTracks(QPainter& painter, double scaleX, double scaleY,
-									 const Line2& uTrack) {
-	painter.setPen({Qt::blue,2});
-	auto uraganPoints = createTrack( uTrack );
-	convertPoints(uraganPoints);
-	auto lines = getLine(uraganPoints,scaleX,scaleY);
-	painter.drawLines(lines);
+                                     const Line2* uTrack) {
+	if(uTrack != nullptr) {
+		painter.setPen({Qt::blue,2});
+		auto uraganPoints = createTrack( *uTrack );
+		convertPoints(uraganPoints);
+		auto lines = getLine(uraganPoints,scaleX,scaleY);
+		painter.drawLines(lines);
+	}
 }
 
 ChamberRender::pVector ChamberRender::createTracks(const lVector& lines) {
@@ -103,7 +108,7 @@ QVector<QLine> ChamberRender::getLine(const pVector& points, double scaleX, doub
 	QVector<QLine> lines;
 	for(size_t i = 0,l = 1; l < points.size(); i += 2, l += 2)
 		lines.push_back(QLine(points[i].x() * scaleX, points[i].y() * scaleY,
-							  points[l].x() * scaleX, points[l].y() * scaleY) );
+		                      points[l].x() * scaleX, points[l].y() * scaleY) );
 	return lines;
 }
 

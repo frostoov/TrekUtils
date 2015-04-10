@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <vector>
 #include <stdexcept>
+#include <cstring>
 
 #include "serialization.hpp"
 
@@ -12,7 +13,6 @@ namespace tdcdata {
 using UIntVector	= std::vector<uint32_t>;
 
 struct DateTime {
-	/*!<  */
 	uint8_t hsecond;	/*!< сотые секунды */
 	uint8_t second;		/*!< секунда */
 	uint8_t minute;		/*!< минута */
@@ -39,6 +39,12 @@ struct DateTime {
 		::deserialize(stream, month);
 		::deserialize(stream, year);
 	}
+	static constexpr size_t getSize() {
+		return ::getSize<decltype(hsecond)>() + ::getSize<decltype(second)>() +
+		       ::getSize<decltype(minute)>() + ::getSize<decltype(hour)>() +
+		       ::getSize<decltype(day)>() + ::getSize<decltype(month)>() +
+		       ::getSize<decltype(year)>();
+	}
 };
 
 struct NVDEvent {
@@ -58,6 +64,9 @@ struct NVDEvent {
 		::deserialize(stream, tr, sizeof(tr));
 		::deserialize(stream, ti, sizeof(ti));
 		::deserialize(stream, dt, sizeof(dt));
+	}
+	static constexpr size_t getSize() {
+		return ::getSize<decltype(st)>() + sizeof(tr) + sizeof(ti) + sizeof(dt);
 	}
 };
 
@@ -92,6 +101,12 @@ struct UraganEvent { //Структура метки события для TSD
 		::deserialize(stream, chp0, sizeof(chp0));
 		::deserialize(stream, chp1, sizeof(chp1));
 		::deserialize(stream, event);
+	}
+	static constexpr size_t getSize() {
+		return sizeof(start) + ::getSize<decltype(type)>() + ::getSize<decltype(nRun)>() +
+		       ::getSize<decltype(nEvent)>() + ::getSize<decltype(dt)>() +
+		       ::getSize<decltype(trackID)>() +  sizeof(chp0) + sizeof(chp1) +
+		       ::getSize<decltype(event)>();
 	}
 };
 
@@ -135,12 +150,13 @@ struct TdcSettings {
 		::deserialize(stream, status);
 		::deserialize(stream, deadTime);
 	}
-
-	constexpr size_t getSize() const {
-		return ::getSize(trigMode) + ::getSize(subTrig) + ::getSize(tdcMeta) +
-		       ::getSize(winWidth) + ::getSize(winOffset) + ::getSize(detection) +
-		       ::getSize(lsb) + ::getSize(almostFull) + ::getSize(control) +
-		       ::getSize(status) + ::getSize(deadTime);
+	static constexpr size_t getSize() {
+		return ::getSize<decltype(trigMode)>()  + ::getSize<decltype(subTrig)>() +
+		       ::getSize<decltype(tdcMeta)>()   + ::getSize<decltype(winWidth)>() +
+		       ::getSize<decltype(winOffset)>() + ::getSize<decltype(detection)>() +
+		       ::getSize<decltype(lsb)>()       + ::getSize<decltype(almostFull)>() +
+		       ::getSize<decltype(control)>()   + ::getSize<decltype(status)>() +
+		       ::getSize<decltype(deadTime)>();
 	}
 
 };
@@ -181,9 +197,9 @@ struct TUDataSetHeader {
 		::deserialize(stream, settings);
 	}
 
-	constexpr size_t getSize() const {
-		return ::getSize(fileType) + ::getSize(key) + ::getSize(fileSize) +
-		       ::getSize(settings);
+	static constexpr size_t getSize() {
+		return ::getSize<decltype(fileType)>() + ::getSize<decltype(key)>() +
+		       ::getSize<decltype(fileSize)>() + ::getSize<decltype(settings)>();
 	}
 };
 

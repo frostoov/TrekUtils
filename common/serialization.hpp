@@ -48,13 +48,13 @@ inline bool deserialize(std::istream& stream, T& object) {
 }
 
 template<typename T, typename = typename std::enable_if<std::is_fundamental<T>::value>::type>
-constexpr size_t getSize(T val) {
-	return sizeof(val);
+constexpr size_t getSize() {
+	return sizeof(T);
 }
 
 template<typename T, typename = typename std::enable_if<std::is_class<T>::value>::type>
-constexpr size_t getSize(const T& object) {
-	return object.getSize();
+constexpr size_t getSize(void* = nullptr) {
+	return T::getSize();
 }
 
 #endif // SERIALIZTION

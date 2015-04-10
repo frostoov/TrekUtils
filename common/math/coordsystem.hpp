@@ -9,7 +9,7 @@ template <typename T>
 class TCoordSystem2 {
 	using Vec2  = TVec2<T>;
 	using Line2 = TLine2<T>;
-public:
+  public:
 	TCoordSystem2(Vec2 _offset, T _ang)
 		: mOffset(_offset), mAng(_ang) {}
 	void convert(Vec2& vec) const {
@@ -21,7 +21,7 @@ public:
 		convert(line.dot());
 		convert(line.vec());
 	}
-private:
+  private:
 	Vec2 mOffset;
 	T	 mAng;
 };
@@ -29,7 +29,7 @@ private:
 template <typename T>
 class TCoordSystem3 {
 	using Vec3 = TVec3<T>;
-public:
+  public:
 	TCoordSystem3()
 		: V1{0, 0, 0}, V2{0, 0, 0}, V3{0, 0, 0} {}
 	TCoordSystem3(const Vec3& _offset, const Vec3& X, /*const Vec3 &Y,*/ const Vec3& Z)
@@ -61,7 +61,7 @@ public:
 		convertTo(line.dot());
 	}
 
-private:
+  private:
 	Vec3 mOffset;
 	T V1[3];
 	T V2[3];

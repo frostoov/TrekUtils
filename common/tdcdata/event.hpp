@@ -23,10 +23,10 @@ enum class EventType {
  */
 class TDCEvent {
 	friend class DataSet;
-public:
+  public:
 	using ChamberEvent	= std::array<UIntVector, 4>;
 	using TrekEvent		= std::unordered_map<size_t,ChamberEvent>;
-public:
+  public:
 	TDCEvent() : mType(EventType::simple) {}
 	/**
 	 * @brief Возвращает время измерения
@@ -82,12 +82,12 @@ public:
 	 * @param triggChambers Множество, в которое будут загружны номера сработавших камер
 	 */
 	void loadTriggeredChambers(std::set<uintmax_t>& triggChambers) const;
-protected:
+  protected:
 	TDCEvent(EventType type) : mType(type) {}
 	void setTrekData(const UIntVector& data) { mTrekEvent = data; }
 	void pushMsr(uint32_t word) { mTrekEvent.push_back(word); }
 	const EventType mType;
-private:
+  private:
 	UIntVector		mTrekEvent;		/*!< Вектор с сырыми записями. */
 };
 
@@ -101,19 +101,19 @@ private:
 class TUEvent : public TDCEvent {
 	friend class DataSet;
 	/** Типы событий */
-public:
+  public:
 	using ChamberEvent	= std::array<UIntVector, 4>;
 	using TrekEvent		= std::unordered_map<size_t,ChamberEvent>;
-public:
+  public:
 	TUEvent() : TDCEvent(EventType::uragan) {}
 	/**
 	 * @brief Получение события с урагана
 	 * @return Ссылка на константную структура с данными события УРАГАНа
 	 */
 	const UraganEvent& getUraganEvent() const { return mUraganEvent; }
-protected:
+  protected:
 	void setUraganData	(const UraganEvent& data) { mUraganEvent = data; }
-private:
+  private:
 	UraganEvent mUraganEvent;	/*!< Событие с урагана */
 };
 
@@ -126,7 +126,7 @@ private:
  * @brief Класс задает интерфейс для обработки DataSet-ов
  */
 class AbstractEventHandler {
-public:
+  public:
 	virtual ~AbstractEventHandler() {}
 	/**
 	 * @brief Обработка единичного события
@@ -137,7 +137,7 @@ public:
 	 * @brief Завершение обработки данных
 	 */
 	virtual void flush() = 0;
-protected:
+  protected:
 	AbstractEventHandler() {}
 };
 

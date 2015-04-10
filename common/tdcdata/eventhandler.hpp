@@ -13,10 +13,10 @@
 namespace tdcdata {
 
 class EventHandler : public AbstractEventHandler {
-	using CoordSystem3        = vecmath::CoordSystem3;
-	using ChamberSystems      = std::unordered_map<uintmax_t, CoordSystem3>;
-	using ChamberConfig       = trek::ChamberConfig;
-	using ChamberEventHandler = trek::ChamberEventHandler;
+	using CoordSystem3     = vecmath::CoordSystem3;
+	using ChamberSystems   = std::unordered_map<uintmax_t, CoordSystem3>;
+	using ChamberConfig    = trek::ChamberConfig;
+	using ChamberHandler   = trek::ChamberHandler;
 	using Matrix	       = vecmath::TMatrix<uintmax_t>;
 	using DMatrix	       = vecmath::TMatrix<double>;
 	using StreamsMap       = std::unordered_map<std::uintmax_t, std::ofstream*>;
@@ -48,6 +48,7 @@ class EventHandler : public AbstractEventHandler {
 	void outputMatriciesMap();
 	void outputMatriciesMap(const MatricesMap& matrices, const std::string& pattern);
 	void printTrack(const TUEvent& event);
+	void printProjection(const TUEvent& event);
 	void printListing(const TUEvent& event);
 	void loadMatrix(const TUEvent& event);
 	void createTrackStream(StreamsMap& streams, uintmax_t cham);
@@ -58,7 +59,7 @@ class EventHandler : public AbstractEventHandler {
 	template<typename T>
 	void outputMatrix(std::ostream& str, const vecmath::TMatrix<T>& matrix);
   private:
-	ChamberEventHandler mChamHandler;
+	ChamberHandler		mChamHandler;
 	ChamberSystems		mChamberSystems;
 	StreamsMap			mTrackStreams;
 	StreamsMap			mListStreams;
@@ -69,6 +70,11 @@ class EventHandler : public AbstractEventHandler {
 
 	static const uintmax_t		matrixRows = 161;
 	static const uintmax_t		matrixCols = 161;
+
+	uintmax_t goodEvents;
+	uintmax_t badEvents;
+	uintmax_t fullEmpty;
+	uintmax_t emptyEvents;
 };
 
 } //tudata

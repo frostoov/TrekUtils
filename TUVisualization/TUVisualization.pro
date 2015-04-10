@@ -3,6 +3,7 @@ QT = core gui widgets
 TARGET   = TUVisualization
 TEMPLATE = app
 CONFIG   += exceptions c++11 warn_on
+CONFIG -= debug_and_release
 
 QMAKE_CXXFLAGS_RELEASE -= -O1
 QMAKE_CXXFLAGS_RELEASE -= -O2

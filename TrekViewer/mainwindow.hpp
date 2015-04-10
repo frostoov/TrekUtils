@@ -20,18 +20,18 @@ class MainWindow : public QMainWindow {
 	using ChamberConfig = trek::ChamberConfig;
 	using TrekHandler   = trek::TrekHandler;
 	Q_OBJECT
-public:
+  public:
 	explicit MainWindow(QWidget* parent = nullptr);
 	~MainWindow();
-protected:
+  protected:
 	virtual void keyPressEvent(QKeyEvent* ke);
 
 	void createAction();
 	void createMenues();
 	void errorMessage(const QString& title, const QString& message);
-protected slots:
+  protected slots:
 	void openData();
-private:
+  private:
 	TrekHandler*   mTrekHandler;
 	TrekGLWidget*  mTrekWidget;
 	DataSet		  mBuffer;

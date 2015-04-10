@@ -13,7 +13,7 @@ class TPlane {
 	using Plane = TPlane<T>;
 	using Line3 = TLine3<T>;
 	using Vec3  = TVec3<T>;
-public:
+  public:
 	TPlane() {}
 	TPlane(const Vec3& dot1, const Vec3& dot2, const Vec3& dot3) {
 		mNorm = ((dot2 - dot1)&(dot3 - dot1)).ort();
@@ -31,7 +31,7 @@ public:
 		/*Находим точку лежащую на прямой*/
 		if(norm1.x() * norm2.y() - norm1.x() * norm2.y()) {
 			dot.y() = ( norm2.x() * plane1.d() - norm1.x() * plane2.d() ) /
-					   ( norm1.x() * norm2.y()  - norm2.x() * norm1.y());
+			          ( norm1.x() * norm2.y()  - norm2.x() * norm1.y());
 			if( norm1.x() )
 				dot.x() = (-plane1.d() - norm1.y() * dot.y()) / norm1.x();
 			else if(norm2.x())
@@ -39,7 +39,7 @@ public:
 			dot.z() = 0;
 		} else if(norm2.y() * norm1.z() - norm1.y() * norm2.z()) {
 			dot.z() = (norm1.y() * plane2.d() - norm2.y() * plane1.d()) /
-					   (norm2.y() * norm1.z()  - norm1.y() * norm2.z());
+			          (norm2.y() * norm1.z()  - norm1.y() * norm2.z());
 			if(norm1.y())
 				dot.y() = (-plane1.d() - norm1.z() * dot.z()) / norm1.y();
 			else if(norm2.y())
@@ -47,7 +47,7 @@ public:
 			dot.x() = 0;
 		} else if(norm2.x() * norm1.z() - norm1.x() * norm2.z()) {
 			dot.z() = (norm1.x() * plane2.d() - norm2.x() * plane1.d()) /
-					   (norm2.x() * norm1.z()  - norm1.x() * norm2.z());
+			          (norm2.x() * norm1.z()  - norm1.x() * norm2.z());
 			if(norm1.x())
 				dot.x() = (-plane1.d() - norm1.z() * dot.z()) / norm1.x();
 			else if(norm2.x())
@@ -68,7 +68,7 @@ public:
 		auto t = -((mNorm*line.dot()) + mD)/(mNorm*line.vec());
 		return (line.vec()*t) + line.dot();
 	}
-private:
+  private:
 	Vec3 mNorm;
 	T mD;
 };
@@ -123,10 +123,10 @@ class TQuadrangle3 {
 		for(short i = 0,j = 1 ; i < 3; ++i,++j) {
 			if(j == 3) j = 0;
 			Quadrangle2 tmpRect(
-				Vec2{ mVertices[0][i] , mVertices[0][j] },
-				Vec2{ mVertices[1][i] , mVertices[1][j] },
-				Vec2{ mVertices[2][i] , mVertices[2][j] },
-				Vec2{ mVertices[3][i] , mVertices[3][j] }
+			    Vec2{ mVertices[0][i] , mVertices[0][j] },
+			    Vec2{ mVertices[1][i] , mVertices[1][j] },
+			    Vec2{ mVertices[2][i] , mVertices[2][j] },
+			    Vec2{ mVertices[3][i] , mVertices[3][j] }
 			);
 			Vec2 tmpDot(vec[i],vec[j]);
 			if(!tmpRect.checkDot(tmpDot))
@@ -159,7 +159,7 @@ class TOctahedron {
   public:
 	TOctahedron() {}
 	TOctahedron(const Vec3& vtx1, const Vec3& vtx2, const Vec3& vtx3, const Vec3& vtx4,
-			   const Vec3& vtx5, const Vec3& vtx6, const Vec3& vtx7, const Vec3& vtx8)
+	            const Vec3& vtx5, const Vec3& vtx6, const Vec3& vtx7, const Vec3& vtx8)
 		: mVertices{{vtx1, vtx2, vtx3, vtx4, vtx5, vtx6, vtx7, vtx8}} {}
 	std::vector<Vec3> checkIntersection(const Line3& line) const {
 		Vec3 inPoint;

@@ -22,7 +22,7 @@
 class MainWindow : public QMainWindow {
 	using Line2         = vecmath::Line2;
 	using ChamberConfig = trek::ChamberConfig;
-	using ChamberEventHandler = trek::ChamberEventHandler;
+	using ChamberEventHandler = trek::ChamberHandler;
 	using TUDataSet = tdcdata::DataSet;
 	Q_OBJECT
   public:

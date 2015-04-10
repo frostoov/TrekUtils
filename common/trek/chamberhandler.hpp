@@ -28,14 +28,14 @@ struct ChamberPosition {
 using ChamberConfig = std::unordered_map<uintmax_t, ChamberPosition>;
 
 /**
- * @class ChamberEventHandler
+ * @class ChamberHandler
  * @author frostoov
  * @date 03/15/15
  * @file chambermanager.hpp
  * @brief Обработка mChamberTrackданны события дрейфовой камеры
  */
-class ChamberEventHandler {
-public:
+class ChamberHandler {
+  public:
 	using Line2			= vecmath::Line2;
 	using Line3			= vecmath::Line3;
 	using Vec2			= vecmath::Vec2;
@@ -64,7 +64,7 @@ public:
 		double					dev;		/*!< Отклонение линии */
 		std::array<uint32_t, 4>	times;		/*!< Вермена с TDC */
 	};
-	ChamberEventHandler(uint32_t pedestal = 0, double speed = 0);
+	ChamberHandler(uint32_t pedestal = 0, double speed = 0);
 	/**
 	 * @brief Устанока данных события дрейфовой камеры и реконструкция трека
 	 * @param chamberData Событие дрейфовой камеры
@@ -107,16 +107,16 @@ public:
 	 * @param speed скорость дрейфа электронов в [мм/нс]
 	 */
 	void setSpeed(double speed) { mSpeed = speed; }
-protected:
+  protected:
 	void	createVariation(const ChamberData& chamData, const std::array<size_t, 4>& indices,
-							size_t offset, std::array<uint32_t, 4>& variant);
+	                        size_t offset, std::array<uint32_t, 4>& variant);
 	size_t	getDepth(const ChamberData& chamData);
 	bool	createProjection();
 	void    createProjection(TrackDesc& track);
 	double	leastSquares(const PointVector& points, Line2& line);
 	bool	systemError(TrackDesc& track);
 	double	getSystemError(double r, double ang) { return r*(1/std::cos(ang) - 1); }
-private:
+  private:
 	ChamberData mChamberData;
 	TrackDesc	mChamberTrack;
 

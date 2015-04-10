@@ -65,34 +65,37 @@ void MainWindow::keyPressEvent(QKeyEvent* ke) {
 	try {
 		QMainWindow::keyPressEvent(ke);
 		std::set<uint> triggPlanes;
+		auto eventChecker = [&](const tdcdata::TUEvent& event)->bool {
+			if (event.getUraganEvent().trackID != 0)
+				return false;
+			triggPlanes.clear();
+			auto triggChambers = event.getTriggeredChambers();
+			for(const auto& cham : triggChambers)
+				triggPlanes.insert(mTrekHandler->getChambers().at(cham).getPlane());
+			if(triggPlanes.size() == 2 || ke->modifiers() == Qt::ShiftModifier)
+				return true;
+			else
+				return false;
+		};
 		if(ke->key() == Qt::Key_PageDown && mCurrentEvent) {
 			while(mCurrentEvent) {
 				--mCurrentEvent;
-				triggPlanes.clear();
-				auto triggChambers = mBuffer.at(mCurrentEvent).getTriggeredChambers();
-				for(const auto& cham : triggChambers)
-					triggPlanes.insert(mTrekHandler->getChambers().at(cham).getPlane());
-				if(triggPlanes.size() == 2)
+				if(eventChecker(mBuffer.at(mCurrentEvent)) || ke->modifiers() == Qt::ShiftModifier)
 					break;
 			}
 			mTrekHandler->loadEvent( mBuffer.at(mCurrentEvent) );
 			mTrekHandler->createTrack();
 			mTrekWidget->loadObjects();
 		} else if(ke->key() == Qt::Key_PageUp && mCurrentEvent < mBuffer.size() ) {
-			while(mCurrentEvent < mBuffer.size()) {
+			while(mCurrentEvent < mBuffer.size() - 1) {
 				++mCurrentEvent;
-				triggPlanes.clear();
-				auto triggChambers = mBuffer.at(mCurrentEvent).getTriggeredChambers();
-				for(const auto& cham : triggChambers)
-					triggPlanes.insert(mTrekHandler->getChambers().at(cham).getPlane());
-				if(triggPlanes.size() == 2)
+				if(eventChecker(mBuffer.at(mCurrentEvent)) || ke->modifiers() == Qt::ShiftModifier)
 					break;
 			}
 			mTrekHandler->loadEvent( mBuffer.at(mCurrentEvent) );
 			mTrekHandler->createTrack();
 			mTrekWidget->loadObjects();
 		}
-		std::cout << "Event " << mCurrentEvent << std::endl;
 	} catch(const exception& e) {
 		errorMessage("Exception", e.what());
 	}
@@ -106,9 +109,9 @@ void MainWindow::createAction() {
 	quitAppAction->setShortcuts(QKeySequence::Quit);
 
 	connect(openEvtAction,	&QAction::triggered,
-			this,			&MainWindow::openData);
+	        this,			&MainWindow::openData);
 	connect(quitAppAction,	&QAction::triggered,
-			qApp,			&QApplication::quit);
+	        qApp,			&QApplication::quit);
 }
 
 void MainWindow::createMenues() {

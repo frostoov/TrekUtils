@@ -1,6 +1,7 @@
 TEMPLATE = app
 TARGET   = TUDataSet
 CONFIG   = exceptions c++11 warn_on
+CONFIG -= debug_and_release
 
 QMAKE_CXXFLAGS_RELEASE -= -O1
 QMAKE_CXXFLAGS_RELEASE -= -O2
@@ -18,6 +19,7 @@ SOURCES += \
 	tracktest.cpp
 
 OBJECTS += \
+	../common/flagparser.o \
 	../common/chamberconfigparser.o \
 	../common/chamberhandler.o \
 	../common/dataset.o \

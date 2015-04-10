@@ -19,11 +19,11 @@ MainWindow::MainWindow(QWidget* parent) :
 	createMenu();
 
 	connect(openAction,		&QAction::triggered,
-			this,			&MainWindow::openFile);
+	        this,			&MainWindow::openFile);
 	connect(currentEventL,	&QLineEdit::editingFinished,
-			this,			&MainWindow::setCurrentEvent);
+	        this,			&MainWindow::setCurrentEvent);
 	connect(chamberList,	&QListWidget::currentRowChanged,
-			this,			&MainWindow::setCurrentChamber);
+	        this,			&MainWindow::setCurrentChamber);
 
 	setCentralWidget(centralWidget);
 	ChamberConfigParser chamberParser;
@@ -77,7 +77,7 @@ void MainWindow::loadEvent() {
 		if(chamberList->currentItem() != nullptr) {
 			auto system = trek::Chamber::getChamberSystem(mChamberConfig.at(mCurrentChamber).points);
 			uraganProjection = trek::Chamber::getUraganProjection(uraganEvent.chp0, uraganEvent.chp1,
-																  system);
+			                   system);
 		}
 	} catch(const exception& e) {
 		errorMessage("Exception", e.what());
@@ -190,9 +190,12 @@ void MainWindow::errorMessage(const QString& title, const QString& message) {
 
 void MainWindow::setPixmap() {
 	if(chamberList->currentItem() != nullptr) {
+		auto chamberTrack = mChamberHandler.hasChamberTrack() ? &mChamberHandler.getChamberTrack() : nullptr;
+		auto chamberEvent = mChamberHandler.hasChamberData()  ? &mChamberHandler.getChamberEvent() : nullptr;
+		auto uragaTrack   = &uraganProjection;
+
 		auto pixmap = mChamberRender.getPixmap(imageLabel->width(), imageLabel->height(),
-											   mChamberHandler.getChamberTrack(),
-											   uraganProjection, mChamberHandler.getChamberEvent());
+		                                       chamberTrack, uragaTrack, chamberEvent);
 		imageLabel->setPixmap( pixmap );
 		update();
 	}

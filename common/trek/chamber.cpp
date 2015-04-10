@@ -28,7 +28,7 @@ Line2 Chamber::getUraganProjection(Line3 track, const CoordSystem3& system) {
 	auto  dot2 = track.dot() + track.vec();
 
 	return Line2(Vec2(dot1.x(), dot1.y()),
-				 Vec2(dot2.x(), dot2.y()));
+	             Vec2(dot2.x(), dot2.y()));
 }
 
 Chamber::Line2 Chamber::getUraganProjection(Vec3 p1, Vec3 p2, const CoordSystem3& system) {
@@ -36,7 +36,7 @@ Chamber::Line2 Chamber::getUraganProjection(Vec3 p1, Vec3 p2, const CoordSystem3
 	system.convertTo(p2);
 
 	return Line2(Vec2(p1.x(), p1.y()),
-				 Vec2(p2.x(), p2.y()));
+	             Vec2(p2.x(), p2.y()));
 }
 
 
@@ -64,9 +64,8 @@ void Chamber::loadPlgColors(std::vector<float>& colors) const {
 
 void Chamber::loadLineColors(std::vector<float>& colors) const {
 	for(int k = 0 ; k < 8 ; ++k) {
-		for(int i = 0; i < 3; ++i) {
+		for(int i = 0; i < 3; ++i)
 			colors.push_back(0.0);
-		}
 		colors.push_back(1.0);
 	}
 }
@@ -113,7 +112,7 @@ void Chamber::loadLineFace(std::vector<uint>& face, uint start) const {
 	}
 }
 
-void Chamber::setTrack(const ChamberEventHandler& handler) {
+void Chamber::setTrack(const ChamberHandler& handler) {
 	if(handler.hasChamberTrack()) {
 		setTrack(handler.getChamberTrack().line);
 		mHasTrack = true;
@@ -168,8 +167,7 @@ Chamber::Octahedron Chamber::getOctahedron(const ChamberPoints& pos) {
 	return ret;
 }
 
-ChamberPoints Chamber::getPoints(const Chamber::Octahedron& oct)
-{
+ChamberPoints Chamber::getPoints(const Chamber::Octahedron& oct) {
 	auto dot1 = (oct[0] + oct[1])*0.5;
 	auto dot2 = (oct[2] + oct[3])*0.5;
 	auto dot3 = (oct[4] + oct[5])*0.5;

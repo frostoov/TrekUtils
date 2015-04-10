@@ -8,7 +8,7 @@
 using AppConfig = std::unordered_map<std::string, std::string>;
 
 class AppConfigParser : public AbstractConfigParser {
-public:
+  public:
 	AppConfigParser();
 
 	virtual void load(const std::string& fileName) override;
@@ -16,9 +16,9 @@ public:
 
 	AppConfig& getConfig() {return mConfig;}
 	const AppConfig& getConfig() const {return mConfig;}
-protected:
+  protected:
 	void parseString(const std::string& inputString, AppConfig& config);
-private:
+  private:
 	AppConfig mConfig;
 };
 

@@ -95,9 +95,8 @@ Line3 TrekGLWidget::expandLine(QPoint pnt, const glm::mat4& model, const glm::ma
 }
 
 void TrekGLWidget::loadTrack() {
-	if(mTrekHandler == nullptr) {
+	if(mTrekHandler == nullptr)
 		return;
-	}
 	unsigned startVertex = rData.vertex.size()/3;
 	mTrekHandler->loadVertices	(rData.vertex);
 	mTrekHandler->loadLineColors(rData.colorLine);
@@ -116,7 +115,7 @@ void TrekGLWidget::loadVBOs() {
 void TrekGLWidget::loadVerticesVBO() {
 	glFuncs->glBindBuffer(GL_ARRAY_BUFFER,vbo.vertex);
 	glFuncs->glBufferData(GL_ARRAY_BUFFER,rData.vertex.size() * sizeof(float),
-						  rData.vertex.data(),GL_STATIC_DRAW);
+	                      rData.vertex.data(),GL_STATIC_DRAW);
 	clearVerticesData();
 }
 
@@ -129,13 +128,13 @@ void TrekGLWidget::loadColorVBOs() {
 void TrekGLWidget::loadColorPlgVBO() {
 	glFuncs->glBindBuffer(GL_ARRAY_BUFFER,vbo.colorPlg);
 	glFuncs->glBufferData(GL_ARRAY_BUFFER,rData.colorPlg.size() * sizeof(float),
-						  rData.colorPlg.data(),GL_STATIC_DRAW);
+	                      rData.colorPlg.data(),GL_STATIC_DRAW);
 }
 
 void TrekGLWidget::loadColorLineVBO() {
 	glFuncs->glBindBuffer(GL_ARRAY_BUFFER,vbo.colorLine);
 	glFuncs->glBufferData(GL_ARRAY_BUFFER,rData.colorLine.size() * sizeof(float),
-						  rData.colorLine.data(),GL_STATIC_DRAW);
+	                      rData.colorLine.data(),GL_STATIC_DRAW);
 }
 
 void TrekGLWidget::loadFaceVBOs() {
@@ -150,12 +149,12 @@ void TrekGLWidget::loadFaceVBOs() {
 void TrekGLWidget::loadFacePlgVBO() {
 	glFuncs->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,vbo.facePlg);
 	glFuncs->glBufferData(GL_ELEMENT_ARRAY_BUFFER,rData.facePlg.size() * sizeof(unsigned),
-						  rData.facePlg.data(),GL_STATIC_DRAW);
+	                      rData.facePlg.data(),GL_STATIC_DRAW);
 }
 void TrekGLWidget::loadFaceLineVBO() {
 	glFuncs->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,vbo.faceLine);
 	glFuncs->glBufferData(GL_ELEMENT_ARRAY_BUFFER,rData.faceLine.size() * sizeof(unsigned),
-						  rData.faceLine.data(),GL_STATIC_DRAW);
+	                      rData.faceLine.data(),GL_STATIC_DRAW);
 }
 
 void TrekGLWidget::clearVerticesData() {
@@ -217,8 +216,8 @@ void TrekGLWidget::initializeGL() {
 	glFuncs->glDepthFunc( GL_LEQUAL );
 
 	glFuncs->glHint( GL_PERSPECTIVE_CORRECTION_HINT	|
-					 GL_LINE_SMOOTH_HINT			|
-					 GL_POLYGON_SMOOTH,GL_NICEST );
+	                 GL_LINE_SMOOTH_HINT			|
+	                 GL_POLYGON_SMOOTH,GL_NICEST );
 	initShaders();
 	genBuffers();
 }
@@ -231,26 +230,26 @@ void TrekGLWidget::resizeGL(int w, int h) {
 
 void TrekGLWidget::initShaders() {
 	const char* vertexShaderSource =
-			"#version 120\n"
-			"uniform mat4 projection_matrix;\n"
-			"uniform mat4 modelview_matrix;\n"
+	    "#version 120\n"
+	    "uniform mat4 projection_matrix;\n"
+	    "uniform mat4 modelview_matrix;\n"
 
-			"attribute vec3 vertex;\n"
-			"attribute vec4 aColor;\n"
-			"varying vec4 color;\n"
+	    "attribute vec3 vertex;\n"
+	    "attribute vec4 aColor;\n"
+	    "varying vec4 color;\n"
 
-			"void main() {\n"
-			"	gl_Position = projection_matrix * modelview_matrix * vec4(vertex, 1.0);\n"
-			"	color = aColor;\n"
-			"}\n";
+	    "void main() {\n"
+	    "	gl_Position = projection_matrix * modelview_matrix * vec4(vertex, 1.0);\n"
+	    "	color = aColor;\n"
+	    "}\n";
 
 	const char* fragShaderSource =
-			"#version 120\n"
-			"varying vec4 color;\n"
+	    "#version 120\n"
+	    "varying vec4 color;\n"
 
-			"void main() {\n"
-			"	gl_FragColor = color;\n"
-			"}\n";
+	    "void main() {\n"
+	    "	gl_FragColor = color;\n"
+	    "}\n";
 
 	//Создаем вершинный шейдер
 	auto vShader = glFuncs->glCreateShader(GL_VERTEX_SHADER);

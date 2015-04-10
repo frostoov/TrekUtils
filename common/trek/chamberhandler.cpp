@@ -8,20 +8,20 @@ using std::array;
 using std::runtime_error;
 using std::numeric_limits;
 
-using CoordSystem3	= ChamberEventHandler::CoordSystem3;
-using TrackDesc		= ChamberEventHandler::TrackDesc;
-using Line2			= ChamberEventHandler::Line2;
+using CoordSystem3	= ChamberHandler::CoordSystem3;
+using TrackDesc		= ChamberHandler::TrackDesc;
+using Line2			= ChamberHandler::Line2;
 
 template <typename T> int sign(T val) {
 	return (T(0) < val) - (val < T(0));
 }
 
-ChamberEventHandler::ChamberEventHandler(uint32_t pedestal, double speed)
+ChamberHandler::ChamberHandler(uint32_t pedestal, double speed)
 	: mPedestal(pedestal), mSpeed(speed), mHasChamberData(false), mHasTrack(false),
 	  mWires{ {Vec2{41., 0.75}, Vec2{51., -0.75}, Vec2{61., 0.75}, Vec2{71., -0.75}} }
 {}
 
-void ChamberEventHandler::setChamberData(const ChamberData& chamberData) {
+void ChamberHandler::setChamberData(const ChamberData& chamberData) {
 	for(size_t i = 0; i < chamberData.size(); ++i) {
 		mChamberData.at(i).clear();
 		for(auto msr :  chamberData.at(i))
@@ -64,7 +64,7 @@ void ChamberEventHandler::setChamberData(const ChamberData& chamberData) {
 //		mHasUraganTrack = false;
 //}
 
-bool ChamberEventHandler::createProjection() {
+bool ChamberHandler::createProjection() {
 	if(!mHasChamberData)
 		throw std::runtime_error("ChamberEventHandler::createProjection: no chamber data");
 	TrackDesc tmpTrack;
@@ -87,7 +87,7 @@ bool ChamberEventHandler::createProjection() {
 		return false;
 }
 
-size_t ChamberEventHandler::getDepth(const ChamberData& chamData) {
+size_t ChamberHandler::getDepth(const ChamberData& chamData) {
 	auto depth = numeric_limits<size_t>::max();
 	for(const auto& wireData : chamData)
 		if(wireData.size() < depth)
@@ -95,7 +95,7 @@ size_t ChamberEventHandler::getDepth(const ChamberData& chamData) {
 	return depth;
 }
 
-bool ChamberEventHandler::systemError(ChamberEventHandler::TrackDesc& track) {
+bool ChamberHandler::systemError(ChamberHandler::TrackDesc& track) {
 	double r;
 	for(size_t i = 0; i < track.points.size(); ++i) {
 		auto trackSign = sign(track.points[i].y());
@@ -126,13 +126,13 @@ bool ChamberEventHandler::systemError(ChamberEventHandler::TrackDesc& track) {
 
 
 
-void ChamberEventHandler::createVariation(const ChamberData& chamData,  const array<size_t, 4>& indices,
-										  size_t offset, std::array<uint32_t, 4>& variant) {
+void ChamberHandler::createVariation(const ChamberData& chamData,  const array<size_t, 4>& indices,
+                                     size_t offset, std::array<uint32_t, 4>& variant) {
 	for(size_t i = 0; i < variant.size(); ++i)
 		variant.at(i) = chamData.at(i).at((indices.at(i) + offset)%chamData.at(i).size());
 }
 
-void ChamberEventHandler::createProjection(TrackDesc& track) {
+void ChamberHandler::createProjection(TrackDesc& track) {
 	static PointVector tempPoints = {mWires[0], mWires[1], mWires[2], mWires[3]};
 	static Line2 tempLine;
 	size_t numPermutations = std::pow(2, track.times.size());
@@ -158,7 +158,7 @@ void ChamberEventHandler::createProjection(TrackDesc& track) {
 	track.dev = leastSquares(track.points, track.line);
 }
 
-double ChamberEventHandler::leastSquares(const PointVector& points, Line2& line) {
+double ChamberHandler::leastSquares(const PointVector& points, Line2& line) {
 	if(points.size() < 2)
 		return -1;
 	double sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;

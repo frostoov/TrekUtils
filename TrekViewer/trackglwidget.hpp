@@ -58,18 +58,18 @@ struct CameraPosition {
 };
 
 class TrekGLWidget : public QOpenGLWidget {
-	using ChamberEventHandler = trek::ChamberEventHandler;
+	using ChamberEventHandler = trek::ChamberHandler;
 	using Chamber     = trek::Chamber;
 	using Line3		  = vecmath::Line3;
 	using TrekHandler = trek::TrekHandler;
-public:
+  public:
 	using VertexArray = std::array<float, 8>;
 	using ColorArray  = std::array<float, 24>;
-public:
+  public:
 	TrekGLWidget(TrekHandler* handler = nullptr, QWidget* parent = nullptr);
 
 	void loadObjects();
-protected:
+  protected:
 	void paintGL() override;
 	void initializeGL() override;
 	void resizeGL(int w, int h) override;
@@ -77,7 +77,7 @@ protected:
 	void mouseMoveEvent(QMouseEvent* me) override;
 	void wheelEvent(QWheelEvent* we) override;
 	Line3 expandLine(QPoint point, const glm::mat4& model,
-					 const glm::mat4& proj, const glm::vec4& viewPort);
+	                 const glm::mat4& proj, const glm::vec4& viewPort);
 	void  selectObject(const Line3& line);
 
 	void loadTrack();
@@ -100,7 +100,7 @@ protected:
 	void loadFaceVBOs();
 	void loadFacePlgVBO();
 	void loadFaceLineVBO();
-private:
+  private:
 	QOpenGLFunctions* glFuncs;
 	TrekHandler*	mTrekHandler;
 	RenderData rData;

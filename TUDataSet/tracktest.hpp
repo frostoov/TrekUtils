@@ -4,17 +4,16 @@
 #include "tdcdata/event.hpp"
 #include "trek/trekhandler.hpp"
 
-class TrackTest : public tdcdata::AbstractEventHandler
-{
+class TrackTest : public tdcdata::AbstractEventHandler {
 	using ChamberConfig = trek::ChamberConfig;
 	using TrekHandler = trek::TrekHandler;
 	using TUEvent = tdcdata::TUEvent;
-public:
+  public:
 	TrackTest(const ChamberConfig& config, uint32_t pedestal, double speed);
 	~TrackTest();
 	void handleEvent(const TUEvent& event) override;
 	void flush() override {}
-private:
+  private:
 	TrekHandler mTrekHandler;
 };
 

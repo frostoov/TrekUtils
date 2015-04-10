@@ -27,7 +27,7 @@ class TVec2 {
 	 */
 	bool operator ==(const Vec2& vec) const {
 		return (mData[0] == vec.mData[0] &&
-				mData[1] == vec.mData[1]);
+		        mData[1] == vec.mData[1]);
 	}
 	/**
 	 * @brief
@@ -36,7 +36,7 @@ class TVec2 {
 	 */
 	const Vec2 operator*(T num) const {
 		return {mData[0]* num,
-				mData[1]* num};
+		        mData[1]* num};
 	}
 	/**
 	 * @brief Сложение векторов
@@ -45,7 +45,7 @@ class TVec2 {
 	 */
 	const Vec2 operator+(const Vec2& vec) const {
 		return {mData[0] + vec.mData[0],
-				mData[1] + vec.mData[1]};
+		        mData[1] + vec.mData[1]};
 	}
 	/**
 	 * @brief Разница векторов
@@ -54,7 +54,7 @@ class TVec2 {
 	 */
 	const Vec2 operator-(const Vec2& vec) const {
 		return {mData[0] - vec.mData[0],
-				mData[1] - vec.mData[1]};
+		        mData[1] - vec.mData[1]};
 	}
 	/**
 	 * @brief Скалярное умножеие векторов
@@ -63,7 +63,7 @@ class TVec2 {
 	 */
 	const T operator*(const Vec2& vec) const {
 		return	mData[0] * vec.mData[0] +
-				mData[1] * vec.mData[1];
+		        mData[1] * vec.mData[1];
 	}
 	/**
 	 * @brief Бинарный плюс
@@ -113,7 +113,7 @@ class TVec2 {
 	 */
 	T abs() const {
 		return std::sqrt(std::pow(mData[0], 2) +
-						 std::pow(mData[1], 2) );
+		                 std::pow(mData[1], 2) );
 	}
 
 	/**
@@ -186,19 +186,19 @@ class TVec3 {
 
 	const T operator*(const Vec3& vec) const {
 		return  mData[0]*vec.mData[0] +
-				mData[1]*vec.mData[1] +
-				mData[2]*vec.mData[2];
+		        mData[1]*vec.mData[1] +
+		        mData[2]*vec.mData[2];
 	}
 
 	const Vec3 operator*(const T& num) const {
-		return {mData[0]*num,
-				mData[1]*num,
-				mData[2]*num};
+		return {mData[0]* num,
+		        mData[1]* num,
+		        mData[2]* num};
 	}
 	const Vec3 operator/(const T& num) const {
 		return {mData[0]/num,
-				mData[1]/num,
-				mData[2]/num};
+		        mData[1]/num,
+		        mData[2]/num};
 	}
 	const Vec3 operator&(const Vec3& vec) const {
 		return {
@@ -209,13 +209,13 @@ class TVec3 {
 	}
 	const Vec3 operator+(const Vec3& vec) const {
 		return {mData[0] + vec.mData[0],
-				mData[1] + vec.mData[1],
-				mData[2] + vec.mData[2]};
+		        mData[1] + vec.mData[1],
+		        mData[2] + vec.mData[2]};
 	}
 	const Vec3 operator-(const Vec3& vec) const {
 		return {mData[0] - vec.mData[0],
-				mData[1] - vec.mData[1],
-				mData[2] - vec.mData[2]};
+		        mData[1] - vec.mData[1],
+		        mData[2] - vec.mData[2]};
 	}
 	const Vec3 operator+() const {
 		return *this;
@@ -243,8 +243,8 @@ class TVec3 {
 	}
 	const T abs() const {
 		return std::sqrt( std::pow(mData[0], 2) +
-						  std::pow(mData[1], 2) +
-						  std::pow(mData[2], 2) );
+		                  std::pow(mData[1], 2) +
+		                  std::pow(mData[2], 2) );
 	}
 
 	T range(const Vec3& vec) const {
