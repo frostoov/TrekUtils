@@ -7,18 +7,21 @@
 
 #include "tdcdata/dataset.hpp"
 #include "tdcdata/event.hpp"
-#include "tdcdata/eventhandler.hpp"
 
 struct AppFlags {
-	tdcdata::EventHandler::HandleFlags handleFlags;
+	bool tracks;
+	bool projections;
+	bool matrix;
+	bool listing;
 	uint32_t	pedestal;
 	double		speed;
 	std::string	path;
-	bool needHelp;
 };
 
+void panic(const std::string& message);
+void help();
 void handleData(const std::string& path, tdcdata::DataSet& buffer,
-                tdcdata::AbstractEventHandler& handler);
+                std::vector<tdcdata::AbstractEventHandler*> handlers);
 AppFlags loadFlags(int argc, char* argv[]);
 
 #endif // TUDATASET_TOOLS_HPP

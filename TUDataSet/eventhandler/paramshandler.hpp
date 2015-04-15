@@ -1,7 +1,7 @@
 #ifndef CHARACTERISTICSHANDLER_HPP
 #define CHARACTERISTICSHANDLER_HPP
 
-#include "event.hpp"
+#include "tdcdata/event.hpp"
 #include "math/histogram.hpp"
 
 namespace tdcdata {

@@ -26,5 +26,3 @@ OBJECTS += \
 	../common/chamberrender.o \
 	../common/dataset.o \
 	../common/event.o \
-	../common/eventhandler.o \
-	../common/paramshandler.o \

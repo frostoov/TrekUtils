@@ -19,27 +19,18 @@ CoordSystem3 Chamber::getChamberSystem(const ChamberPoints& pos) {
 	return CoordSystem3(pos[0], xAxis, zAxis);
 }
 
-
-
 Line2 Chamber::getUraganProjection(Line3 track, const CoordSystem3& system) {
-	system.convertTo(track);
-
 	auto& dot1 = track.dot();
-	auto  dot2 = track.dot() + track.vec();
-
-	return Line2(Vec2(dot1.x(), dot1.y()),
-	             Vec2(dot2.x(), dot2.y()));
+	auto  dot2 = track.dot() + track.vec() * 10;
+	return getUraganProjection(dot1, dot2 ,system);
 }
 
 Chamber::Line2 Chamber::getUraganProjection(Vec3 p1, Vec3 p2, const CoordSystem3& system) {
 	system.convertTo(p1);
 	system.convertTo(p2);
 
-	return Line2(Vec2(p1.x(), p1.y()),
-	             Vec2(p2.x(), p2.y()));
+	return {{p1.x(), p1.y()}, {p2.x(), p2.y()}};
 }
-
-
 
 void Chamber::loadVertices(std::vector<float>& vertex) const {
 	for(const auto& octVertex : mOct.vertices())
@@ -112,11 +103,12 @@ void Chamber::loadLineFace(std::vector<uint>& face, uint start) const {
 	}
 }
 
-void Chamber::setTrack(const ChamberHandler& handler) {
+void Chamber::setTrackProjection(const ChamberHandler& handler) {
 	if(handler.hasChamberTrack()) {
-		setTrack(handler.getChamberTrack().line);
+		setTrackProjection(handler.getChamberTrack());
 		mHasTrack = true;
-	}
+	} else
+		mHasTrack = false;
 	if(handler.hasChamberData())
 		for(const auto& wireData : handler.getChamberEvent())
 			if(!wireData.empty()) {
@@ -128,7 +120,7 @@ void Chamber::setTrack(const ChamberHandler& handler) {
 Chamber::Plane Chamber::getTrackPlane() const {
 	if(mHasTrack == false)
 		throw runtime_error("Chamber: getTrackPlane: no track");
-	return getTrackPlane(mTrack, mPosition.points);
+	return getTrackPlane(mTrack.line, mPosition.points);
 }
 
 Chamber::Plane Chamber::getTrackPlane(const Line2& track, const ChamberPoints& pos) {

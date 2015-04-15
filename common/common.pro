@@ -18,8 +18,6 @@ HEADERS += \
 	math/vec.hpp \
 	tdcdata/dataset.hpp \
 	tdcdata/event.hpp \
-	tdcdata/eventhandler.hpp \
-	tdcdata/paramshandler.hpp \
 	tdcdata/structs.hpp \
 	trek/chamber.hpp \
 	trek/chamberhandler.hpp \
@@ -33,8 +31,6 @@ SOURCES += \
 	configparser/chamberconfigparser.cpp \
 	tdcdata/dataset.cpp \
 	tdcdata/event.cpp \
-	tdcdata/eventhandler.cpp \
-	tdcdata/paramshandler.cpp \
 	trek/chamber.cpp \
 	trek/chamberhandler.cpp \
 	trek/chamberrender.cpp \

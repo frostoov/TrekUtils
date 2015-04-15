@@ -1,5 +1,6 @@
 #include "paramshandler.hpp"
-#include "event.hpp"
+#include "tdcdata/event.hpp"
+#include <iostream>
 
 namespace tdcdata {
 
@@ -16,24 +17,24 @@ void ParametersHandler::flush() {
 	auto maxTime = timeHist.maxValue();
 	Histogram valueHist(0, maxTime, 10);
 	for(size_t i = 0; i < timeHist.size(); ++i) {
-		if(timeHist.value(i) >= maxTime/5)
+		if(timeHist.value(i) >= maxTime/2)
 			valueHist.addValue(timeHist.value(i));
 	}
-	auto maxProb = valueHist.maxValueRange();
-	auto middleTimeHisto = timeHist.size()/2;
+	auto needProb = valueHist.maxValueRange()/2;
 
 	uint32_t t1 = 0,t2 = 0;
-	for(size_t i = middleTimeHisto; i < timeHist.size(); ++i)
-		if(timeHist.value(i) <= maxProb/2) {
-			t2 = timeHist.range(i);
-			break;
-		}
-	for(ssize_t i = middleTimeHisto; i >= 0; --i)
-		if(timeHist.value(i) <= maxProb/2) {
+	for(size_t i = 0; i < timeHist.size(); ++i)
+		if(timeHist.value(i) >= needProb) {
 			t1 = timeHist.range(i);
 			break;
 		}
+	for(ssize_t i = timeHist.size() - 1; i >= 0; --i)
+		if(timeHist.value(i) >= needProb) {
+			t2 = timeHist.range(i);
+			break;
+		}
 	pedestal = t1;
+	std::cout << "t2 = " << t2 << std::endl;
 	auto delta = (t2 - t1);
 	if(delta == 0)
 		throw std::overflow_error("ParametersHandler::flush: Division by zero");

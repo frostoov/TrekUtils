@@ -35,35 +35,6 @@ void ChamberHandler::setChamberData(const ChamberData& chamberData) {
 		mHasTrack = false;
 }
 
-//void ChamberEventHandler::setUraganData(const Line3& line) {
-//	Line3 tmpLine = line;
-//	mChamberSystem.convertTo(tmpLine.dot());
-//	mChamberSystem.convertTo(tmpLine.vec());
-
-//	auto point1 = tmpLine.dot() + tmpLine.vec()*5;
-
-//	mUraganTrack = Line2(Vec2(tmpLine.dot().x(), tmpLine.dot().y()),
-//						 Vec2(point1.x(), point1.y()));
-//	if(!mHasUraganTrack)
-//		mHasUraganTrack = true;
-//}
-
-//void ChamberEventHandler::setUraganData(const UraganEvent& event) {
-//	if(mHasChamberSystem == true) {
-//		auto point1 = Vec3( event.chp0[0], event.chp0[1], event.chp0[2] );
-//		auto point2 = Vec3( event.chp1[0], event.chp1[1], event.chp1[2] );
-
-//		mChamberSystem.convertTo(point1);
-//		mChamberSystem.convertTo(point2);
-
-//		mUraganTrack = Line2( Vec2(point1.x(), point1.y()),
-//							  Vec2(point2.x(), point2.y()));
-//		if(!mHasUraganTrack)
-//			mHasUraganTrack = true;
-//	} else
-//		mHasUraganTrack = false;
-//}
-
 bool ChamberHandler::createProjection() {
 	if(!mHasChamberData)
 		throw std::runtime_error("ChamberEventHandler::createProjection: no chamber data");

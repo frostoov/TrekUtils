@@ -158,7 +158,6 @@ struct TdcSettings {
 		       ::getSize<decltype(control)>()   + ::getSize<decltype(status)>() +
 		       ::getSize<decltype(deadTime)>();
 	}
-
 };
 struct TUDataSetHeader {
 	//Возвращает значение коэфициента разрешеия измерения TDC

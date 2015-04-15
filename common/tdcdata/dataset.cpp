@@ -58,7 +58,7 @@ void DataSet::loadTriggeredChambers(std::set<uintmax_t>& triggChams) {
 void DataSet::append(const string& path) {
 	ifstream fileStream;
 	fileStream.exceptions(ifstream::failbit | ifstream::badbit);
-	fileStream.open(path,ifstream::binary);
+	fileStream.open(path, ifstream::binary);
 	deserializeStream(fileStream);
 }
 

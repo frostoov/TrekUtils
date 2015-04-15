@@ -52,7 +52,7 @@ class TMatrix : protected std::vector<T> {
 	size_t rows() const {
 		return mRow;
 	}
-	size_t columns() const {
+	size_t cols() const {
 		return mCol;
 	}
 

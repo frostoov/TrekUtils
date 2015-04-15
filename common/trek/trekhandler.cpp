@@ -16,7 +16,7 @@ TrekHandler::TrekHandler(const ChamberConfig& config, uint32_t pedestal, double 
 }
 
 void TrekHandler::loadEvent(const TUEvent& rawEvent) {
-	auto& uEvent = rawEvent.getUraganEvent();
+	const auto& uEvent = rawEvent.getUraganEvent();
 	mUTrack = Line3(Vec3(uEvent.chp0[0], uEvent.chp0[1], uEvent.chp0[2]),
 	                Vec3(uEvent.chp1[0], uEvent.chp1[1], uEvent.chp1[2]));
 	auto event = rawEvent.getTrekEvent();
@@ -25,7 +25,7 @@ void TrekHandler::loadEvent(const TUEvent& rawEvent) {
 		if(event.count(chamber.first)) {
 			const auto& chamberEvent = event.at(chamber.first);
 			mEventHandler.setChamberData(chamberEvent);
-			chamber.second.setTrack(mEventHandler);
+			chamber.second.setTrackProjection(mEventHandler);
 		}
 	}
 }
@@ -46,8 +46,8 @@ void TrekHandler::createTrack() {
 	if(trackChambers.size() == 2) {
 		vector<const Chamber*> chambers;
 		chambers.assign(begin(trackChambers), end(trackChambers));
-		if(chambers.at(0)->getGroup() == chambers.at(1)->getGroup() &&
-		        chambers.at(0)->getPlane() != chambers.at(1)->getPlane()) {
+		if(chambers.at(0)->getChamberGroup() == chambers.at(1)->getChamberGroup() &&
+		        chambers.at(0)->getChamberPlane() != chambers.at(1)->getChamberPlane()) {
 			mTTrack = createTrack(*chambers.at(0), *chambers.at(1));
 			mHasTrack = true;
 		}
@@ -55,10 +55,10 @@ void TrekHandler::createTrack() {
 }
 
 TrekHandler::Line3 TrekHandler::createTrack(const Chamber& cham1, const Chamber& cham2) {
-	if(cham1.getGroup() != cham2.getGroup() || cham1.getPlane() == cham2.getPlane())
+	if(cham1.getChamberGroup() != cham2.getChamberGroup() || cham1.getChamberPlane() == cham2.getChamberPlane())
 		throw std::runtime_error("TrekHandler::createTrek: invalid chambers");
-	return createTrack(cham1.getTrack(), cham1.getPoints(),
-	                   cham2.getTrack(), cham2.getPoints());
+	return createTrack(cham1.getTrackProjection(), cham1.getPoints(),
+	                   cham2.getTrackProjection(), cham2.getPoints());
 }
 
 TrekHandler::Line3 TrekHandler::createTrack(const Line2& track1, const ChamberPoints& pos1,
@@ -102,13 +102,13 @@ void TrekHandler::loadLineColors(std::vector<float>& data) const {
 			0,1,0,1,
 			0,1,0,1,
 		};
-		data.insert(end(data), std::begin(trackColor), std::end(trackColor));
+		data.insert(end(data), begin(trackColor), end(trackColor));
 	}
 	static float trackColor[] = {
 		0,0,1,1,
 		0,0,1,1,
 	};
-	data.insert(end(data), std::begin(trackColor), std::end(trackColor));
+	data.insert(end(data), begin(trackColor), end(trackColor));
 }
 
 void TrekHandler::loadLineFace(std::vector<unsigned>& face, unsigned start) const {

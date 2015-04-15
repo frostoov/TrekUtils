@@ -32,8 +32,8 @@ class TCoordSystem3 {
   public:
 	TCoordSystem3()
 		: V1{0, 0, 0}, V2{0, 0, 0}, V3{0, 0, 0} {}
-	TCoordSystem3(const Vec3& _offset, const Vec3& X, /*const Vec3 &Y,*/ const Vec3& Z)
-		:mOffset(_offset) {
+	TCoordSystem3(const Vec3& offset, const Vec3& X, /*const Vec3 &Y,*/ const Vec3& Z)
+		: mOffset(offset) {
 		const Vec3 x = Vec3(1, 0, 0);
 		const Vec3 z = Vec3(0, 0, 1);
 		//Line of nodes

@@ -71,7 +71,7 @@ void MainWindow::keyPressEvent(QKeyEvent* ke) {
 			triggPlanes.clear();
 			auto triggChambers = event.getTriggeredChambers();
 			for(const auto& cham : triggChambers)
-				triggPlanes.insert(mTrekHandler->getChambers().at(cham).getPlane());
+				triggPlanes.insert(mTrekHandler->getChambers().at(cham).getChamberPlane());
 			if(triggPlanes.size() == 2 || ke->modifiers() == Qt::ShiftModifier)
 				return true;
 			else
