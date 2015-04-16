@@ -11,9 +11,7 @@ using vecmath::todeg;
 using vecmath::Line3;
 
 TracksHandler::TracksHandler(const ChamberConfig& config, uint32_t pedestal, double speed)
-	: mTrekHandler(config, pedestal, speed), mNeedProjections(false), mNeedTracks(false) {
-
-}
+	: mTrekHandler(config, pedestal, speed), mNeedProjections(false), mNeedTracks(false) {}
 
 TracksHandler::~TracksHandler() {
 	for(auto& stream : mProjectionStreams)

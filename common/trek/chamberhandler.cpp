@@ -8,9 +8,8 @@ using std::array;
 using std::runtime_error;
 using std::numeric_limits;
 
-using CoordSystem3	= ChamberHandler::CoordSystem3;
-using TrackDesc		= ChamberHandler::TrackDesc;
-using Line2			= ChamberHandler::Line2;
+using vecmath::Vec2;
+using vecmath::Line2;
 
 template <typename T> int sign(T val) {
 	return (T(0) < val) - (val < T(0));
@@ -19,7 +18,7 @@ template <typename T> int sign(T val) {
 ChamberHandler::ChamberHandler(uint32_t pedestal, double speed)
 	: mPedestal(pedestal), mSpeed(speed), mHasChamberData(false), mHasTrack(false),
 	  mWires{ {Vec2{41., 0.75}, Vec2{51., -0.75}, Vec2{61., 0.75}, Vec2{71., -0.75}} }
-{}
+{ }
 
 void ChamberHandler::setChamberData(const ChamberData& chamberData) {
 	for(size_t i = 0; i < chamberData.size(); ++i) {

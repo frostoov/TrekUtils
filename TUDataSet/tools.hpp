@@ -20,8 +20,8 @@ struct AppFlags {
 
 void panic(const std::string& message);
 void help();
-void handleData(const std::string& path, tdcdata::DataSet& buffer,
-                std::vector<tdcdata::AbstractEventHandler*> handlers);
+uintmax_t handleData(const std::string& path, tdcdata::DataSet& buffer,
+                     std::vector<tdcdata::AbstractEventHandler*> handlers);
 AppFlags loadFlags(int argc, char* argv[]);
 
 #endif // TUDATASET_TOOLS_HPP

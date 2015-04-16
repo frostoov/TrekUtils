@@ -2,7 +2,6 @@
 #include <iostream>
 #include <cstring>
 
-#include "tracktest.hpp"
 #include "tdcdata/dataset.hpp"
 #include "eventhandler/paramshandler.hpp"
 
@@ -78,7 +77,7 @@ int main(int argc, char* argv[]) {
 	if(handlers.empty() == false) {
 		try {
 			cout << "processing data..." << endl;
-			handleData(flags.path, buffer, handlers);
+			cout << "Event count = " <<  handleData(flags.path, buffer, handlers) << endl;
 		} catch(const exception& e) {
 			cout << e.what() << endl;
 		}

@@ -11,7 +11,6 @@ INCLUDEPATH += ../common
 
 HEADERS += \
 	tools.hpp \
-	tracktest.hpp \
 	eventhandler/paramshandler.hpp \
     eventhandler/listinghandler.hpp \
     eventhandler/trackshandler.hpp \
@@ -20,7 +19,6 @@ HEADERS += \
 SOURCES += \
 	main.cpp \
 	tools.cpp \
-	tracktest.cpp \
 	eventhandler/paramshandler.cpp \
     eventhandler/listinghandler.cpp \
     eventhandler/trackshandler.cpp \

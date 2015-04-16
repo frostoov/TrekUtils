@@ -64,7 +64,7 @@ MainWindow::~MainWindow() {
 void MainWindow::keyPressEvent(QKeyEvent* ke) {
 	try {
 		QMainWindow::keyPressEvent(ke);
-		std::set<uint> triggPlanes;
+		std::set<unsigned int> triggPlanes;
 		auto eventChecker = [&](const tdcdata::TUEvent& event)->bool {
 			if (event.getUraganEvent().trackID != 0)
 				return false;

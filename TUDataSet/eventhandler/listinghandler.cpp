@@ -9,10 +9,6 @@ using std::setfill;
 using std::ofstream;
 using std::to_string;
 
-ListingHandler::ListingHandler() {
-
-}
-
 ListingHandler::~ListingHandler() {
 	for(auto& stream : streams)
 		delete stream.second;
@@ -56,19 +52,19 @@ void ListingHandler::printListing(const TUEvent& event) {
 }
 
 void ListingHandler::createListingStream(StreamsMap& streams, uintmax_t cham) {
-	if(streams.count(cham))
-		return;
-	auto str = new ofstream;
-	str->exceptions( ofstream::failbit | ofstream::badbit );
-	str->open("listing" + to_string(cham+1) + ".txt", ofstream::binary);
+	if(!streams.count(cham)) {
+		auto str = new ofstream;
+		str->exceptions( ofstream::failbit | ofstream::badbit );
+		str->open("listing" + to_string(cham+1) + ".txt", ofstream::binary);
 
-	*str << "Chamber №" << cham+1 << '\n';
-	for(auto i = 0; i < 4 ; ++i)
-		*str << setw(6) << setfill(' ') << "WIRE "
-		     << setw(2) << setfill('0') << i
-		     << setw(1) << setfill(' ') << '\t';
-	*str << '\n';
+		*str << "Chamber №" << cham+1 << '\n';
+		for(auto i = 0; i < 4 ; ++i)
+			*str << setw(6) << setfill(' ') << "WIRE "
+			     << setw(2) << setfill('0') << i
+			     << setw(1) << setfill(' ') << '\t';
+		*str << '\n';
 
-	streams.insert({cham, str});
+		streams[cham] = str;
+	}
 }
 

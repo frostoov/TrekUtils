@@ -7,7 +7,6 @@
 class ListingHandler : public tdcdata::AbstractEventHandler {
 	using StreamsMap       = std::unordered_map<std::uintmax_t, std::ofstream*>;
   public:
-	ListingHandler();
 	~ListingHandler();
 
 	void handleEvent(const tdcdata::TUEvent& event) override;

@@ -20,8 +20,8 @@ class Chamber {
 	void loadVertices	(std::vector<float>& vertex) const;
 	void loadPlgColors	(std::vector<float>& colors) const;
 	void loadLineColors	(std::vector<float>& colors) const;
-	void loadPlgFace	(std::vector<uint>& face, uint start) const;
-	void loadLineFace	(std::vector<uint>&	face, uint start) const;
+	void loadPlgFace	(std::vector<unsigned int>& face, unsigned int start) const;
+	void loadLineFace	(std::vector<unsigned int>&	face, unsigned int start) const;
 
 	const Octahedron& octahedron() const { return mOct; }
 
@@ -48,8 +48,8 @@ class Chamber {
 	Plane getTrackPlane() const;
 	static Plane getTrackPlane(const Line2& track, const ChamberPoints& pos);
 
-	uint getChamberPlane() const {return mPosition.plane;}
-	uint getChamberGroup() const {return mPosition.group;}
+	unsigned int getChamberPlane() const {return mPosition.plane;}
+	unsigned int getChamberGroup() const {return mPosition.group;}
 	const ChamberPoints& getPoints() const { return mPosition.points; }
 
 	bool isHit()		 const { return mIsHit; }

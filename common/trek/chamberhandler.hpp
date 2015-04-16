@@ -21,8 +21,8 @@ using ChamberPoints = std::array<vecmath::Vec3, 3>;
  */
 struct ChamberPosition {
 	ChamberPoints points;  /*!< Точки дрейфовой камеры */
-	uint plane;								/*!< Номер плоскости дрейфовой камеры */
-	uint group;								/*!< Номер группы дрейфовой камеры */
+	unsigned int plane;	   /*!< Номер плоскости дрейфовой камеры */
+	unsigned int group;	   /*!< Номер группы дрейфовой камеры */
 };
 
 using ChamberConfig = std::unordered_map<uintmax_t, ChamberPosition>;
@@ -36,20 +36,10 @@ using ChamberConfig = std::unordered_map<uintmax_t, ChamberPosition>;
  */
 class ChamberHandler {
   public:
-	using Line2			= vecmath::Line2;
-	using Line3			= vecmath::Line3;
-	using Vec2			= vecmath::Vec2;
-	using Vec3			= vecmath::Vec3;
-	using CoordSystem3	= vecmath::CoordSystem3;
 
 	using UIntVector	= std::vector<uint32_t>;
 	using ChamberData	= std::array<UIntVector, 4>;
-	using TrackTimes	= std::vector< std::array<uint32_t,4> >;
-	using LineVector	= std::vector<Line2>;
-	using DoubleVector	= std::vector<double>;
-	using PointVector	= std::vector<Vec2>;
-	using SizeVector	= std::vector<size_t>;
-	using UraganEvent   = tdcdata::UraganEvent;
+	using PointVector	= std::vector<vecmath::Vec2>;
 
 	/**
 	 * @class TrackDesc
@@ -59,7 +49,7 @@ class ChamberHandler {
 	 * @brief Структура с данными одного трека
 	 */
 	struct TrackDesc {
-		Line2					line;		/*!< Линия трека */
+		vecmath::Line2					line;		/*!< Линия трека */
 		PointVector				points;		/*!< Точки, по которым был восстановлен трек */
 		double					dev;		/*!< Отклонение линии */
 		std::array<uint32_t, 4>	times;		/*!< Вермена с TDC */
@@ -113,7 +103,7 @@ class ChamberHandler {
 	size_t	getDepth(const ChamberData& chamData);
 	bool	createProjection();
 	void    createProjection(TrackDesc& track);
-	double	leastSquares(const PointVector& points, Line2& line);
+	double	leastSquares(const PointVector& points, vecmath::Line2& line);
 	bool	systemError(TrackDesc& track);
 	double	getSystemError(double r, double ang) { return r*(1/std::cos(ang) - 1); }
   private:
@@ -126,7 +116,7 @@ class ChamberHandler {
 	bool		mHasChamberData;
 	bool		mHasTrack;
 
-	const std::array<Vec2, 4> mWires;
+	const std::array<vecmath::Vec2, 4> mWires;
 };
 
 } //trek

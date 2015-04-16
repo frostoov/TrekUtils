@@ -11,7 +11,7 @@ using std::runtime_error;
 Chamber::Chamber(const ChamberPosition& position)
 	: mPosition(position), mChamberSystem(getChamberSystem(position.points)),
 	  mOct(getOctahedron(position.points)), mIsHit(false), mHasTrack(false)
-{}
+{ }
 
 CoordSystem3 Chamber::getChamberSystem(const ChamberPoints& pos) {
 	auto xAxis = Vec3( pos[1] - pos[0] ).ort();
@@ -61,7 +61,7 @@ void Chamber::loadLineColors(std::vector<float>& colors) const {
 	}
 }
 
-void Chamber::loadPlgFace(std::vector<uint>& face, uint start) const {
+void Chamber::loadPlgFace(std::vector<unsigned int>& face, unsigned int start) const {
 	for(int i = 0 ; i < 4 ; ++ i)
 		face.push_back(start + i);
 	for(int i = 4 ; i < 8; ++i)
@@ -88,7 +88,7 @@ void Chamber::loadPlgFace(std::vector<uint>& face, uint start) const {
 	face.push_back(start + 7);
 }
 
-void Chamber::loadLineFace(std::vector<uint>& face, uint start) const {
+void Chamber::loadLineFace(std::vector<unsigned int>& face, unsigned int start) const {
 	for(int  k = 0; k <= 4; k += 4) {
 		for(int i = k ; i < k + 3; ++i) {
 			face.push_back(start + i);

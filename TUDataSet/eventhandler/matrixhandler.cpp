@@ -11,17 +11,8 @@ using std::cout;
 using std::endl;
 using std::to_string;
 
-MatrixHandler::MatrixHandler() {
-	mMatrixN.setSize(rows, cols);
-	goodEvents  = 0;
-	badEvents   = 0;
-	emptyEvents = 0;
-	fullEmpty   = 0;
-}
-
-MatrixHandler::~MatrixHandler() {
-
-}
+MatrixHandler::MatrixHandler()
+	: mMatrixN(rows, cols) {}
 
 void MatrixHandler::handleEvent(const TUEvent& event) {
 	struct TPoint3D {
@@ -65,25 +56,16 @@ void MatrixHandler::handleEvent(const TUEvent& event) {
 
 	if(ThetaG >= 0. && ThetaG < 20.) {
 		//Найдём пересечение треком горизонтальной плоскости
-		double z = 10880;
+		double z = 10825;
 		double t = (z-P1.z)*iz/dz;
-		double x = P1.x-3500+iz*dx*t; 	// 3500  - левый  край триггируемой области УРАГАНА
+		double Dx = P1.x-5300+iz*dx*t; 	// 3500  - левый  край триггируемой области УРАГАНА
 		double y = P1.y-12250+iz*dy*t; 	// 12250 - нижний край триггируемой области УРАГАНА
+		double x = Dx + y*sin(0.25*PI/180);
 		size_t ix = (x/22.+0)+0.5;		// 22    - размер ячейки
 		size_t iy = (y/22.+0)+0.5;
 		if(ix < mMatrixN.cols() && iy < mMatrixN.rows()) {
 			++mMatrixN(iy, ix);
 			auto triggChambers = event.getTriggeredChambers();
-			if(ix >= 113 && ix <= 133) {
-				if(!triggChambers.count(16)) {
-					emptyEvents++;
-					if(triggChambers.empty())
-						++fullEmpty;
-				} else if(!eventChecker(event.getTrekEventRaw(), 16))
-					badEvents++;
-				else
-					goodEvents++;
-			}
 			for(auto cham : triggChambers) {
 				if(mMatricesT.count(cham) == 0)
 					mMatricesT[cham] = Matrix(rows, cols);
@@ -98,19 +80,14 @@ void MatrixHandler::handleEvent(const TUEvent& event) {
 
 void MatrixHandler::flush() {
 	outputMatriciesMap();
-	std::cout << "good      = " << goodEvents << '\n';
-	std::cout << "bad       = " << badEvents << '\n';
-	std::cout << "empty     = " << emptyEvents << '\n';
-	std::cout << "fullEmpty = " << fullEmpty << '\n';
-	goodEvents  = 0;
-	badEvents   = 0;
-	emptyEvents = 0;
+	mMatrixN.fill();
+	mMatricesT.clear();
 }
 
 void MatrixHandler::outputMatriciesMap() {
 	outputMatrix(mMatrixN, "matrixN");
 	outputMatriciesMap(mMatricesT,"matrixT");
-	DMatrix matrixE(161,161);
+	DMatrix matrixE(rows, cols);
 	for(const auto& matrixTPair : mMatricesT) {
 		auto& matrixT = matrixTPair.second;
 		auto cham = matrixTPair.first;
@@ -118,7 +95,7 @@ void MatrixHandler::outputMatriciesMap() {
 			for (size_t j = 0; j < matrixE.cols(); ++j)
 				if(mMatrixN(i,j) != 0)
 					matrixE(i, j) =  static_cast<double>(matrixT(i, j)) / mMatrixN(i, j);
-		outputMatrix(matrixE,"matrixE" + to_string(cham+1));
+		outputMatrix(matrixE, "matrixE" + to_string(cham+1));
 	}
 }
 

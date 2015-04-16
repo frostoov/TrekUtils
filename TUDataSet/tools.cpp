@@ -55,7 +55,7 @@ AppFlags loadFlags(int argc, char* argv[]) {
 	return flags;
 }
 
-void handleData(const string& path, DataSet& buffer, std::vector<AbstractEventHandler*> handlers) {
+uintmax_t handleData(const string& path, DataSet& buffer, std::vector<AbstractEventHandler*> handlers) {
 	struct stat fileStat;
 	stat(path.c_str(), &fileStat);
 	if(S_ISDIR(fileStat.st_mode)) {
@@ -64,6 +64,7 @@ void handleData(const string& path, DataSet& buffer, std::vector<AbstractEventHa
 			throw runtime_error("handleData: cannot open directory");
 		dirent* ent;
 
+		uintmax_t eventCount = 0;
 		while((ent = readdir(dir))) {
 			string fileName(path);
 			fileName.append("/");
@@ -74,6 +75,7 @@ void handleData(const string& path, DataSet& buffer, std::vector<AbstractEventHa
 				} catch(const exception& e) {
 					std::cout << "Failed read " << ent->d_name << ": " << e.what() << '\n';
 				}
+				eventCount += buffer.size();
 				for(auto& handler : handlers) {
 					try {
 						for(const auto& event : buffer)
@@ -87,6 +89,7 @@ void handleData(const string& path, DataSet& buffer, std::vector<AbstractEventHa
 		for(auto& handler : handlers)
 			handler->flush();
 		closedir(dir);
+		return eventCount;
 	} else
 		throw runtime_error("handleData: path does not indicate directory");
 }
