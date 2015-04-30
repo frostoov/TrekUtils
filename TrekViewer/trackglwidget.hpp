@@ -15,7 +15,6 @@
 #include "math/figures.hpp"
 
 #include "trek/trekhandler.hpp"
-#include "trek/chamberrender.hpp"
 
 struct RenderData {
 	std::vector<float> vertex;

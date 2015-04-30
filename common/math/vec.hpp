@@ -311,9 +311,9 @@ class TVec3 {
 		auto c = std::cos(ang);
 		auto s = std::sin(ang);
 		auto d = 1 - c;
-		double V1[] = {	c + d * v.x()* v.x()			, d * v.x()* v.y() - s * v.z() ,	d * v.x()* v.z() + s * v.y()	};
-		double V2[] = {	d * v.x()* v.y() + s * v.z()	, c + d * v.y()* v.y()			,	d * v.y()* v.z() + s * v.x()	};
-		double V3[] = {	d * v.x()* v.z() + s * v.y()	, c * v.y()* v.z() + s * v.x()	,	c + d * v.z()* v.z()			};
+		double V1[] = {c + d*v.x()* v.x(),       d*v.x()* v.y() - s*v.z(), d*v.x()* v.z() + s*v.y()};
+		double V2[] = {d*v.x()* v.y() + s*v.z(), c + d*v.y()* v.y(),	     d*v.y()* v.z() + s*v.x()};
+		double V3[] = {d*v.x()* v.z() + s*v.y(), c*v.y()* v.z() + s*v.x(), c + d *v.z()* v.z()     };
 		*this = {
 			V1[0]* x() + V1[1]* y() + V1[2]* z(),
 			V2[0]* x() + V2[1]* y() + V2[2]* z(),

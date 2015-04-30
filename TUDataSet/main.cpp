@@ -41,13 +41,13 @@ int main(int argc, char* argv[]) {
 	DataSet buffer;
 	ChamberConfigParser parser;
 	try {
-		parser.load("chambers.conf");
+		parser.load("chambers.json");
 	} catch (const exception& e) {
-		cout << "Reading chambers.conf: " << e.what() << endl;
+		cout << "Reading chambers.json: " << e.what() << endl;
 	}
 	cout << "Config has been read" << endl;
 
-	if((flags.tracks || flags.projections) &&
+	if((flags.tracks || flags.projections || flags.matrix) &&
 	        (flags.pedestal == 0 || flags.speed == 0) ) {
 		auto handler = new ParametersHandler;
 		std::vector<AbstractEventHandler*> handlers{handler};
@@ -66,7 +66,7 @@ int main(int argc, char* argv[]) {
 
 	std::vector<AbstractEventHandler*> handlers;
 	if(flags.listing) handlers.push_back(new ListingHandler);
-	if(flags.matrix ) handlers.push_back(new MatrixHandler);
+	if(flags.matrix ) handlers.push_back(new MatrixHandler(parser.getConfig(), flags.pedestal, flags.speed));
 	if(flags.projections || flags.tracks) {
 		auto tracksHandler = new TracksHandler(parser.getConfig(), flags.pedestal, flags.speed);
 		tracksHandler->needProjection(flags.projections);

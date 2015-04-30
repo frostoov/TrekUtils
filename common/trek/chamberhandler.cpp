@@ -20,44 +20,53 @@ ChamberHandler::ChamberHandler(uint32_t pedestal, double speed)
 	  mWires{ {Vec2{41., 0.75}, Vec2{51., -0.75}, Vec2{61., 0.75}, Vec2{71., -0.75}} }
 { }
 
-void ChamberHandler::setChamberData(const ChamberData& chamberData) {
-	for(size_t i = 0; i < chamberData.size(); ++i) {
-		mChamberData.at(i).clear();
-		for(auto msr :  chamberData.at(i))
-			if(msr > mPedestal)
-				mChamberData.at(i).push_back((msr - mPedestal)*mSpeed);
-	}
-	mHasChamberData = true;
-	if(getDepth(chamberData) == 1)
-		mHasTrack = createProjection();
+void ChamberHandler::setChamberData(const Event& chamberEvent) {
+	for(auto wireData : mChamberDistances)
+		wireData.clear();
+	mHasChamberData = false;
+	if(getDepth(chamberEvent) == 1)
+		mHasTrack = createProjection(chamberEvent);
 	else
 		mHasTrack = false;
 }
 
-bool ChamberHandler::createProjection() {
-	if(!mHasChamberData)
-		throw std::runtime_error("ChamberEventHandler::createProjection: no chamber data");
-	TrackDesc tmpTrack;
+void ChamberHandler::getDistances(const Event& data, Distances& distances) {
+	for(size_t i = 0; i < data.size(); ++i) {
+		distances.at(i).clear();
+		for(auto msr :  data.at(i))
+			if(msr > mPedestal)
+				distances.at(i).push_back((msr - mPedestal)*mSpeed);
+	}
+}
+
+bool ChamberHandler::createProjection(const Event& chamberEvent) {
+	getDistances(chamberEvent, mChamberDistances);
+	mHasChamberData = true;
+	Points tmpPoints;
+	Line2		tmpLine;
+	array<uint32_t, 4> distances;
 	mChamberTrack.dev = numeric_limits<double>::infinity();
-	array<size_t, 4> ind;
-	for(ind.at(0) = 0; ind.at(0) != mChamberData.at(0).size(); ++ind.at(0))
-		for(ind.at(1) = 0; ind.at(1) != mChamberData.at(1).size(); ++ind.at(1))
-			for(ind.at(2) = 0; ind.at(2) != mChamberData.at(2).size(); ++ind.at(2))
-				for(ind.at(3) = 0; ind.at(3) != mChamberData.at(3).size(); ++ind.at(3)) {
-					createVariation(mChamberData,ind, 0, tmpTrack.times);
-					createProjection(tmpTrack);
-					if(tmpTrack.dev != -1 && tmpTrack.dev < mChamberTrack.dev)
-						mChamberTrack = tmpTrack;
+	array<uintmax_t, 4> ind;
+	for(ind.at(0) = 0; ind.at(0) != mChamberDistances.at(0).size(); ++ind.at(0))
+		for(ind.at(1) = 0; ind.at(1) != mChamberDistances.at(1).size(); ++ind.at(1))
+			for(ind.at(2) = 0; ind.at(2) != mChamberDistances.at(2).size(); ++ind.at(2))
+				for(ind.at(3) = 0; ind.at(3) != mChamberDistances.at(3).size(); ++ind.at(3)) {
+					createVariation(mChamberDistances,ind, distances);
+					auto dev = createProjection(distances, tmpPoints, tmpLine);
+					if(dev != -1 && dev < mChamberTrack.dev) {
+						mChamberTrack.dev    = dev;
+						mChamberTrack.points = tmpPoints;
+						mChamberTrack.line   = tmpLine;
+						createVariation(chamberEvent, ind, mChamberTrack.times);
+					}
 				}
-	if(mChamberTrack.dev < numeric_limits<double>::infinity()) {
-		for(auto& time : mChamberTrack.times)
-			time = time/mSpeed + mPedestal;
+	if(mChamberTrack.dev < numeric_limits<double>::infinity())
 		return systemError(mChamberTrack);
-	} else
+	else
 		return false;
 }
 
-size_t ChamberHandler::getDepth(const ChamberData& chamData) {
+size_t ChamberHandler::getDepth(const Event& chamData) {
 	auto depth = numeric_limits<size_t>::max();
 	for(const auto& wireData : chamData)
 		if(wireData.size() < depth)
@@ -85,50 +94,41 @@ bool ChamberHandler::systemError(ChamberHandler::TrackDesc& track) {
 	return true;
 }
 
-//void ChamberEventHandler::setChamberPosition(const array<Vec3, 3>& pos) {
-//	setChamberPosition(getChamberSystem(pos));
-//}
-
-//void ChamberEventHandler::setChamberPosition(const CoordSystem3& system) {
-//	mChamberSystem = system;
-//	mHasChamberSystem = true;
-//}
-
-
-
-void ChamberHandler::createVariation(const ChamberData& chamData,  const array<size_t, 4>& indices,
-                                     size_t offset, std::array<uint32_t, 4>& variant) {
+template<typename Source, typename Dest>
+void ChamberHandler::createVariation(const Source& chamData,  const std::array<uintmax_t, 4>& indices,
+                                     Dest& variant) {
 	for(size_t i = 0; i < variant.size(); ++i)
-		variant.at(i) = chamData.at(i).at((indices.at(i) + offset)%chamData.at(i).size());
+		variant.at(i) = chamData.at(i).at(indices.at(i)%chamData.at(i).size());
 }
 
-void ChamberHandler::createProjection(TrackDesc& track) {
-	static PointVector tempPoints = {mWires[0], mWires[1], mWires[2], mWires[3]};
+double ChamberHandler::createProjection(const array<uint32_t, 4>& distances,
+                                        Points& points, Line2& line) {
+	static Points tempPoints = {mWires[0], mWires[1], mWires[2], mWires[3]};
 	static Line2 tempLine;
-	size_t numPermutations = std::pow(2, track.times.size());
-	track.points = tempPoints;
-	track.dev = numeric_limits<double>::max();
+	auto dev = numeric_limits<double>::infinity();
+	size_t numPermutations = std::pow(2, distances.size());
+
 
 	for(size_t i = 0; i < numPermutations; ++i) {
 		//Изменяем знаки на противоположные
-		for (size_t j = 0; j < track.times.size(); j++) {
+		for (size_t j = 0; j < distances.size(); j++) {
 			if( i & (1<<j) )
-				tempPoints[j].y() = -static_cast<double>(track.times[j]);
+				tempPoints[j].y() = -static_cast<double>(distances[j]);
 			else
-				tempPoints[j].y() =  static_cast<double>(track.times[j]);
+				tempPoints[j].y() =  static_cast<double>(distances[j]);
 			tempPoints[j].y() += mWires[j].y();
 		}
 		double tempDev = leastSquares(tempPoints,tempLine);
-		if(tempDev != -1 && tempDev < track.dev) {
-			track.dev = tempDev;
-			for(int i = 0; i < 4; ++i)
-				track.points[i].y() = tempPoints[i].y();
+		if(tempDev != -1 && tempDev < dev) {
+			dev = tempDev;
+			line = tempLine;
+			points = tempPoints;
 		}
 	}
-	track.dev = leastSquares(track.points, track.line);
+	return dev;
 }
 
-double ChamberHandler::leastSquares(const PointVector& points, Line2& line) {
+double ChamberHandler::leastSquares(const Points& points, Line2& line) {
 	if(points.size() < 2)
 		return -1;
 	double sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;

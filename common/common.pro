@@ -1,6 +1,6 @@
 TEMPLATE = lib
-CONFIG   += qt exceptions c++11
-CONFIG -= debug_and_release
+CONFIG  += qt exceptions c++11
+CONFIG  -= debug_and_release
 
 QMAKE_CXXFLAGS_RELEASE -= -O1
 QMAKE_CXXFLAGS_RELEASE -= -O2
@@ -21,10 +21,10 @@ HEADERS += \
 	tdcdata/structs.hpp \
 	trek/chamber.hpp \
 	trek/chamberhandler.hpp \
-	trek/chamberrender.hpp \
 	trek/trekhandler.hpp \
 	serialization.hpp \
-	configparser/flagparser.hpp
+	configparser/flagparser.hpp \
+    json.hpp
 
 SOURCES += \
 	configparser/appconfigparser.cpp \
@@ -33,6 +33,5 @@ SOURCES += \
 	tdcdata/event.cpp \
 	trek/chamber.cpp \
 	trek/chamberhandler.cpp \
-	trek/chamberrender.cpp \
 	trek/trekhandler.cpp \
 	configparser/flagparser.cpp

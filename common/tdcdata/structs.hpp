@@ -13,13 +13,13 @@ namespace tdcdata {
 using UIntVector	= std::vector<uint32_t>;
 
 struct DateTime {
-	uint8_t hsecond;	/*!< сотые секунды */
-	uint8_t second;		/*!< секунда */
-	uint8_t minute;		/*!< минута */
-	uint8_t hour;		/*!< час */
-	uint8_t day;		/*!< день */
-	uint8_t month;		/*!< месяц */
-	uint16_t year;		/*!< год */
+	uint8_t hsecond;	/**< сотые секунды */
+	uint8_t second;		/**< секунда */
+	uint8_t minute;		/**< минута */
+	uint8_t hour;		/**< час */
+	uint8_t day;		/**< день */
+	uint8_t month;		/**< месяц */
+	uint16_t year;		/**< год */
 
 	void serialize(std::ostream& stream) const {
 		::serialize(stream, hsecond);
@@ -48,10 +48,10 @@ struct DateTime {
 };
 
 struct NVDEvent {
-	uint32_t	st;			/*!< номер события */
-	uint8_t		tr[2];		/*!< статус биты[local,extern], маска сработавших плоскостей */
-	uint16_t	ti[2];		/*!< живое время время ожидания последнего события */
-	uint32_t	dt[64];		/*!< закодированные данные */
+	uint32_t	st;			/**< номер события */
+	uint8_t		tr[2];		/**< статус биты[local,extern], маска сработавших плоскостей */
+	uint16_t	ti[2];		/**< живое время время ожидания последнего события */
+	uint32_t	dt[64];		/**< закодированные данные */
 
 	void serialize(std::ostream& stream) const {
 		::serialize(stream, st);
@@ -71,15 +71,15 @@ struct NVDEvent {
 };
 
 struct UraganEvent { //Структура метки события для TSD
-	int8_t		start[6];		/*!< Ключевое слово начала записи */
-	int16_t		type;			/*!< Тип записи:0-Config,1-монитор,2-Experement event,3-Noise */
-	uint32_t	nRun;			/*!< Номер текущего рана */
-	uint32_t	nEvent;			/*!< Номер текущего события */
-	DateTime	dt;				/*!< Время события */
-	int16_t		trackID;		/*!< Признак наличия трека в URAGANе */
-	double	chp0[3];			/*!< Координаты точки трека в миллиметрах в системе НЕВОДа */
-	double	chp1[3];			/*!< Координаты точки трека в миллиметрах в системе НЕВОДа */
-	NVDEvent	event;				/*!<Кодированные данные события */
+	int8_t		start[6];		/**< Ключевое слово начала записи */
+	int16_t		type;			/**< Тип записи:0-Config,1-монитор,2-Experement event,3-Noise */
+	uint32_t	nRun;			/**< Номер текущего рана */
+	uint32_t	nEvent;			/**< Номер текущего события */
+	DateTime	dt;				/**< Время события */
+	int16_t		trackID;		/**< Признак наличия трека в URAGANе */
+	double	chp0[3];			/**< Координаты точки трека в миллиметрах в системе НЕВОДа */
+	double	chp1[3];			/**< Координаты точки трека в миллиметрах в системе НЕВОДа */
+	NVDEvent	event;				/**<Кодированные данные события */
 	void serialize(std::ostream& stream) const {
 		::serialize(stream, start, sizeof(start));
 		::serialize(stream, type);
@@ -112,17 +112,17 @@ struct UraganEvent { //Структура метки события для TSD
 
 //Настройки TDC
 struct TdcSettings {
-	uint8_t		trigMode;	/*!< Триггерный режим */
-	uint8_t		subTrig;	/*!< Trigger subtraction */
-	uint8_t		tdcMeta;	/*!< Дополнительные слова с TDC */
-	uint16_t	winWidth;	/*!< Ширина окна в нс */
-	uint16_t	winOffset;	/*!< Сдвиг окна в нс */
-	uint16_t	detection;	/*!< Тип измерения */
-	uint16_t	lsb;		/*!< Разрешение измерения */
-	uint16_t	almostFull;	/*!< Значение регистра almostFull */
-	uint16_t	control;	/*!< Значение регистра control */
-	uint16_t	status;		/*!< Значение регистра status */
-	uint16_t	deadTime;	/*!< Значение регистра deadTime */
+	uint8_t		trigMode;	/**< Триггерный режим */
+	uint8_t		subTrig;	/**< Trigger subtraction */
+	uint8_t		tdcMeta;	/**< Дополнительные слова с TDC */
+	uint16_t	winWidth;	/**< Ширина окна в нс */
+	uint16_t	winOffset;	/**< Сдвиг окна в нс */
+	uint16_t	detection;	/**< Тип измерения */
+	uint16_t	lsb;		/**< Разрешение измерения */
+	uint16_t	almostFull;	/**< Значение регистра almostFull */
+	uint16_t	control;	/**< Значение регистра control */
+	uint16_t	status;		/**< Значение регистра status */
+	uint16_t	deadTime;	/**< Значение регистра deadTime */
 
 	void serialize(std::ostream& stream) const {
 		::serialize(stream, trigMode);
@@ -178,10 +178,10 @@ struct TUDataSetHeader {
 			return false;
 		return true;
 	}
-	uint16_t	fileType;	/*!< Тип файла: 0 - без данныйх с Урагана, 1 - с даннными с урагана */
-	uint16_t	key;		/*!< Контрольное поле */
-	uint64_t	fileSize;	/*!< Размер файла в байтах */
-	TdcSettings	settings;	/*!< Настройки TDC, при которых осуществлялся набор */
+	uint16_t	fileType;	/**< Тип файла: 0 - без данныйх с Урагана, 1 - с даннными с урагана */
+	uint16_t	key;		/**< Контрольное поле */
+	uint64_t	fileSize;	/**< Размер файла в байтах */
+	TdcSettings	settings;	/**< Настройки TDC, при которых осуществлялся набор */
 
 	void serialize(std::ostream& stream) const {
 		::serialize(stream, fileType);

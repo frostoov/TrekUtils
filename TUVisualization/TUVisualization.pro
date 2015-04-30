@@ -11,18 +11,19 @@ QMAKE_CXXFLAGS_RELEASE += -O3
 
 HEADERS += \
 	appconfigparser.hpp \
-	mainwindow.hpp
+	mainwindow.hpp \
+	chamberrender.hpp
 
 SOURCES += \
 	appconfigparser.cpp \
 	main.cpp \
-	mainwindow.cpp
+	mainwindow.cpp \
+	chamberrender.cpp
 
 INCLUDEPATH += ../common
 OBJECTS += \
 	../common/chamber.o \
 	../common/chamberconfigparser.o \
 	../common/chamberhandler.o \
-	../common/chamberrender.o \
 	../common/dataset.o \
 	../common/event.o \

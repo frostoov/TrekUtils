@@ -2,7 +2,7 @@
 #include "chamberrender.hpp"
 
 QPixmap ChamberRender::getPixmap(int width, int height, const TrackDesc* tTrack,
-                                 const Line2* uTrack, const ChamberEvent* event) {
+                                 const Line2* uTrack, const ChamberDistances* event) {
 	auto pixmap = QPixmap(width, height);
 	pixmap.fill();
 
@@ -14,7 +14,7 @@ QPixmap ChamberRender::getPixmap(int width, int height, const TrackDesc* tTrack,
 }
 
 void ChamberRender::drawPixmap(QPixmap& pix, double scaleX, double scaleY, const TrackDesc* tTrack,
-                               const Line2* uTrack, const ChamberEvent* event) {
+                               const Line2* uTrack, const ChamberDistances* event) {
 	QPainter painter(&pix);
 	painter.setRenderHint(QPainter::Antialiasing, true);
 	drawWires(painter,scaleX,scaleY, event);
@@ -24,7 +24,7 @@ void ChamberRender::drawPixmap(QPixmap& pix, double scaleX, double scaleY, const
 }
 
 void ChamberRender::drawWires(QPainter& painter, double scaleX, double scaleY,
-                              const ChamberEvent* event) {
+                              const ChamberDistances* event) {
 	painter.setBrush(Qt::white);
 	painter.setPen(Qt::black);
 

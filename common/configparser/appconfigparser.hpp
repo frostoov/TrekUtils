@@ -2,24 +2,19 @@
 #define TREKVIEWER_APPCONFIGPARSER_HPP
 
 #include <unordered_map>
+#include "json.hpp"
 #include "configparser/configparser.hpp"
-
-
-using AppConfig = std::unordered_map<std::string, std::string>;
 
 class AppConfigParser : public AbstractConfigParser {
   public:
-	AppConfigParser(const AppConfig&& defaultConf);
+	AppConfigParser(const nlohmann::json&& defaultConf);
 
 	virtual void load(const std::string& fileName) override;
 	virtual void save(const std::string& fileName) override;
 
-	AppConfig& getConfig() {return mConfig;}
-	const AppConfig& getConfig() const {return mConfig;}
-  protected:
-	void parseString(const std::string& inputString, AppConfig& config);
+	const nlohmann::json& getConfig() const {return mConfig;}
   private:
-	AppConfig mConfig;
+	nlohmann::json mConfig;
 };
 
 #endif // TREKVIEWER_APPCONFIGPARSER_HPP

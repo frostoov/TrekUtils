@@ -14,7 +14,7 @@
 #include <QListWidget>
 
 #include "tdcdata/dataset.hpp"
-#include "trek/chamberrender.hpp"
+#include "chamberrender.hpp"
 
 #include "appconfigparser.hpp"
 #include "configparser/chamberconfigparser.hpp"

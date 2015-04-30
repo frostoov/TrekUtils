@@ -4,13 +4,12 @@
 #include <QPixmap>
 #include <QPainter>
 
-#include "chamberhandler.hpp"
+#include "trek/chamberhandler.hpp"
 #include "tdcdata/event.hpp"
 
 class ChamberRender {
-	using ChamberEventHandler = trek::ChamberHandler;
-	using TrackDesc = ChamberEventHandler::TrackDesc;
-	using ChamberEvent = tdcdata::TDCEvent::ChamberEvent;
+	using TrackDesc = trek::ChamberHandler::TrackDesc;
+	using ChamberDistances =  trek::ChamberHandler::Distances;
 	using Vec2		= vecmath::TVec2<double>;
 	using Line2		= vecmath::TLine2<double>;
 	using dVector	= std::vector<double>;
@@ -18,11 +17,11 @@ class ChamberRender {
 	using lVector	= std::vector<Line2>;
   public:
 	QPixmap getPixmap(int width, int height, const TrackDesc* tTrack,
-	                  const Line2* uTrack, const ChamberEvent* event);
+	                  const Line2* uTrack, const ChamberDistances* event);
   protected:
 	void drawPixmap(QPixmap& pix, double scaleX, double scaleY, const TrackDesc* tTrack,
-	                const Line2* uTrack, const ChamberEvent* event);
-	void drawWires			(QPainter& painter, double scaleX, double scaleY, const ChamberEvent* event);
+	                const Line2* uTrack, const ChamberDistances* event);
+	void drawWires			(QPainter& painter, double scaleX, double scaleY, const ChamberDistances* event);
 	void drawChamberPoints  (QPainter& painter, double scaleX, double scaleY, const TrackDesc* tTrack);
 	void drawChamberTracks  (QPainter& painter, double scaleX, double scaleY, const TrackDesc* tTrack);
 	void drawUraganTracks	(QPainter& painter, double scaleX, double scaleY, const Line2* uTrack);

@@ -88,7 +88,7 @@ class TDCEvent {
 	void pushMsr(uint32_t word) { mTrekEvent.push_back(word); }
 	const EventType mType;
   private:
-	UIntVector		mTrekEvent;		/*!< Вектор с сырыми записями. */
+	UIntVector		mTrekEvent;		/**< Вектор с сырыми записями. */
 };
 
 /**
@@ -114,7 +114,7 @@ class TUEvent : public TDCEvent {
   protected:
 	void setUraganData	(const UraganEvent& data) { mUraganEvent = data; }
   private:
-	UraganEvent mUraganEvent;	/*!< Событие с урагана */
+	UraganEvent mUraganEvent;	/**< Событие с урагана */
 };
 
 

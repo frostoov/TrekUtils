@@ -2,6 +2,7 @@
 #include <fstream>
 #include "matrixhandler.hpp"
 
+using trek::ChamberConfig;
 using std::acos;
 using tdcdata::TUEvent;
 using tdcdata::UIntVector;
@@ -10,14 +11,15 @@ using vecmath::todeg;
 using std::cout;
 using std::endl;
 using std::to_string;
+using vecmath::todeg;
+using std::atan;
 
-MatrixHandler::MatrixHandler()
-	: mMatrixN(rows, cols) {}
+MatrixHandler::MatrixHandler(const ChamberConfig& config, uint32_t pedestal, double speed)
+	: mMatrixN(rows, cols), mTrekHandler(config, pedestal, speed) {}
 
-void MatrixHandler::handleEvent(const TUEvent& event) {
-	struct TPoint3D {
-		double x, y, z;
-	};
+void MatrixHandler::handleEvent(const TUEvent& rawEvent) {
+	mTrekHandler.loadEvent(rawEvent);
+	struct TPoint3D { double x, y, z; };
 
 	auto eventChecker = [&](const UIntVector &data, uintmax_t cham)->bool {
 		uint8_t wireFlag = 0;
@@ -31,7 +33,7 @@ void MatrixHandler::handleEvent(const TUEvent& event) {
 		return false;
 	};
 
-	auto& uraganEvent = event.getUraganEvent();
+	auto& uraganEvent = rawEvent.getUraganEvent();
 
 	TPoint3D P1 { uraganEvent.chp0[0], uraganEvent.chp0[1], uraganEvent.chp0[2], };
 	TPoint3D P2 { uraganEvent.chp1[0], uraganEvent.chp1[1], uraganEvent.chp1[2], };
@@ -63,16 +65,38 @@ void MatrixHandler::handleEvent(const TUEvent& event) {
 		double x = Dx + y*sin(0.25*PI/180);
 		size_t ix = (x/22.+0)+0.5;		// 22    - размер ячейки
 		size_t iy = (y/22.+0)+0.5;
-		if(ix < mMatrixN.cols() && iy < mMatrixN.rows()) {
+		if(ix < cols && iy < rows) {
 			++mMatrixN(iy, ix);
-			auto triggChambers = event.getTriggeredChambers();
+			auto triggChambers = rawEvent.getTriggeredChambers();
 			for(auto cham : triggChambers) {
 				if(mMatricesT.count(cham) == 0)
 					mMatricesT[cham] = Matrix(rows, cols);
 				auto& tMatrix = mMatricesT.at(cham);
-				if(eventChecker(event.getTrekEventRaw(), cham) &&
+				if(eventChecker(rawEvent.getTrekEventRaw(), cham) &&
 				        iy < tMatrix.rows() && ix < tMatrix.cols())
 					++tMatrix(iy, ix);
+			}
+			for(const auto& chamberPair : mTrekHandler.getChambers()) {
+				auto  chamNumber  = chamberPair.first;
+				auto& chamber     = chamberPair.second;
+				if(chamber.hasTrack()) {
+					auto uragan = chamber.getUraganProjection(rawEvent.getUraganEvent().chp0,
+					              rawEvent.getUraganEvent().chp1);
+					auto track = chamber.getTrackDesc();
+					auto trackAngle = atan(track.line.k()) * todeg;
+					auto uraganAngle = atan(uragan.k()) * todeg;
+					auto deltaB      = track.line.b() - uragan.b();
+					auto deltaA      = trackAngle - uraganAngle;
+					if(mMatricesDev.count(chamNumber) == 0)
+						mMatricesDev[chamNumber] = DMatrix(rows, cols);
+					mMatricesDev.at(chamNumber)(iy, ix) += track.dev;
+					if(mMatricesDeltaA.count(chamNumber) == 0)
+						mMatricesDeltaA[chamNumber] = DMatrix(rows, cols);
+					mMatricesDeltaA.at(chamNumber)(iy, ix) += deltaA;
+					if(mMatricesDeltaB.count(chamNumber) == 0)
+						mMatricesDeltaB[chamNumber] = DMatrix(rows, cols);
+					mMatricesDeltaB.at(chamNumber)(iy, ix) += deltaB;
+				}
 			}
 		}
 	}
@@ -87,15 +111,45 @@ void MatrixHandler::flush() {
 void MatrixHandler::outputMatriciesMap() {
 	outputMatrix(mMatrixN, "matrixN");
 	outputMatriciesMap(mMatricesT,"matrixT");
-	DMatrix matrixE(rows, cols);
-	for(const auto& matrixTPair : mMatricesT) {
-		auto& matrixT = matrixTPair.second;
-		auto cham = matrixTPair.first;
-		for (size_t i = 0; i < matrixE.rows(); ++i)
-			for (size_t j = 0; j < matrixE.cols(); ++j)
+	DMatrix tempMatrix(rows, cols);
+	for(const auto& matrixPair : mMatricesT) {
+		auto& matrix = matrixPair.second;
+		auto cham = matrixPair.first;
+		for (size_t i = 0; i < rows; ++i)
+			for (size_t j = 0; j < cols; ++j)
 				if(mMatrixN(i,j) != 0)
-					matrixE(i, j) =  static_cast<double>(matrixT(i, j)) / mMatrixN(i, j);
-		outputMatrix(matrixE, "matrixE" + to_string(cham+1));
+					tempMatrix(i, j) =  static_cast<double>(matrix(i, j)) / mMatrixN(i, j);
+		outputMatrix(tempMatrix, "matrixE" + to_string(cham+1));
+	}
+	tempMatrix.fill(0);
+	for(const auto& matrixPair : mMatricesDev) {
+		auto& matrix = matrixPair.second;
+		auto cham = matrixPair.first;
+		for (size_t i = 0; i < rows; ++i)
+			for (size_t j = 0; j < cols; ++j)
+				if(mMatrixN(i,j) != 0)
+					tempMatrix(i, j) =  static_cast<double>(matrix(i, j)) / mMatrixN(i, j);
+		outputMatrix(tempMatrix, "matrixDev" + to_string(cham+1));
+	}
+	tempMatrix.fill(0);
+	for(const auto& matrixPair : mMatricesDeltaA) {
+		auto& matrix = matrixPair.second;
+		auto cham = matrixPair.first;
+		for (size_t i = 0; i < rows; ++i)
+			for (size_t j = 0; j < cols; ++j)
+				if(mMatrixN(i,j) != 0)
+					tempMatrix(i, j) =  static_cast<double>(matrix(i, j)) / mMatrixN(i, j);
+		outputMatrix(tempMatrix, "matrixDeltaA" + to_string(cham+1));
+	}
+	tempMatrix.fill(0);
+	for(const auto& matrixPair : mMatricesDeltaB) {
+		auto& matrix = matrixPair.second;
+		auto cham = matrixPair.first;
+		for (size_t i = 0; i < rows; ++i)
+			for (size_t j = 0; j < cols; ++j)
+				if(mMatrixN(i,j) != 0)
+					tempMatrix(i, j) =  static_cast<double>(matrix(i, j)) / mMatrixN(i, j);
+		outputMatrix(tempMatrix, "matrixDeltaB" + to_string(cham+1));
 	}
 }
 

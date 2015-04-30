@@ -8,20 +8,13 @@
 #include "configparser.hpp"
 #include "trek/chamberhandler.hpp"
 
-using AppConfig     = std::unordered_map<std::string, std::string>;
-
 class ChamberConfigParser : public AbstractConfigParser {
-	using ChamberPosition = trek::ChamberPosition;
-	using ChamberConfig   = trek::ChamberConfig;
   public:
 	virtual void load(const std::string& fileName);
 	virtual void save(const std::string&) {}
-	const ChamberConfig& getConfig() const { return config; }
-	ChamberConfig& getConfig() { return config; }
-  protected:
-	bool parseLine(std::string& str, ChamberPosition& chPos, size_t& ndc);
+	const trek::ChamberConfig& getConfig() const { return mConfig; }
   private:
-	ChamberConfig config;
+	trek::ChamberConfig mConfig;
 };
 
 #endif // CHAMBERCONFIGPARSER_HPP

@@ -20,9 +20,9 @@ using ChamberPoints = std::array<vecmath::Vec3, 3>;
  * @brief Описание положения дрейфовой камеры
  */
 struct ChamberPosition {
-	ChamberPoints points;  /*!< Точки дрейфовой камеры */
-	unsigned int plane;	   /*!< Номер плоскости дрейфовой камеры */
-	unsigned int group;	   /*!< Номер группы дрейфовой камеры */
+	ChamberPoints points;  /**< Точки дрейфовой камеры */
+	unsigned int plane;	   /**< Номер плоскости дрейфовой камеры */
+	unsigned int group;	   /**< Номер группы дрейфовой камеры */
 };
 
 using ChamberConfig = std::unordered_map<uintmax_t, ChamberPosition>;
@@ -35,11 +35,15 @@ using ChamberConfig = std::unordered_map<uintmax_t, ChamberPosition>;
  * @brief Обработка mChamberTrackданны события дрейфовой камеры
  */
 class ChamberHandler {
+	using DoubleVector = std::vector<double>;
+	using TimeRow = std::array<uint32_t, 4>;
+	using DistanceRow = std::array<double, 4>;
+	using Indecies      = std::array<uintmax_t, 4>;
   public:
-
 	using UIntVector	= std::vector<uint32_t>;
-	using ChamberData	= std::array<UIntVector, 4>;
-	using PointVector	= std::vector<vecmath::Vec2>;
+	using Event	        = std::array<UIntVector, 4>;
+	using Distances     = std::array<DoubleVector, 4>;
+	using Points	    = std::vector<vecmath::Vec2>;
 
 	/**
 	 * @class TrackDesc
@@ -49,10 +53,10 @@ class ChamberHandler {
 	 * @brief Структура с данными одного трека
 	 */
 	struct TrackDesc {
-		vecmath::Line2					line;		/*!< Линия трека */
-		PointVector				points;		/*!< Точки, по которым был восстановлен трек */
-		double					dev;		/*!< Отклонение линии */
-		std::array<uint32_t, 4>	times;		/*!< Вермена с TDC */
+		vecmath::Line2					line;		/**< Линия трека */
+		Points				points;		/**< Точки, по которым был восстановлен трек */
+		double					dev;		/**< Отклонение линии */
+		std::array<uint32_t, 4>	times;		/**< Вермена с TDC */
 	};
 	ChamberHandler(uint32_t pedestal = 0, double speed = 0);
 	/**
@@ -60,7 +64,7 @@ class ChamberHandler {
 	 * @param chamberData Событие дрейфовой камеры
 	 */
 
-	void setChamberData(const ChamberData& chamberData);
+	void setChamberData(const Event& chamberEvent);
 	/**
 	 * @brief Проверка наличия данных события с дрейфовых камер
 	 * @return флаг наличия реконтрукции трека дрейфовых камер
@@ -69,9 +73,9 @@ class ChamberHandler {
 	/**
 	 * @brief Получение ссылки на событие с дрейфовых камер
 	 */
-	const ChamberData& getChamberEvent() const {
+	const Distances& getChamberEvent() const {
 		if(mHasChamberData)
-			return mChamberData;
+			return mChamberDistances;
 		throw std::runtime_error("ChamberEventHandler: getChamberData: no chamber data");
 	}
 	/**
@@ -98,17 +102,20 @@ class ChamberHandler {
 	 */
 	void setSpeed(double speed) { mSpeed = speed; }
   protected:
-	void	createVariation(const ChamberData& chamData, const std::array<size_t, 4>& indices,
-	                        size_t offset, std::array<uint32_t, 4>& variant);
-	size_t	getDepth(const ChamberData& chamData);
-	bool	createProjection();
-	void    createProjection(TrackDesc& track);
-	double	leastSquares(const PointVector& points, vecmath::Line2& line);
+	template<typename Source, typename Dest>
+	void	createVariation(const Source& chamData, const std::array<uintmax_t, 4>& indices,
+	                        Dest& variant);
+	size_t	getDepth(const Event& chamData);
+	bool	createProjection(const Event& chamberEvent);
+	double createProjection(const std::array<uint32_t, 4>& distances,
+	                        Points& points, vecmath::Line2& line);
+	double	leastSquares(const Points& points, vecmath::Line2& line);
 	bool	systemError(TrackDesc& track);
 	double	getSystemError(double r, double ang) { return r*(1/std::cos(ang) - 1); }
+	void    getDistances(const Event& data, Distances& distances);
   private:
-	ChamberData mChamberData;
-	TrackDesc	mChamberTrack;
+	Distances mChamberDistances;
+	TrackDesc mChamberTrack;
 
 	uint32_t	mPedestal;
 	double		mSpeed;
