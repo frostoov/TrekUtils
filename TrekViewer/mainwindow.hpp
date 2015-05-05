@@ -14,6 +14,7 @@
 #include "configparser/chamberconfigparser.hpp"
 #include "configparser/appconfigparser.hpp"
 #include "trackglwidget.hpp"
+#include "json.hpp"
 
 class MainWindow : public QMainWindow {
 	using DataSet       = tdcdata::DataSet;
@@ -21,7 +22,8 @@ class MainWindow : public QMainWindow {
 	using TrekHandler   = trek::TrekHandler;
 	Q_OBJECT
   public:
-	explicit MainWindow(QWidget* parent = nullptr);
+	explicit MainWindow(const ChamberConfig& chamberConfig, const nlohmann::json& appConfig,
+						QWidget* parent = nullptr);
 	~MainWindow();
   protected:
 	virtual void keyPressEvent(QKeyEvent* ke);
@@ -39,9 +41,6 @@ class MainWindow : public QMainWindow {
 	QAction* openEvtAction;
 	QAction* quitAppAction;
 	QMenu*   fileMenu;
-
-	ChamberConfig mChamberConfig;
-	AppConfig	  mAppConfig;
 
 	size_t mCurrentEvent;
 };

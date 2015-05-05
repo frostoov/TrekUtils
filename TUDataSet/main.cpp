@@ -42,13 +42,13 @@ int main(int argc, char* argv[]) {
 	ChamberConfigParser parser;
 	try {
 		parser.load("chambers.json");
+		cout << "Config has been read" << endl;
 	} catch (const exception& e) {
 		cout << "Reading chambers.json: " << e.what() << endl;
 	}
-	cout << "Config has been read" << endl;
 
 	if((flags.tracks || flags.projections || flags.matrix) &&
-	        (flags.pedestal == 0 || flags.speed == 0) ) {
+			(flags.pedestal == 0 || flags.speed == 0) ) {
 		auto handler = new ParametersHandler;
 		std::vector<AbstractEventHandler*> handlers{handler};
 		try {

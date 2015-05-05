@@ -20,6 +20,8 @@ void ChamberConfigParser::load(const string& fileName) {
 
 	string jsonText({istreambuf_iterator<char>(configFile), istreambuf_iterator<char>()});
 
+//	std::cout << "Json text:\n" << jsonText << std::endl;
+
 	auto config = json::parse(jsonText);
 	if(config.count("chambers") == 1) {
 		auto& chambers = config.at("chambers");
@@ -34,10 +36,11 @@ void ChamberConfigParser::load(const string& fileName) {
 					Vec3(double(thirdPoint.at(0)),  double(thirdPoint.at(1)),  double(thirdPoint.at(2)))
 				}
 			};
-			mConfig[chamber.at("number")] = {
+			auto chamNumber = static_cast<size_t>(chamber.at("number")) - 1;
+			mConfig[chamNumber] = {
 				points,
-				chamber.at("plane"),
-				chamber.at("group")
+				unsigned(chamber.at("plane")),
+				unsigned(chamber.at("group"))
 			};
 		}
 	}

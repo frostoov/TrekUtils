@@ -17,7 +17,7 @@ void AppConfigParser::load(const string& fileName) {
 	configFile.exceptions(ifstream::badbit);
 	configFile.open(fileName, ifstream::binary);
 	string jsonText({istreambuf_iterator<char>(configFile),istreambuf_iterator<char>()});
-	auto config = json::parse(jsonText);
+	mConfig = json::parse(jsonText);
 }
 
 void AppConfigParser::save(const string& fileName) {

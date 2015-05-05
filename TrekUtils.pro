@@ -7,4 +7,4 @@ CONFIG  -= debug_and_release
 SUBDIRS += \
 	TUDataSet \
 #	TUVisualization \
-#	TrekViewer
+	TrekViewer

@@ -1,37 +1,27 @@
 #include <QMessageBox>
+#include <QApplication>
 #include <iostream>
 #include "mainwindow.hpp"
 
 using std::exception;
+using nlohmann::json;
+using std::cout;
+using std::endl;
 
-MainWindow::MainWindow(QWidget* parent)
+MainWindow::MainWindow(const ChamberConfig& chamberConfig, const json& appConfig,
+					   QWidget* parent)
 	: QMainWindow(parent), mCurrentEvent(0) {
-	ChamberConfigParser chamberParser;
-	try {
-		chamberParser.load("chambers.conf");
-		mChamberConfig = chamberParser.getConfig();
-	} catch( const exception& e) {
-		errorMessage("Exception", QString("Chambers Config: ") + e.what());
-	}
 
 	double speed = 0;
 	uint32_t pedestal = 0;
-
-	AppConfigParser appParser({{"pedestal", "0"} , {"speed", "0"}});
 	try {
-		appParser.load("TUVisualization.conf");
-		mAppConfig     = appParser.getConfig();
-		try {
-			speed    = std::stod(mAppConfig.at("speed"));
-			pedestal = std::stoul(mAppConfig.at("pedestal"));
-		} catch(const exception& e) {
-			errorMessage("Exception", QString("TUVisualization Config: ") + e.what());
-		}
+		speed    = appConfig.at("speed");
+		pedestal = appConfig.at("pedestal");
 	} catch(const exception& e) {
-		errorMessage("Exception", QString("TUVisualization Config: ") + e.what());
+		errorMessage("Exception", QString("TrekViewer Config: ") + e.what());
 	}
 
-	mTrekHandler = new TrekHandler(chamberParser.getConfig(), pedestal, speed);
+	mTrekHandler = new TrekHandler(chamberConfig, pedestal, speed);
 	mTrekWidget  = new TrekGLWidget(mTrekHandler,this);
 
 	QSurfaceFormat glf;
@@ -109,9 +99,9 @@ void MainWindow::createAction() {
 	quitAppAction->setShortcuts(QKeySequence::Quit);
 
 	connect(openEvtAction,	&QAction::triggered,
-	        this,			&MainWindow::openData);
+			this,			&MainWindow::openData);
 	connect(quitAppAction,	&QAction::triggered,
-	        qApp,			&QApplication::quit);
+			qApp,			&QApplication::quit);
 }
 
 void MainWindow::createMenues() {
