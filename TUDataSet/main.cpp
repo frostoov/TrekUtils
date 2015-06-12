@@ -3,72 +3,136 @@
 #include <cstring>
 
 #include "tdcdata/dataset.hpp"
-#include "eventhandler/paramshandler.hpp"
 
 #include "eventhandler/matrixhandler.hpp"
 #include "eventhandler/listinghandler.hpp"
 #include "eventhandler/trackshandler.hpp"
+#include "eventhandler/parametershandler.hpp"
 
 #include "configparser/chamberconfigparser.hpp"
-#include "tools.hpp"
+#include "configparser/appconfigparser.hpp"
 #include "configparser/flagparser.hpp"
 
+#include <boost/filesystem/path.hpp>
+#include <boost/filesystem/operations.hpp>
+
+#include "tools.hpp"
+
 using tdcdata::DataSet;
-using tdcdata::ParametersHandler;
 using tdcdata::AbstractEventHandler;
 using std::ios_base;
 using std::exception;
 using std::cout;
 using std::cin;
 using std::endl;
+using std::flush;
 using std::string;
 
+string createDir(const string& dirPath) {
+	using namespace boost::filesystem;
+	path bDirPath(dirPath);
+	if(!is_directory(bDirPath))
+		create_directory(bDirPath);
+	return absolute(bDirPath).native();
+}
+
 int main(int argc, char* argv[]) {
+	ios_base::sync_with_stdio(false);
+
 	if(argc == 1) {
 		help();
 		exit(0);
 	}
-	ios_base::sync_with_stdio(false);
+
 	AppFlags flags;
 	try {
+		cout << "Parsing Flags: " << flush;
 		flags = loadFlags(argc, argv);
+		cout << "success" << endl;
 	} catch(const exception& e) {
-		cout << "ParsingFlags: " << e.what() << endl;
+		cout << "error" << endl;
 		help();
 		exit(0);
 	}
+	struct AppConfig {
+		double   defaultSpeed;
+		uint32_t defaultOffset;
+		bool     needFindParams;
+	} appConfig = {
+		0, 0, false
+	};
+
+	AppConfigParser appParser({
+		{"speed",  appConfig.defaultSpeed},
+		{"offset", appConfig.defaultOffset},
+		{"auto",   appConfig.needFindParams},
+	});
+	try {
+		cout << "Reading TUDataSet.conf: " << flush;
+		appParser.load("TUDataSet.conf");
+		const auto& config = appParser.getConfig();
+		appConfig.defaultOffset  = config.at("offset");
+		appConfig.defaultSpeed   = config.at("speed");
+		appConfig.needFindParams = config.at("auto");
+		cout << "success" << endl;
+	} catch (const exception& e) {
+		cout << "error: " << e.what() << endl;
+		exit(1);
+	}
+
+	ChamberConfigParser parser(appConfig.defaultOffset, appConfig.defaultSpeed);
+	try {
+		cout << "Reading chambers.conf: " << flush;
+		parser.load("chambers.conf");
+		cout << "success" << endl;
+	} catch (const exception& e) {
+		cout << "error: " << e.what() << endl;
+		exit(1);
+	}
 
 	DataSet buffer;
-	ChamberConfigParser parser;
-	try {
-		parser.load("chambers.json");
-		cout << "Config has been read" << endl;
-	} catch (const exception& e) {
-		cout << "Reading chambers.json: " << e.what() << endl;
-	}
-
-	if((flags.tracks || flags.projections || flags.matrix) &&
-			(flags.pedestal == 0 || flags.speed == 0) ) {
-		auto handler = new ParametersHandler;
-		std::vector<AbstractEventHandler*> handlers{handler};
+	if( (appConfig.needFindParams && (flags.matrix || flags.projections)) || flags.parameters) {
+		auto parameterHandler = new ParametersHandler;
+		std::vector<AbstractEventHandler*> handlers{parameterHandler};
 		try {
-			cout << "Finding data parameters" << endl;
-			handleData(flags.path, buffer, handlers);
-			flags.pedestal = handler->getPedestal();
-			flags.speed    = handler->getSpeed();
+			handleData(flags.dirPath, buffer, handlers);
+			auto chamberConfig = parser.getConfig();
+			const auto& parameters = parameterHandler->getParameters();
+			for(const auto& chamberParametersPair : parameters) {
+				const auto  chamberNumber = chamberParametersPair.first;
+				if(chamberConfig.count(chamberNumber)) {
+					const auto& chamberParameters = chamberParametersPair.second;
+					chamberConfig.at(chamberNumber).setParameters(chamberParameters);
+				}
+			}
+			parser.setConfig(chamberConfig);
+			cout << "Parameter was found" << endl;
+			if(flags.parameters) {
+				cout << "writing new config to chambers.new.conf" << endl;
+				parser.save("chambers.new.conf");
+			}
 		} catch(const exception& e) {
-			cout << e.what() << endl;
+			cout << "Finding parameters: " << e.what() << endl;
+			exit(1);
 		}
-		for(auto& handler : handlers) delete handler;
+		delete parameterHandler;
 	}
-	cout << "pedestal = " << flags.pedestal << endl;
-	cout << "speed = "    << flags.speed << endl;
+	for(const auto& desc : parser.getConfig()) {
+		cout << "Chamber : " << desc.first + 1 << endl;
+		for(size_t wireNumber = 0; wireNumber < desc.second.getParameters().size(); ++wireNumber) {
+			const auto& wireParams = desc.second.getParameters().at(wireNumber);
+			cout << "  Wire : " << wireNumber << endl;
+			cout << "    Offset : " << wireParams.getOffset() << endl;
+			cout << "    Speed  : " << wireParams.getSpeed() << endl;
+		}
+		cout << "====" << endl;
+	}
 
 	std::vector<AbstractEventHandler*> handlers;
-	if(flags.listing) handlers.push_back(new ListingHandler);
-	if(flags.matrix ) handlers.push_back(new MatrixHandler(parser.getConfig(), flags.pedestal, flags.speed));
+	if(flags.listing) handlers.push_back(new ListingHandler(createDir("listings")));
+	if(flags.matrix ) handlers.push_back(new MatrixHandler(parser.getConfig(), createDir("matrices")));
 	if(flags.projections || flags.tracks) {
-		auto tracksHandler = new TracksHandler(parser.getConfig(), flags.pedestal, flags.speed);
+		auto tracksHandler = new TracksHandler(parser.getConfig(), createDir("tracks"));
 		tracksHandler->needProjection(flags.projections);
 		tracksHandler->needTracks(flags.tracks);
 		handlers.push_back(tracksHandler);
@@ -77,7 +141,8 @@ int main(int argc, char* argv[]) {
 	if(handlers.empty() == false) {
 		try {
 			cout << "processing data..." << endl;
-			cout << "Event count = " <<  handleData(flags.path, buffer, handlers) << endl;
+			auto eventCount = handleData(flags.dirPath, buffer, handlers);
+			cout << "Event count = " << eventCount  << endl;
 		} catch(const exception& e) {
 			cout << e.what() << endl;
 		}

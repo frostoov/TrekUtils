@@ -10,33 +10,35 @@ using std::array;
 using std::vector;
 using std::unordered_set;
 
-TrekHandler::TrekHandler(const ChamberConfig& config, uint32_t pedestal, double speed)
-	: mEventHandler(pedestal, speed), mHasTrack(false) {
+TrekHandler::TrekHandler(const ChamberConfig& config)
+	: mHasTrack(false) {
 	loadChambers(config);
 }
 
 void TrekHandler::loadEvent(const TUEvent& rawEvent) {
-	const auto& uEvent = rawEvent.getUraganEvent();
-	mUTrack = Line3(Vec3(uEvent.chp0[0], uEvent.chp0[1], uEvent.chp0[2]),
-	                Vec3(uEvent.chp1[0], uEvent.chp1[1], uEvent.chp1[2]));
-	auto event = rawEvent.getTrekEvent();
-	for(auto& chamber : mChambers ) {
-		chamber.second.resetData();
-		if(event.count(chamber.first)) {
-			const auto& chamberEvent = event.at(chamber.first);
-			mEventHandler.setChamberData(chamberEvent);
-			chamber.second.setTrackProjection(mEventHandler);
-		}
+	const auto& uraganEvent = rawEvent.getUraganEvent();
+	mUTrack = {{uraganEvent.chp0[0], uraganEvent.chp0[1], uraganEvent.chp0[2]},
+		{uraganEvent.chp1[0], uraganEvent.chp1[1], uraganEvent.chp1[2]}
+	};
+	auto trekEvent = rawEvent.getTrekEvent();
+	for(auto& chamberPair : mChambers ) {
+		const auto chamberNumber = chamberPair.first;
+		auto& chamber = chamberPair.second;
+		if(trekEvent.count(chamberNumber)) {
+			const auto& chamberEvent = trekEvent.at(chamberNumber);
+			chamber.createTrack(chamberEvent);
+		} else
+			chamber.resetData();
 	}
 }
 
 void TrekHandler::loadChambers(const ChamberConfig& chambers) {
 	mChambers.clear();
-	for(const auto& chamber : chambers)
-		mChambers.insert({chamber.first, chamber.second});
+	for(const auto& chamberDescPair : chambers)
+		mChambers.insert({chamberDescPair.first, chamberDescPair.second});
 }
 
-void TrekHandler::createTrack() {
+bool TrekHandler::createTrack() {
 	mHasTrack = false;
 	unordered_set<const Chamber*> trackChambers;
 	for(const auto& chamber : mChambers) {
@@ -52,72 +54,14 @@ void TrekHandler::createTrack() {
 			mHasTrack = true;
 		}
 	}
+	return mHasTrack;
 }
 
 TrekHandler::Line3 TrekHandler::createTrack(const Chamber& cham1, const Chamber& cham2) {
-	if(cham1.getChamberGroup() != cham2.getChamberGroup() || cham1.getChamberPlane() == cham2.getChamberPlane())
+	if(cham1.getChamberGroup() == cham2.getChamberGroup() && cham1.getChamberPlane() != cham2.getChamberPlane())
+		return vecmath::Plane::getLine(cham1.getTrackPlane(), cham2.getTrackPlane());
+	else
 		throw std::runtime_error("TrekHandler::createTrek: invalid chambers");
-	return createTrack(cham1.getTrackProjection(), cham1.getPoints(),
-	                   cham2.getTrackProjection(), cham2.getPoints());
-}
-
-TrekHandler::Line3 TrekHandler::createTrack(const Line2& track1, const ChamberPoints& pos1,
-        const Line2& track2, const ChamberPoints& pos2) {
-	const auto plane1 = Chamber::getTrackPlane(track1, pos1);
-	const auto plane2 = Chamber::getTrackPlane(track2, pos2);
-
-	return vecmath::Plane::getLine(plane1, plane2);
-}
-
-void TrekHandler::loadVertices(std::vector<float>& data) const {
-	if(mHasTrack) {
-		double delta = 10900 - mTTrack.dot().z();
-		auto vec = mTTrack.vec().ort();
-		vec = vec/vec.z();
-		auto dot = mTTrack.dot() + vec*delta;
-
-		std::cout << dot.z() << std::endl;
-
-		Vec3 point1(dot + mTTrack.vec().ort()*10000);
-		Vec3 point2(dot - mTTrack.vec().ort()*10000);
-		data.insert(end(data), begin(point1), end(point1));
-		data.insert(end(data), begin(point2), end(point2));
-	}
-	double delta = 10900 - mUTrack.dot().z();
-	auto vec = mUTrack.vec().ort();
-	vec = vec/vec.z();
-	auto dot = mUTrack.dot() + vec*delta;
-
-	std::cout << dot.z() << std::endl;
-
-	Vec3 point1(dot + mUTrack.vec()*10000);
-	Vec3 point2(dot - mUTrack.vec()*10000);
-	data.insert(end(data), begin(point1), end(point1));
-	data.insert(end(data), begin(point2), end(point2));
-}
-
-void TrekHandler::loadLineColors(std::vector<float>& data) const {
-	if(mHasTrack) {
-		static float trackColor[] = {
-			0,1,0,1,
-			0,1,0,1,
-		};
-		data.insert(end(data), begin(trackColor), end(trackColor));
-	}
-	static float trackColor[] = {
-		0,0,1,1,
-		0,0,1,1,
-	};
-	data.insert(end(data), begin(trackColor), end(trackColor));
-}
-
-void TrekHandler::loadLineFace(std::vector<unsigned>& face, unsigned start) const {
-	face.push_back(start);
-	face.push_back(start + 1);
-	if(mHasTrack) {
-		face.push_back(start + 2);
-		face.push_back(start + 3);
-	}
 }
 
 } //vecmath

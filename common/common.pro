@@ -18,13 +18,14 @@ HEADERS += \
 	math/vec.hpp \
 	tdcdata/dataset.hpp \
 	tdcdata/event.hpp \
-	tdcdata/structs.hpp \
 	trek/chamber.hpp \
 	trek/chamberhandler.hpp \
 	trek/trekhandler.hpp \
 	serialization.hpp \
 	configparser/flagparser.hpp \
-    json.hpp
+	json.hpp \
+	trek/trektypes.hpp \
+    tdcdata/tdcdatatypes.hpp
 
 SOURCES += \
 	configparser/appconfigparser.cpp \
@@ -34,4 +35,4 @@ SOURCES += \
 	trek/chamber.cpp \
 	trek/chamberhandler.cpp \
 	trek/trekhandler.cpp \
-	configparser/flagparser.cpp
+	configparser/flagparser.cpp \

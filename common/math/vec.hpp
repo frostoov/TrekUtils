@@ -17,8 +17,8 @@ template<typename T>
 class TVec2 {
 	using Vec2 = TVec2<T>;
   public:
-	TVec2(T x = 0,T y = 0)
-		:mData{x,y} {}
+	TVec2(T x = 0, T y = 0)
+		: mData{x, y} {}
 
 	/**
 	 * @brief Оператор сравнения
@@ -30,13 +30,10 @@ class TVec2 {
 		        mData[1] == vec.mData[1]);
 	}
 	/**
-	 * @brief
-	 * @param num
-	 * @return
+	 * @brief Оператор умножения вектора на число
 	 */
 	const Vec2 operator*(T num) const {
-		return {mData[0]* num,
-		        mData[1]* num};
+		return {mData[0]* num, mData[1]* num};
 	}
 	/**
 	 * @brief Сложение векторов
@@ -44,8 +41,7 @@ class TVec2 {
 	 * @return Сумма векторов
 	 */
 	const Vec2 operator+(const Vec2& vec) const {
-		return {mData[0] + vec.mData[0],
-		        mData[1] + vec.mData[1]};
+		return {mData[0] + vec.mData[0], mData[1] + vec.mData[1]};
 	}
 	/**
 	 * @brief Разница векторов
@@ -53,8 +49,7 @@ class TVec2 {
 	 * @return Разниц векторов
 	 */
 	const Vec2 operator-(const Vec2& vec) const {
-		return {mData[0] - vec.mData[0],
-		        mData[1] - vec.mData[1]};
+		return {mData[0] - vec.mData[0], mData[1] - vec.mData[1]};
 	}
 	/**
 	 * @brief Скалярное умножеие векторов
@@ -62,8 +57,7 @@ class TVec2 {
 	 * @return Скалярное произведение векторов
 	 */
 	const T operator*(const Vec2& vec) const {
-		return	mData[0] * vec.mData[0] +
-		        mData[1] * vec.mData[1];
+		return	mData[0] * vec.mData[0] + mData[1] * vec.mData[1];
 	}
 	/**
 	 * @brief Бинарный плюс
@@ -73,11 +67,11 @@ class TVec2 {
 		return *this;
 	}
 	/**
-	 * @brief Бинарный минус
+	 * @brief  Бинарный минус
 	 * @return Возвращает обраный вектор
 	 */
 	Vec2 operator -() const {
-		return {-mData[0], -mData[1]};
+		return { -mData[0], -mData[1]};
 	}
 	/**
 	 * @brief Сложение с данным вектором
@@ -102,9 +96,9 @@ class TVec2 {
 	Vec2 ort() const {
 		auto len = this->abs();
 		if(len)
-			return {mData[0]/len, mData[1]/len};
+			return {mData[0] / len, mData[1] / len};
 		else
-			return {0,0};
+			return {0, 0};
 	}
 
 	/**
@@ -112,8 +106,7 @@ class TVec2 {
 	 * @return Длина данного вектора
 	 */
 	T abs() const {
-		return std::sqrt(std::pow(mData[0], 2) +
-		                 std::pow(mData[1], 2) );
+		return std::sqrt(std::pow(mData[0], 2) + std::pow(mData[1], 2) );
 	}
 
 	/**
@@ -162,8 +155,8 @@ class TVec2 {
 	 * @param ang Угол, на которое производится вращение
 	 */
 	void rotate(T ang) {
-		T s = sin(ang);
-		T c = cos(ang);
+		T s = std::sin(ang);
+		T c = std::cos(ang);
 		*this = {
 			x()* c - y()* s,
 			x()* s + y()* c,
@@ -178,16 +171,16 @@ template< typename T>
 class TVec3 {
 	using Vec3 = TVec3<T>;
   public:
-	TVec3(T x = 0,T y = 0, T z = 0)
-		: mData{x,y,z} {}
+	TVec3(T x = 0, T y = 0, T z = 0)
+		: mData{x, y, z} {}
 
 	TVec3(const T* data)
 		: mData{data[0], data[1], data[2]} {}
 
 	const T operator*(const Vec3& vec) const {
-		return  mData[0]*vec.mData[0] +
-		        mData[1]*vec.mData[1] +
-		        mData[2]*vec.mData[2];
+		return  mData[0] * vec.mData[0] +
+		        mData[1] * vec.mData[1] +
+		        mData[2] * vec.mData[2];
 	}
 
 	const Vec3 operator*(const T& num) const {
@@ -196,9 +189,9 @@ class TVec3 {
 		        mData[2]* num};
 	}
 	const Vec3 operator/(const T& num) const {
-		return {mData[0]/num,
-		        mData[1]/num,
-		        mData[2]/num};
+		return {mData[0] / num,
+		        mData[1] / num,
+		        mData[2] / num};
 	}
 	const Vec3 operator&(const Vec3& vec) const {
 		return {
@@ -221,7 +214,7 @@ class TVec3 {
 		return *this;
 	}
 	const Vec3 operator-() const {
-		return {-mData[0], -mData[1], -mData[2]};
+		return { -mData[0], -mData[1], -mData[2]};
 	}
 	void operator+=(const Vec3& vec) {
 		mData[0] += vec.mData[0];
@@ -236,10 +229,10 @@ class TVec3 {
 	const Vec3 ort() const {
 		auto len = abs();
 		if(len) {
-			len = 1/len;
+			len = 1 / len;
 			return {mData[0]* len, mData[1]* len, mData[2]* len};
 		} else
-			return {0,0,0};
+			return {0, 0, 0};
 	}
 	const T abs() const {
 		return std::sqrt( std::pow(mData[0], 2) +
@@ -252,7 +245,7 @@ class TVec3 {
 	}
 
 	const T angle(const Vec3& vec) const {
-		return std::acos((*this*vec)/(this->abs()*vec.abs()) );
+		return std::acos((*this * vec) / (this->abs() * vec.abs()) );
 	}
 	T& x() {
 		return mData[0];
@@ -289,31 +282,31 @@ class TVec3 {
 	}
 
 	void rotateX(T ang) {
-		auto c = std::cos(ang),s = std::sin(ang);
-		auto Y = y(),Z = z();
+		auto c = std::cos(ang), s = std::sin(ang);
+		auto Y = y(), Z = z();
 		mData[1] = Y * c - Z * s;
 		mData[2] = Y * s + Z * c;
 	}
 	void rotateY(T ang) {
 		auto c = std::cos(ang), s = std::sin(ang);
-		auto X = x(),Z = z();
+		auto X = x(), Z = z();
 		mData[0] = X * c + Z * s;
 		mData[2] = Z * c - X * s;
 	}
 	void rotateZ(T ang) {
-		auto c = std::cos(ang),s = std::sin(ang);
-		auto X = x(),Y = y();
+		auto c = std::cos(ang), s = std::sin(ang);
+		auto X = x(), Y = y();
 		mData[0] = X * c - Y * s;
 		mData[1] = X * s + Y * c;
 	}
-	void rotate (const Vec3& vec,T ang) {
+	void rotate (const Vec3& vec, T ang) {
 		auto v = vec.ort();
 		auto c = std::cos(ang);
 		auto s = std::sin(ang);
 		auto d = 1 - c;
-		double V1[] = {c + d*v.x()* v.x(),       d*v.x()* v.y() - s*v.z(), d*v.x()* v.z() + s*v.y()};
-		double V2[] = {d*v.x()* v.y() + s*v.z(), c + d*v.y()* v.y(),	     d*v.y()* v.z() + s*v.x()};
-		double V3[] = {d*v.x()* v.z() + s*v.y(), c*v.y()* v.z() + s*v.x(), c + d *v.z()* v.z()     };
+		double V1[] = {c + d * v.x()* v.x(),       d * v.x()* v.y() - s * v.z(), d * v.x()* v.z() + s * v.y()};
+		double V2[] = {d * v.x()* v.y() + s * v.z(), c + d * v.y()* v.y(),	     d * v.y()* v.z() + s * v.x()};
+		double V3[] = {d * v.x()* v.z() + s * v.y(), c * v.y()* v.z() + s * v.x(), c + d * v.z()* v.z()     };
 		*this = {
 			V1[0]* x() + V1[1]* y() + V1[2]* z(),
 			V2[0]* x() + V2[1]* y() + V2[2]* z(),
@@ -335,7 +328,7 @@ using Vec2 = TVec2<double>;
 using Vec3 = TVec3<double>;
 
 static constexpr double PI    = 3.14159265358979323846;
-static constexpr double todeg = 180./PI;
+static constexpr double todeg = 180. / PI;
 
 }
 #endif // VECMATH_VEC3_HPP

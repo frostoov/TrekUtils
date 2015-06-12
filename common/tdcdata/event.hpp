@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <set>
 
-#include "structs.hpp"
+#include "tdcdatatypes.hpp"
 
 namespace tdcdata {
 
@@ -24,8 +24,8 @@ enum class EventType {
 class TDCEvent {
 	friend class DataSet;
   public:
-	using ChamberEvent	= std::array<UIntVector, 4>;
-	using TrekEvent		= std::unordered_map<size_t,ChamberEvent>;
+	using EventTimes	= std::array<UIntVector, 4>;
+	using TrekEvent		= std::unordered_map<size_t, EventTimes>;
   public:
 	TDCEvent() : mType(EventType::simple) {}
 	/**
@@ -39,13 +39,13 @@ class TDCEvent {
 	 * @param word Слово TDC
 	 * @return Номер камеры
 	 */
-	static uint32_t getChamber (uint32_t word)	{ return ((word>>19) & 31); }
+	static uint32_t getChamber (uint32_t word)	{ return ((word >> 19) & 31); }
 	/**
 	 * @brief Возвращает номер проволки
 	 * @param word Слово TDC
 	 * @return Номер проволки
 	 */
-	static uint32_t getWire (uint32_t word)	{ return ((word>>24) & 3); }
+	static uint32_t getWire (uint32_t word)	{ return ((word >> 24) & 3); }
 	/**
 	 * @brief Получение сырых данных с TDC
 	 * @return Ссылка на константный вектор со словами TDC - std::vector<uint32_t>
@@ -65,13 +65,13 @@ class TDCEvent {
 	 * @brief Создание и получение массива с измерениями с камеры
 	 * @param cham Номер камеры
 	 */
-	ChamberEvent getChamberEvent(size_t cham) const;
+	EventTimes getChamberEvent(size_t cham) const;
 	/**
 	 * @brief Получение массива с измерениями с камеры
 	 * @param chamEvent Массив куда будут загружены измерения
 	 * @param cham Номер камеры
 	 */
-	void loadChamberEvent(ChamberEvent& chamEvent, size_t cham) const;
+	void loadChamberEvent(EventTimes& chamEvent, size_t cham) const;
 	/**
 	 * @brief Создать и получить множество номеров сработавших камер
 	 * @return Множество номеров сработавших камер
@@ -102,8 +102,8 @@ class TUEvent : public TDCEvent {
 	friend class DataSet;
 	/** Типы событий */
   public:
-	using ChamberEvent	= std::array<UIntVector, 4>;
-	using TrekEvent		= std::unordered_map<size_t,ChamberEvent>;
+	using EventTimes	= std::array<UIntVector, 4>;
+	using TrekEvent		= std::unordered_map<size_t, EventTimes>;
   public:
 	TUEvent() : TDCEvent(EventType::uragan) {}
 	/**

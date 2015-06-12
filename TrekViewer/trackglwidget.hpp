@@ -46,10 +46,10 @@ struct CameraPosition {
 	double offset;
 	vecmath::Vec3 getPosition() {
 		auto direction = getDirection();
-		return position - direction*offset;
+		return position - direction * offset;
 	}
 	vecmath::Vec3 getDirection() {
-		vecmath::Vec3 dir(1,0,0);
+		vecmath::Vec3 dir(1, 0, 0);
 		dir.rotateY(theta);
 		dir.rotateZ(phi);
 		return dir;

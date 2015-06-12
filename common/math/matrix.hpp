@@ -16,14 +16,14 @@ class TMatrix : protected std::vector<T> {
 
 	TMatrix(std::size_t row = 0, std::size_t col = 0)
 		: mRow(row), mCol(col) {
-		mData.resize(row*col);
+		mData.resize(row * col);
 	}
 
 	void setSize(std::size_t row, std::size_t col) {
 		mRow = row;
 		mCol = col;
 		mData.clear();
-		mData.resize(row*col);
+		mData.resize(row * col);
 	}
 
 	void fill(T val = 0) {
@@ -42,11 +42,11 @@ class TMatrix : protected std::vector<T> {
 	}
 
 	T& operator()(size_t row, size_t col) {
-		return mData.at(row*mCol + col);
+		return mData.at(row * mCol + col);
 	}
 
 	const T& operator()(size_t row, size_t col) const {
-		return mData.at(row*mCol + col);
+		return mData.at(row * mCol + col);
 	}
 
 	size_t rows() const {

@@ -1,5 +1,5 @@
-#ifndef TUDATASET_STRUCTS_HPP
-#define TUDATASET_STRUCTS_HPP
+#ifndef TDCDATA_TYPES_HPP
+#define TDCDATA_TYPES_HPP
 
 #include <cstdint>
 #include <vector>
@@ -204,5 +204,5 @@ struct TUDataSetHeader {
 
 } //tudata
 
-#endif // TUDATASET_STRUCTS_HPP
+#endif // TDCDATA_TYPES_HPP
 

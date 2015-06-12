@@ -7,7 +7,6 @@
 namespace trek {
 
 class TrekHandler {
-	using TrackDesc  = ChamberHandler::TrackDesc;
 	using Octahedron = vecmath::Octahedron;
 	using Vec3       = vecmath::Vec3;
 	using Line2      = vecmath::Line2;
@@ -15,30 +14,22 @@ class TrekHandler {
 	using TUEvent	 = tdcdata::TUEvent;
 	using ChamberMap = std::unordered_map<uintmax_t, Chamber>;
   public:
-	TrekHandler(const ChamberConfig& config, uint32_t pedestal, double speed);
+	TrekHandler(const ChamberConfig& config);
 	const ChamberMap& getChambers() const { return mChambers; }
 
-	void     setSpeed(double speed) {mEventHandler.setSpeed(speed);}
-	void     setPedestal(uint32_t pedestal) {mEventHandler.setPedestal(pedestal);}
-	void     loadEvent(const TUEvent& rawEvent);
-	void     loadChambers(const ChamberConfig& chams);
-	void     createTrack();
-	static Line3 createTrack(const Chamber& cham1, const Chamber& cham2);
-	static Line3 createTrack(const Line2& track1, const ChamberPoints& pos1,
-	                         const Line2& track2, const ChamberPoints& pos2);
-
-	void loadVertices	(std::vector<float>& data) const;
-	void loadLineColors	(std::vector<float>& data) const;
-	void loadLineFace	(std::vector<unsigned>&	face, unsigned start) const;
+	void loadEvent(const TUEvent& rawEvent);
+	void loadChambers(const ChamberConfig& chams);
+	bool createTrack();
 
 	bool hasTrack() const { return mHasTrack; }
 	const Line3& getTTrack() const { return mTTrack; }
 	const Line3& getUTrack() const { return mUTrack; }
+  protected:
+	static Line3 createTrack(const Chamber& cham1, const Chamber& cham2);
   private:
-	ChamberMap			mChambers;
-	ChamberHandler mEventHandler;
-	Line3 mTTrack;
-	Line3 mUTrack;
+	ChamberMap mChambers;
+	Line3      mTTrack;
+	Line3      mUTrack;
 	bool  mHasTrack;
 };
 

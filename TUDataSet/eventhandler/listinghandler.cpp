@@ -9,10 +9,13 @@ using std::setfill;
 using std::ofstream;
 using std::to_string;
 
+ListingHandler::ListingHandler(const std::string& dirPath)
+	: mDirPath(dirPath) {}
+
 ListingHandler::~ListingHandler() {
-	for(auto& stream : streams)
+	for(auto& stream : mStreams)
 		delete stream.second;
-	streams.clear();
+	mStreams.clear();
 }
 
 void ListingHandler::handleEvent(const TUEvent& event) {
@@ -20,7 +23,7 @@ void ListingHandler::handleEvent(const TUEvent& event) {
 }
 
 void ListingHandler::flush() {
-	for(auto& stream : streams) {
+	for(auto& stream : mStreams) {
 		if(stream.second)
 			stream.second->flush();
 	}
@@ -30,10 +33,11 @@ void ListingHandler::printListing(const TUEvent& event) {
 	auto trekEvent = event.getTrekEvent();
 	for(const auto& chamEvent : trekEvent) {
 		//Если для камеры нет потока, то создаем его
-		if(!streams.count(chamEvent.first))
-			createListingStream(streams, chamEvent.first);
+		if(!mStreams.count(chamEvent.first))
+			createListingStream(chamEvent.first);
 
-		auto& str = *streams.at(chamEvent.first);
+		auto& str = *mStreams.at(chamEvent.first);
+		str << "Event #" << event.getUraganEvent().nEvent << '\n';
 		size_t depth = 0;
 		for(const auto& wireData : chamEvent.second) {
 			if(wireData.size() > depth)
@@ -51,20 +55,20 @@ void ListingHandler::printListing(const TUEvent& event) {
 	}
 }
 
-void ListingHandler::createListingStream(StreamsMap& streams, uintmax_t cham) {
-	if(!streams.count(cham)) {
+void ListingHandler::createListingStream(uintmax_t cham) {
+	if(!mStreams.count(cham)) {
 		auto str = new ofstream;
 		str->exceptions( ofstream::failbit | ofstream::badbit );
-		str->open("listing" + to_string(cham+1) + ".txt", ofstream::binary);
+		str->open(mDirPath + "/listing" + to_string(cham + 1) + ".txt", ofstream::binary);
 
-		*str << "Chamber №" << cham+1 << '\n';
+		*str << "Chamber №" << cham + 1 << '\n';
 		for(auto i = 0; i < 4 ; ++i)
 			*str << setw(6) << setfill(' ') << "WIRE "
 			     << setw(2) << setfill('0') << i
 			     << setw(1) << setfill(' ') << '\t';
 		*str << '\n';
 
-		streams[cham] = str;
+		mStreams.insert({cham, str});
 	}
 }
 

@@ -4,7 +4,7 @@
 
 static constexpr double PI    = 3.14159265358979323846;
 //static constexpr double todeg = 180/PI;
-static constexpr double torad = PI/180;
+static constexpr double torad = PI / 180;
 
 using vecmath::Vec3;
 using vecmath::Line3;
@@ -19,7 +19,7 @@ glm::vec3 conv(const Vec3& vec) {
 }
 
 TrekGLWidget::TrekGLWidget(TrekHandler* handler, QWidget* parent)
-	: QOpenGLWidget(parent),mTrekHandler(handler),mNeedLoad(false) {
+	: QOpenGLWidget(parent), mTrekHandler(handler), mNeedLoad(false) {
 
 	mSelectedChamber = nullptr;
 	mCamPosition.offset = 7000;
@@ -27,11 +27,11 @@ TrekGLWidget::TrekGLWidget(TrekHandler* handler, QWidget* parent)
 }
 
 void TrekGLWidget::genBuffers() {
-	glFuncs->glGenBuffers(1,&vbo.vertex);
-	glFuncs->glGenBuffers(1,&vbo.colorPlg);
-	glFuncs->glGenBuffers(1,&vbo.colorLine);
-	glFuncs->glGenBuffers(1,&vbo.facePlg);
-	glFuncs->glGenBuffers(1,&vbo.faceLine);
+	glFuncs->glGenBuffers(1, &vbo.vertex);
+	glFuncs->glGenBuffers(1, &vbo.colorPlg);
+	glFuncs->glGenBuffers(1, &vbo.colorLine);
+	glFuncs->glGenBuffers(1, &vbo.facePlg);
+	glFuncs->glGenBuffers(1, &vbo.faceLine);
 }
 
 void TrekGLWidget::mousePressEvent(QMouseEvent* me) {
@@ -54,20 +54,20 @@ void TrekGLWidget::mouseMoveEvent(QMouseEvent* me) {
 			mCursor.delta[0] *= torad;
 			mCursor.delta[1] *= torad;
 
-			if(std::abs(mCamPosition.theta + mCursor.delta[1])  < PI/2-torad)
+			if(std::abs(mCamPosition.theta + mCursor.delta[1])  < PI / 2 - torad)
 				mCamPosition.theta += mCursor.delta[1];
 			mCamPosition.phi -= mCursor.delta[0];
 
-			if(mCamPosition.phi > 2*PI)
-				mCamPosition.phi -= 2*PI;
-			if(mCamPosition.phi < -2*PI)
-				mCamPosition.phi += 2*PI;
+			if(mCamPosition.phi > 2 * PI)
+				mCamPosition.phi -= 2 * PI;
+			if(mCamPosition.phi < -2 * PI)
+				mCamPosition.phi += 2 * PI;
 		} else {
 
 			auto direction = mCamPosition.getDirection();
-			mCamPosition.position.z() += 20*mCursor.delta[1];
+			mCamPosition.position.z() += 20 * mCursor.delta[1];
 
-			auto shift = Vec3(0,0,1) & direction*mCursor.delta[0]*20;
+			auto shift = Vec3(0, 0, 1) & direction * mCursor.delta[0] * 20;
 			mCamPosition.position += shift;
 		}
 		mCursor.pos[0] = me->x();
@@ -77,7 +77,7 @@ void TrekGLWidget::mouseMoveEvent(QMouseEvent* me) {
 }
 
 void TrekGLWidget::wheelEvent(QWheelEvent* we) {
-	auto delta = 20*we->delta();
+	auto delta = 20 * we->delta();
 	if(mCamPosition.offset - delta >= 0)
 		mCamPosition.offset -= delta;
 	else
@@ -88,19 +88,19 @@ void TrekGLWidget::wheelEvent(QWheelEvent* we) {
 Line3 TrekGLWidget::expandLine(QPoint pnt, const glm::mat4& model, const glm::mat4& proj, const glm::vec4& viewPort) {
 	pnt.setY(height() - pnt.y() - 1);
 
-	auto vec1 = glm::unProject(glm::vec3(pnt.x(), pnt.y(), -1),model, proj, viewPort);
-	auto vec2 = glm::unProject(glm::vec3(pnt.x(), pnt.y(),  1),model, proj, viewPort);
+	auto vec1 = glm::unProject(glm::vec3(pnt.x(), pnt.y(), -1), model, proj, viewPort);
+	auto vec2 = glm::unProject(glm::vec3(pnt.x(), pnt.y(),  1), model, proj, viewPort);
 
-	return Line3(conv(vec1),conv(vec2));
+	return Line3(conv(vec1), conv(vec2));
 }
 
 void TrekGLWidget::loadTrack() {
 	if(mTrekHandler == nullptr)
 		return;
-	unsigned startVertex = rData.vertex.size()/3;
+	unsigned startVertex = rData.vertex.size() / 3;
 	mTrekHandler->loadVertices	(rData.vertex);
 	mTrekHandler->loadLineColors(rData.colorLine);
-	mTrekHandler->loadLineFace	(rData.faceLine,startVertex);
+	mTrekHandler->loadLineFace	(rData.faceLine, startVertex);
 }
 
 void TrekGLWidget::loadVBOs() {
@@ -113,9 +113,9 @@ void TrekGLWidget::loadVBOs() {
 }
 
 void TrekGLWidget::loadVerticesVBO() {
-	glFuncs->glBindBuffer(GL_ARRAY_BUFFER,vbo.vertex);
-	glFuncs->glBufferData(GL_ARRAY_BUFFER,rData.vertex.size() * sizeof(float),
-	                      rData.vertex.data(),GL_STATIC_DRAW);
+	glFuncs->glBindBuffer(GL_ARRAY_BUFFER, vbo.vertex);
+	glFuncs->glBufferData(GL_ARRAY_BUFFER, rData.vertex.size() * sizeof(float),
+	                      rData.vertex.data(), GL_STATIC_DRAW);
 	clearVerticesData();
 }
 
@@ -126,15 +126,15 @@ void TrekGLWidget::loadColorVBOs() {
 }
 
 void TrekGLWidget::loadColorPlgVBO() {
-	glFuncs->glBindBuffer(GL_ARRAY_BUFFER,vbo.colorPlg);
-	glFuncs->glBufferData(GL_ARRAY_BUFFER,rData.colorPlg.size() * sizeof(float),
-	                      rData.colorPlg.data(),GL_STATIC_DRAW);
+	glFuncs->glBindBuffer(GL_ARRAY_BUFFER, vbo.colorPlg);
+	glFuncs->glBufferData(GL_ARRAY_BUFFER, rData.colorPlg.size() * sizeof(float),
+	                      rData.colorPlg.data(), GL_STATIC_DRAW);
 }
 
 void TrekGLWidget::loadColorLineVBO() {
-	glFuncs->glBindBuffer(GL_ARRAY_BUFFER,vbo.colorLine);
-	glFuncs->glBufferData(GL_ARRAY_BUFFER,rData.colorLine.size() * sizeof(float),
-	                      rData.colorLine.data(),GL_STATIC_DRAW);
+	glFuncs->glBindBuffer(GL_ARRAY_BUFFER, vbo.colorLine);
+	glFuncs->glBufferData(GL_ARRAY_BUFFER, rData.colorLine.size() * sizeof(float),
+	                      rData.colorLine.data(), GL_STATIC_DRAW);
 }
 
 void TrekGLWidget::loadFaceVBOs() {
@@ -147,14 +147,14 @@ void TrekGLWidget::loadFaceVBOs() {
 }
 
 void TrekGLWidget::loadFacePlgVBO() {
-	glFuncs->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,vbo.facePlg);
-	glFuncs->glBufferData(GL_ELEMENT_ARRAY_BUFFER,rData.facePlg.size() * sizeof(unsigned),
-	                      rData.facePlg.data(),GL_STATIC_DRAW);
+	glFuncs->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo.facePlg);
+	glFuncs->glBufferData(GL_ELEMENT_ARRAY_BUFFER, rData.facePlg.size() * sizeof(unsigned),
+	                      rData.facePlg.data(), GL_STATIC_DRAW);
 }
 void TrekGLWidget::loadFaceLineVBO() {
-	glFuncs->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,vbo.faceLine);
-	glFuncs->glBufferData(GL_ELEMENT_ARRAY_BUFFER,rData.faceLine.size() * sizeof(unsigned),
-	                      rData.faceLine.data(),GL_STATIC_DRAW);
+	glFuncs->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo.faceLine);
+	glFuncs->glBufferData(GL_ELEMENT_ARRAY_BUFFER, rData.faceLine.size() * sizeof(unsigned),
+	                      rData.faceLine.data(), GL_STATIC_DRAW);
 }
 
 void TrekGLWidget::clearVerticesData() {
@@ -179,14 +179,14 @@ void TrekGLWidget::loadObjects() {
 	clearFaceData();
 
 	for(auto& cham : mTrekHandler->getChambers() ) {
-		auto startVertex = rData.vertex.size()/3;
-		if(rData.vertex.size()%3)
-			std::cout << rData.vertex.size()%3 << std::endl;
+		auto startVertex = rData.vertex.size() / 3;
+		if(rData.vertex.size() % 3)
+			std::cout << rData.vertex.size() % 3 << std::endl;
 		cham.second.loadVertices	( rData.vertex );
 		cham.second.loadPlgColors	( rData.colorPlg );
 		cham.second.loadLineColors	( rData.colorLine);
 		cham.second.loadPlgFace		( rData.facePlg, startVertex);
-		cham.second.loadLineFace	( rData.faceLine,startVertex);
+		cham.second.loadLineFace	( rData.faceLine, startVertex);
 	}
 
 	loadTrack();
@@ -202,9 +202,9 @@ void TrekGLWidget::paintGL() {
 
 void TrekGLWidget::initializeGL() {
 	glFuncs = QOpenGLContext::currentContext()->functions();
-	glFuncs->glClearColor(1,1,1,1);
+	glFuncs->glClearColor(1, 1, 1, 1);
 	glFuncs->glViewport (0, 0, (GLsizei)width(), (GLsizei)height());
-	mProjection = glm::perspective(45.0f, (GLfloat)width()/(GLfloat)height(), 0.001f, 100000.0f);
+	mProjection = glm::perspective(45.0f, (GLfloat)width() / (GLfloat)height(), 0.001f, 100000.0f);
 
 	setAutoFillBackground(false);
 
@@ -217,15 +217,15 @@ void TrekGLWidget::initializeGL() {
 
 	glFuncs->glHint( GL_PERSPECTIVE_CORRECTION_HINT	|
 	                 GL_LINE_SMOOTH_HINT			|
-	                 GL_POLYGON_SMOOTH,GL_NICEST );
+	                 GL_POLYGON_SMOOTH, GL_NICEST );
 	initShaders();
 	genBuffers();
 }
 
 void TrekGLWidget::resizeGL(int w, int h) {
-	QOpenGLWidget::resizeGL(w,h);
+	QOpenGLWidget::resizeGL(w, h);
 	if(!h) h = 1;
-	mProjection = glm::perspective(45.0f,(GLfloat)w/(GLfloat)h,0.1f,100000.0f);
+	mProjection = glm::perspective(45.0f, (GLfloat)w / (GLfloat)h, 0.1f, 100000.0f);
 }
 
 void TrekGLWidget::initShaders() {
@@ -253,32 +253,32 @@ void TrekGLWidget::initShaders() {
 
 	//Создаем вершинный шейдер
 	auto vShader = glFuncs->glCreateShader(GL_VERTEX_SHADER);
-	glFuncs->glShaderSource(vShader,1,&vertexShaderSource,nullptr);
+	glFuncs->glShaderSource(vShader, 1, &vertexShaderSource, nullptr);
 	glFuncs->glCompileShader(vShader);
 	std::cout << "Vertex Shader ready!" << std::endl;
 
 	//Создаем фрагментый шейдер
 	auto fShader = glFuncs->glCreateShader(GL_FRAGMENT_SHADER);
-	glFuncs->glShaderSource(fShader,1,&fragShaderSource,nullptr);
+	glFuncs->glShaderSource(fShader, 1, &fragShaderSource, nullptr);
 	glFuncs->glCompileShader(fShader);
 	std::cout << "Fragment Shader ready!" << std::endl;
 
 
 	auto shaderProgram = glFuncs->glCreateProgram();
-	glFuncs->glAttachShader(shaderProgram,vShader);
-	glFuncs->glAttachShader(shaderProgram,fShader);
+	glFuncs->glAttachShader(shaderProgram, vShader);
+	glFuncs->glAttachShader(shaderProgram, fShader);
 	glFuncs->glLinkProgram(shaderProgram);
 
 	int linkStatus;
-	glFuncs->glGetProgramiv(shaderProgram,GL_LINK_STATUS,&linkStatus);
+	glFuncs->glGetProgramiv(shaderProgram, GL_LINK_STATUS, &linkStatus);
 	if(linkStatus == -1)
 		throw std::runtime_error("Failed to link shader programm!");
 
-	mVertexAttrib = glFuncs->glGetAttribLocation(shaderProgram,"vertex");
-	mColorAttrib  = glFuncs->glGetAttribLocation(shaderProgram,"aColor");
+	mVertexAttrib = glFuncs->glGetAttribLocation(shaderProgram, "vertex");
+	mColorAttrib  = glFuncs->glGetAttribLocation(shaderProgram, "aColor");
 
-	mProjUniform    = glFuncs->glGetUniformLocation(shaderProgram,"projection_matrix");
-	mModelUniform	= glFuncs->glGetUniformLocation(shaderProgram,"modelview_matrix");
+	mProjUniform    = glFuncs->glGetUniformLocation(shaderProgram, "projection_matrix");
+	mModelUniform	= glFuncs->glGetUniformLocation(shaderProgram, "modelview_matrix");
 
 	glFuncs->glUseProgram(shaderProgram);
 }
@@ -287,34 +287,34 @@ void TrekGLWidget::drawObjects() {
 	static const auto upVec = glm::vec3(0, 0, 1);
 	auto direction = mCamPosition.getDirection();
 
-	auto eye = mCamPosition.position - direction*mCamPosition.offset;
+	auto eye = mCamPosition.position - direction * mCamPosition.offset;
 
-	mModelView = glm::lookAt(conv(eye),conv(eye + direction), upVec);
+	mModelView = glm::lookAt(conv(eye), conv(eye + direction), upVec);
 
-	glFuncs->glUniformMatrix4fv(mModelUniform,1,GL_FALSE,&mModelView [0][0]);
-	glFuncs->glUniformMatrix4fv(mProjUniform, 1,GL_FALSE,&mProjection[0][0]);
+	glFuncs->glUniformMatrix4fv(mModelUniform, 1, GL_FALSE, &mModelView [0][0]);
+	glFuncs->glUniformMatrix4fv(mProjUniform, 1, GL_FALSE, &mProjection[0][0]);
 
-	glFuncs->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,vbo.facePlg);
+	glFuncs->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo.facePlg);
 
 	glFuncs->glEnableVertexAttribArray(mVertexAttrib);
-	glFuncs->glBindBuffer(GL_ARRAY_BUFFER,vbo.vertex);
-	glFuncs->glVertexAttribPointer(mVertexAttrib,3,GL_FLOAT,GL_FALSE,0,nullptr);
+	glFuncs->glBindBuffer(GL_ARRAY_BUFFER, vbo.vertex);
+	glFuncs->glVertexAttribPointer(mVertexAttrib, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
 	glFuncs->glEnableVertexAttribArray(mColorAttrib);
-	glFuncs->glBindBuffer(GL_ARRAY_BUFFER,vbo.colorPlg);
-	glFuncs->glVertexAttribPointer(mColorAttrib,4,GL_FLOAT,GL_FALSE,0,nullptr);
+	glFuncs->glBindBuffer(GL_ARRAY_BUFFER, vbo.colorPlg);
+	glFuncs->glVertexAttribPointer(mColorAttrib, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
 
-	glFuncs->glDrawElements(GL_QUADS,mPlgSize ,GL_UNSIGNED_INT,nullptr);
+	glFuncs->glDrawElements(GL_QUADS, mPlgSize , GL_UNSIGNED_INT, nullptr);
 	glFuncs->glDisableVertexAttribArray(mColorAttrib);
 
-	glFuncs->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,vbo.faceLine);
+	glFuncs->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo.faceLine);
 
 	glFuncs->glEnableVertexAttribArray(mColorAttrib);
-	glFuncs->glBindBuffer(GL_ARRAY_BUFFER,vbo.colorLine);
-	glFuncs->glVertexAttribPointer(mColorAttrib,4,GL_FLOAT,GL_FALSE,0,nullptr);
+	glFuncs->glBindBuffer(GL_ARRAY_BUFFER, vbo.colorLine);
+	glFuncs->glVertexAttribPointer(mColorAttrib, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
 
 	glFuncs->glLineWidth(2);
-	glFuncs->glDrawElements(GL_LINES,mPineSize ,GL_UNSIGNED_INT,nullptr);
+	glFuncs->glDrawElements(GL_LINES, mPineSize , GL_UNSIGNED_INT, nullptr);
 	glFuncs->glDisableVertexAttribArray(mVertexAttrib);
 	glFuncs->glDisableVertexAttribArray(mColorAttrib);
 }

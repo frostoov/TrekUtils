@@ -21,7 +21,7 @@ inline void serialize(std::ostream& stream, const T val, size_t size) {
 }
 
 template<typename T, typename = typename std::enable_if<std::is_pointer<T>::value>::type>
-inline void deserialize(std::istream& stream,T val, size_t size) {
+inline void deserialize(std::istream& stream, T val, size_t size) {
 	stream.read( reinterpret_cast<char*>(val), size);
 }
 

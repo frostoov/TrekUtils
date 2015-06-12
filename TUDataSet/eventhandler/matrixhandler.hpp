@@ -11,7 +11,9 @@ class MatrixHandler : public tdcdata::AbstractEventHandler {
 	using MatricesMap  = std::unordered_map<std::uintmax_t, Matrix>;
 	using DMatricesMap = std::unordered_map<std::uintmax_t, DMatrix>;
   public:
-	MatrixHandler(const trek::ChamberConfig& config, uint32_t pedestal, double speed);
+	MatrixHandler(const trek::ChamberConfig& config, const std::string& dirPath = ".");
+
+	void setPath(const std::string& dirPath) {mDirPath = dirPath;}
 
 	void handleEvent(const tdcdata::TUEvent& rawEvent) override;
 	void flush() override;
@@ -30,6 +32,7 @@ class MatrixHandler : public tdcdata::AbstractEventHandler {
 	DMatricesMap mMatricesDeltaA;
 
 	trek::TrekHandler mTrekHandler;
+	std::string mDirPath;
 
 	static const std::size_t rows = 161;
 	static const std::size_t cols = 321;

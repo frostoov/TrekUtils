@@ -87,7 +87,7 @@ void DataSet::parseStream(istream& stream, size_t streamSize) {
 		deserialize(stream, measurementSize);
 		if(streamSize < measurementSize)
 			throw runtime_error("deserializeStream: invalid value of measurement size");
-		event.mTrekEvent.resize(measurementSize/sizeof(uint32_t));
+		event.mTrekEvent.resize(measurementSize / sizeof(uint32_t));
 		deserialize(stream, event.mTrekEvent);
 		convert(event.mTrekEvent, koef);
 		push_back(event);

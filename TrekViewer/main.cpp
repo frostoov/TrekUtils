@@ -15,7 +15,7 @@ void errorMessage(const QString& title, const QString& message) {
 	msg.exec();
 }
 
-int main(int argc,char* argv[]) {
+int main(int argc, char* argv[]) {
 	std::ios_base::sync_with_stdio(false);
 	ChamberConfigParser chambersParser;
 	try {

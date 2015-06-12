@@ -23,7 +23,7 @@ class MainWindow : public QMainWindow {
 	Q_OBJECT
   public:
 	explicit MainWindow(const ChamberConfig& chamberConfig, const nlohmann::json& appConfig,
-						QWidget* parent = nullptr);
+	                    QWidget* parent = nullptr);
 	~MainWindow();
   protected:
 	virtual void keyPressEvent(QKeyEvent* ke);

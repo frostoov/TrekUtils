@@ -10,21 +10,21 @@ namespace vecmath {
 template<typename T>
 class TLine2 {
 	using Line2 = TLine2<T>;
-	using Vec2  = TVec2<T>;
+	using Vec2  = TVec2 <T>;
   public:
 	TLine2()
-		: koefK(0),koefB(0) {}
+		: koefK(0), koefB(0) {}
 
 	TLine2(const Vec2& dot1, const Vec2& dot2) {
 		auto dirVec = dot1 - dot2;
-//		if(dirVec.x() != 0) {
-		koefK = dirVec.y() / dirVec.x();
-//		} else {
-//			if(std::numeric_limits<T>::has_infinity)
-//				koefK = std::numeric_limits<T>::infinity();
-//			else
-//				koefK = std::numeric_limits<T>::max();
-//		}
+		if(dirVec.x() != 0)
+			koefK = dirVec.y() / dirVec.x();
+		else {
+			if(std::numeric_limits<T>::has_infinity)
+				koefK = std::numeric_limits<T>::infinity();
+			else
+				koefK = std::numeric_limits<T>::max();
+		}
 		koefB = dot1.y() - koefK * dot1.x();
 
 	}
@@ -37,19 +37,20 @@ class TLine2 {
 
 	static Vec2 getIntersection(const Line2& line1, const Line2& line2) {
 		if( line1.k() == line2.k() )
-			throw std::runtime_error("Lines are parallel");
+			throw std::runtime_error("Vec2::getIntersection: Lines are parallel");
 		if(line1.b() != line2.b()) {
 			auto x = ( line1.k() - line2.k() ) / (line2.b() - line1.b());
 			auto y = line1.k() * x + line1.b();
-			return {x,y};
+			return {x, y};
 		} else
-			return {0,0};
+			return {0, 0};
 	}
+
 	void checkRectangle(T x0, T x1, T y0, T y1, std::vector<Vec2>& points) const {
 		if(!koefK) {
 			if(koefB >= y0 && koefB <= y1) {
-				points.push_back( {x0,koefB} );
-				points.push_back( {x1,koefB} );
+				points.push_back( {x0, koefB} );
+				points.push_back( {x1, koefB} );
 			}
 		} else {
 			T lx0 = (y0 - koefB) / koefK;
@@ -84,7 +85,7 @@ class TLine3 {
 	using Vec3  = TVec3<T>;
   public:
 	TLine3() {}
-	TLine3(const Vec3& dot1,const Vec3& dot2) {
+	TLine3(const Vec3& dot1, const Vec3& dot2) {
 		if(dot1.abs() < dot2.abs()) {
 			mVec = (dot2 - dot1).ort();
 			mDot = dot1;
@@ -113,8 +114,8 @@ class TLine3 {
 		mVec.rotateZ(ang);
 	}
 	void rotate(const Vec3& vec, T ang) {
-		mDot.rotate(vec,ang);
-		mVec.rotate(vec,ang);
+		mDot.rotate(vec, ang);
+		mVec.rotate(vec, ang);
 	}
   private:
 	Vec3 mDot;

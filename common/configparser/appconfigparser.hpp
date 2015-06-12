@@ -8,7 +8,7 @@
 class AppConfigParser : public AbstractConfigParser {
   public:
 	AppConfigParser() {};
-	AppConfigParser(const nlohmann::json&& defaultConf);
+	AppConfigParser(const nlohmann::json&& defaultConfig);
 
 	virtual void load(const std::string& fileName) override;
 	virtual void save(const std::string& fileName) override;

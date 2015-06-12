@@ -9,15 +9,15 @@
 namespace vecmath {
 
 template<typename T>
-class Histogram {
+class THistogram {
 	using vector    = std::vector<uintmax_t>;
 	using size_type = vector::size_type;
   public:
 	using cell = std::pair<T, uintmax_t>;
 
-	Histogram(T bottom = 0, T up = 0, T bin = 0)
+	THistogram(T bottom = 0, T up = 0, T bin = 0)
 		: mBin(0), mUp(0), mBottom(0) {
-		setParameters(bottom,up,bin);
+		setParameters(bottom, up, bin);
 	}
 	void setParameters(T bottom, T up, T bin) {
 		buffer.clear();
@@ -26,25 +26,26 @@ class Histogram {
 		mBottom	= bottom;
 		mUp		= up;
 		mBin	= bin;
-		buffer.resize((mUp - mBottom)/mBin + 1);
+		if(mUp != mBottom && mBin != 0)
+			buffer.resize((mUp - mBottom) / mBin + 1);
 	}
 	void expand(T newUp) {
 		mUp = newUp;
-		buffer.resize((mUp - mBottom)/mBin + 1);
+		buffer.resize((mUp - mBottom) / mBin + 1);
 	}
 	void addValue(const T val) {
-		buffer.at( (val - mBottom)/mBin )++;
+		buffer.at( (val - mBottom) / mBin )++;
 	}
-	uintmax_t value(size_t i) {
+	uintmax_t value(size_t i) const {
 		return buffer.at(i);
 	}
-	T range(size_t i) {
-		return mBottom + i*mBin;
+	T range(size_t i) const {
+		return mBottom + i * mBin;
 	}
-	cell operator [](size_t n) {
+	cell operator [](size_t n) const {
 		return {mBottom + n * mBin, buffer.at(n)};
 	}
-	uintmax_t maxValue() {
+	uintmax_t maxValue() const {
 		uintmax_t max = 0;
 		for(auto val : buffer)
 			if(max < val)
@@ -52,7 +53,7 @@ class Histogram {
 		return max;
 	}
 
-	T maxValueRange() {
+	T maxValueRange() const {
 		uintmax_t	max = 0;
 		size_type	rangeIndex = 0;
 		for(size_t i = 0; i < buffer.size(); ++i)
@@ -65,17 +66,17 @@ class Histogram {
 	T getBottom() const	{
 		return mBottom;
 	}
-	T getUp()	  const	{
+	T getUp()  const {
 		return mUp;
 	}
-	T getBin()	  const	{
+	T getBin() const {
 		return mBin;
 	}
 
-	size_type size() {
+	size_type size() const {
 		return buffer.size();
 	}
-	void clear()	{
+	void clear() {
 		buffer.clear();
 	}
 	void free()	{

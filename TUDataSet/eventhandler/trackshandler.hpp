@@ -8,7 +8,7 @@
 class TracksHandler : public tdcdata::AbstractEventHandler {
 	using ChamberStreams = std::unordered_map<std::uintmax_t, std::ofstream*>;
   public:
-	TracksHandler(const trek::ChamberConfig& config, uint32_t pedestal, double speed);
+	TracksHandler(const trek::ChamberConfig& config, const std::string& dirPath = ".");
 	~TracksHandler();
 	void needProjection(bool flag)  {mNeedProjections = flag;}
 	void needTracks(bool flag)		{mNeedTracks = flag;}
@@ -22,6 +22,7 @@ class TracksHandler : public tdcdata::AbstractEventHandler {
 	trek::TrekHandler mTrekHandler;
 	ChamberStreams mProjectionStreams;
 	std::ofstream  mTracksStream;
+	std::string    mDirPath;
 
 	bool mNeedProjections;
 	bool mNeedTracks;

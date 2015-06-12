@@ -14,19 +14,19 @@ using std::to_string;
 using vecmath::todeg;
 using std::atan;
 
-MatrixHandler::MatrixHandler(const ChamberConfig& config, uint32_t pedestal, double speed)
-	: mMatrixN(rows, cols), mTrekHandler(config, pedestal, speed) {}
+MatrixHandler::MatrixHandler(const trek::ChamberConfig& config, const std::string& dirPath)
+	: mMatrixN(rows, cols), mTrekHandler(config), mDirPath(dirPath) {}
 
 void MatrixHandler::handleEvent(const TUEvent& rawEvent) {
 	mTrekHandler.loadEvent(rawEvent);
 	struct TPoint3D { double x, y, z; };
 
-	auto eventChecker = [&](const UIntVector &data, uintmax_t cham)->bool {
+	auto eventChecker = [&](const UIntVector & data, uintmax_t cham)->bool {
 		uint8_t wireFlag = 0;
 		for(auto word : data)
 			if( TUEvent::getChamber(word) == cham ) {
 				auto wire = TUEvent::getWire(word);
-				wireFlag |= 1<<wire;
+				wireFlag |= 1 << wire;
 				if(wireFlag == 15)
 					return true;
 			}
@@ -43,28 +43,28 @@ void MatrixHandler::handleEvent(const TUEvent& rawEvent) {
 	auto dz = P2.z - P1.z;
 	char iz = 1;
 
-	double r = std::sqrt(dx*dx+dy*dy+dz*dz);
+	double r = std::sqrt(dx * dx + dy * dy + dz * dz);
 	if(r == 0 || dz == 0)
 		return;
 
 	if(dz < 0) {
 		iz = -1;
-		dx =-dx,dy =-dy,dz =-dz;
+		dx = -dx, dy = -dy, dz = -dz;
 	}
 	dx /= r;
 	dy /= r;
 	dz /= r;
-	auto ThetaG = std::acos(dz)*todeg;   // зенитный угол
+	auto ThetaG = std::acos(dz) * todeg; // зенитный угол
 
 	if(ThetaG >= 0. && ThetaG < 20.) {
 		//Найдём пересечение треком горизонтальной плоскости
 		double z = 10825;
-		double t = (z-P1.z)*iz/dz;
-		double Dx = P1.x-5300+iz*dx*t; 	// 3500  - левый  край триггируемой области УРАГАНА
-		double y = P1.y-12250+iz*dy*t; 	// 12250 - нижний край триггируемой области УРАГАНА
-		double x = Dx + y*sin(0.25*PI/180);
-		size_t ix = (x/22.+0)+0.5;		// 22    - размер ячейки
-		size_t iy = (y/22.+0)+0.5;
+		double t = (z - P1.z) * iz / dz;
+		double Dx = P1.x - 5300 + iz * dx * t; 	// 3500  - левый  край триггируемой области УРАГАНА
+		double y = P1.y - 12250 + iz * dy * t; 	// 12250 - нижний край триггируемой области УРАГАНА
+		double x = Dx + y * sin(0.25 * PI / 180);
+		size_t ix = (x / 22. + 0) + 0.5;		// 22    - размер ячейки
+		size_t iy = (y / 22. + 0) + 0.5;
 		if(ix < cols && iy < rows) {
 			++mMatrixN(iy, ix);
 			auto triggChambers = rawEvent.getTriggeredChambers();
@@ -82,14 +82,14 @@ void MatrixHandler::handleEvent(const TUEvent& rawEvent) {
 				if(chamber.hasTrack()) {
 					auto uragan = chamber.getUraganProjection(rawEvent.getUraganEvent().chp0,
 					              rawEvent.getUraganEvent().chp1);
-					auto track = chamber.getTrackDesc();
+					auto track = chamber.getTrackDescription();
 					auto trackAngle = atan(track.line.k()) * todeg;
 					auto uraganAngle = atan(uragan.k()) * todeg;
 					auto deltaB      = track.line.b() - uragan.b();
 					auto deltaA      = trackAngle - uraganAngle;
 					if(mMatricesDev.count(chamNumber) == 0)
 						mMatricesDev[chamNumber] = DMatrix(rows, cols);
-					mMatricesDev.at(chamNumber)(iy, ix) += track.dev;
+					mMatricesDev.at(chamNumber)(iy, ix) += track.deviation;
 					if(mMatricesDeltaA.count(chamNumber) == 0)
 						mMatricesDeltaA[chamNumber] = DMatrix(rows, cols);
 					mMatricesDeltaA.at(chamNumber)(iy, ix) += deltaA;
@@ -110,16 +110,16 @@ void MatrixHandler::flush() {
 
 void MatrixHandler::outputMatriciesMap() {
 	outputMatrix(mMatrixN, "matrixN");
-	outputMatriciesMap(mMatricesT,"matrixT");
+	outputMatriciesMap(mMatricesT, "matrixT");
 	DMatrix tempMatrix(rows, cols);
 	for(const auto& matrixPair : mMatricesT) {
 		auto& matrix = matrixPair.second;
 		auto cham = matrixPair.first;
 		for (size_t i = 0; i < rows; ++i)
 			for (size_t j = 0; j < cols; ++j)
-				if(mMatrixN(i,j) != 0)
+				if(mMatrixN(i, j) != 0)
 					tempMatrix(i, j) =  static_cast<double>(matrix(i, j)) / mMatrixN(i, j);
-		outputMatrix(tempMatrix, "matrixE" + to_string(cham+1));
+		outputMatrix(tempMatrix, "matrixE" + to_string(cham + 1));
 	}
 	tempMatrix.fill(0);
 	for(const auto& matrixPair : mMatricesDev) {
@@ -127,9 +127,9 @@ void MatrixHandler::outputMatriciesMap() {
 		auto cham = matrixPair.first;
 		for (size_t i = 0; i < rows; ++i)
 			for (size_t j = 0; j < cols; ++j)
-				if(mMatrixN(i,j) != 0)
+				if(mMatrixN(i, j) != 0)
 					tempMatrix(i, j) =  static_cast<double>(matrix(i, j)) / mMatrixN(i, j);
-		outputMatrix(tempMatrix, "matrixDev" + to_string(cham+1));
+		outputMatrix(tempMatrix, "matrixDev" + to_string(cham + 1));
 	}
 	tempMatrix.fill(0);
 	for(const auto& matrixPair : mMatricesDeltaA) {
@@ -137,9 +137,9 @@ void MatrixHandler::outputMatriciesMap() {
 		auto cham = matrixPair.first;
 		for (size_t i = 0; i < rows; ++i)
 			for (size_t j = 0; j < cols; ++j)
-				if(mMatrixN(i,j) != 0)
+				if(mMatrixN(i, j) != 0)
 					tempMatrix(i, j) =  static_cast<double>(matrix(i, j)) / mMatrixN(i, j);
-		outputMatrix(tempMatrix, "matrixDeltaA" + to_string(cham+1));
+		outputMatrix(tempMatrix, "matrixDeltaA" + to_string(cham + 1));
 	}
 	tempMatrix.fill(0);
 	for(const auto& matrixPair : mMatricesDeltaB) {
@@ -147,15 +147,15 @@ void MatrixHandler::outputMatriciesMap() {
 		auto cham = matrixPair.first;
 		for (size_t i = 0; i < rows; ++i)
 			for (size_t j = 0; j < cols; ++j)
-				if(mMatrixN(i,j) != 0)
+				if(mMatrixN(i, j) != 0)
 					tempMatrix(i, j) =  static_cast<double>(matrix(i, j)) / mMatrixN(i, j);
-		outputMatrix(tempMatrix, "matrixDeltaB" + to_string(cham+1));
+		outputMatrix(tempMatrix, "matrixDeltaB" + to_string(cham + 1));
 	}
 }
 
 void MatrixHandler::outputMatriciesMap(const MatricesMap& matrices, const std::string& pattern) {
 	for(const auto& mat : matrices)
-		outputMatrix(mat.second, pattern + to_string(mat.first+1));
+		outputMatrix(mat.second, pattern + to_string(mat.first + 1));
 }
 
 
@@ -163,7 +163,7 @@ template<typename T>
 void MatrixHandler::outputMatrix(const vecmath::TMatrix<T>& mat, const std::string& pattern) {
 	std::ofstream stream;
 	stream.exceptions(std::ofstream::badbit | std::ofstream::failbit);
-	stream.open(pattern + ".dat");
+	stream.open(mDirPath + "/" + pattern + ".dat");
 	outputMatrix(stream, mat);
 }
 
@@ -173,7 +173,7 @@ void MatrixHandler::outputMatrix(std::ostream& str, const vecmath::TMatrix<T>& m
 	    << ".,Ymin=0.,Ymax=" << matrix.rows() << ".\n";
 	str << std::fixed;
 	for(size_t iy = 0; iy < matrix.rows(); iy++) {
-		for(size_t ix=0; ix < matrix.cols(); ix++) {
+		for(size_t ix = 0; ix < matrix.cols(); ix++) {
 			if(matrix(iy, ix) != 0)
 				str << std::setprecision(6) << matrix(iy, ix) << '\t';
 			else

@@ -9,7 +9,7 @@ using std::cout;
 using std::endl;
 
 MainWindow::MainWindow(const ChamberConfig& chamberConfig, const json& appConfig,
-					   QWidget* parent)
+                       QWidget* parent)
 	: QMainWindow(parent), mCurrentEvent(0) {
 
 	double speed = 0;
@@ -22,7 +22,7 @@ MainWindow::MainWindow(const ChamberConfig& chamberConfig, const json& appConfig
 	}
 
 	mTrekHandler = new TrekHandler(chamberConfig, pedestal, speed);
-	mTrekWidget  = new TrekGLWidget(mTrekHandler,this);
+	mTrekWidget  = new TrekGLWidget(mTrekHandler, this);
 
 	QSurfaceFormat glf;
 	glf.setSamples(16);
@@ -55,7 +55,7 @@ void MainWindow::keyPressEvent(QKeyEvent* ke) {
 	try {
 		QMainWindow::keyPressEvent(ke);
 		std::set<unsigned int> triggPlanes;
-		auto eventChecker = [&](const tdcdata::TUEvent& event)->bool {
+		auto eventChecker = [&](const tdcdata::TUEvent & event)->bool {
 			if (event.getUraganEvent().trackID != 0)
 				return false;
 			triggPlanes.clear();
@@ -92,16 +92,16 @@ void MainWindow::keyPressEvent(QKeyEvent* ke) {
 }
 
 void MainWindow::createAction() {
-	openEvtAction = new QAction("Open",this);
-	quitAppAction = new QAction("Quit",this);
+	openEvtAction = new QAction("Open", this);
+	quitAppAction = new QAction("Quit", this);
 
 	openEvtAction->setShortcuts(QKeySequence::Open);
 	quitAppAction->setShortcuts(QKeySequence::Quit);
 
 	connect(openEvtAction,	&QAction::triggered,
-			this,			&MainWindow::openData);
+	        this,			&MainWindow::openData);
 	connect(quitAppAction,	&QAction::triggered,
-			qApp,			&QApplication::quit);
+	        qApp,			&QApplication::quit);
 }
 
 void MainWindow::createMenues() {
@@ -113,7 +113,7 @@ void MainWindow::createMenues() {
 
 void MainWindow::openData() {
 	try {
-		QString fileName = QFileDialog::getOpenFileName(this,"Open",0,tr("*.tds"));
+		QString fileName = QFileDialog::getOpenFileName(this, "Open", 0, tr("*.tds"));
 		if( fileName.isEmpty() ) return;
 		mBuffer.read(fileName.toStdString());
 		mTrekHandler->loadEvent( mBuffer.at(mCurrentEvent) );

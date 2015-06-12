@@ -1,17 +1,21 @@
 #include <cstring>
-#include <dirent.h>
-#include <sys/stat.h>
 #include <sstream>
 #include <typeinfo>
 #include <iostream>
 #include <stdexcept>
 #include <system_error>
+#include <boost/filesystem.hpp>
 
 #include "configparser/flagparser.hpp"
 #include "tdcdata/dataset.hpp"
 #include "tools.hpp"
 
+using boost::filesystem::is_directory;
+using boost::filesystem::directory_iterator;
+using boost::filesystem::exists;
+using boost::filesystem::path;
 using std::string;
+using std::vector;
 using std::ios_base;
 using sstream  = std::stringstream;
 using std::cout;
@@ -19,6 +23,7 @@ using std::endl;
 using std::runtime_error;
 using std::ifstream;
 using std::exception;
+using std::vector;
 using tdcdata::DataSet;
 using tdcdata::AbstractEventHandler;
 
@@ -28,13 +33,13 @@ void panic(const string& message) {
 }
 
 void help() {
-	cout << "Использование: TUDataSet [ПАРАМЕТР] ... [ИМЯ ДИРЕКТОРИИ/ФАЙЛА].\n"
-	     << "-pedestal=int          устанавливает пьедестал\n"
-	     << "-speed=float           устанавливает скорость\n"
+	cout << "Использование: TUDataSet [ПАРАМЕТРЫ]\n"
+	     << "-path=                 директория с данными\n"
 	     << "-matrix                вывод матриц\n"
 	     << "-tracks                вывод текстового описания проекций между треками\n"
-	     << "-projections           вывод разницы углов между треками"
+	     << "-projections           вывод разницы углов между треками\n"
 	     << "-listing               вывод листинга событий\n"
+	     << "-parameters            нахождение характеристки дрейфовых камер\n"
 	     << endl;
 }
 
@@ -46,34 +51,27 @@ AppFlags loadFlags(int argc, char* argv[]) {
 	flags.matrix = parser.parseFlag("matrix", false);
 	flags.listing = parser.parseFlag("listing", false);
 	flags.projections = parser.parseFlag("projections", false);
+	flags.parameters  = parser.parseFlag("parameters", false);
 
-	flags.path = parser.parseString("path", "./");
-	flags.speed = parser.parseNumber("speed",0);
-	flags.pedestal = parser.parseNumber("pedestal", 0);
+	flags.dirPath = parser.parseString("path", ".");
 	if( parser.parseFlag("help", false) )
 		help();
 	return flags;
 }
 
-uintmax_t handleData(const string& path, DataSet& buffer, std::vector<AbstractEventHandler*> handlers) {
-	struct stat fileStat;
-	stat(path.c_str(), &fileStat);
-	if(S_ISDIR(fileStat.st_mode)) {
-		auto dir = opendir( path.c_str() );
-		if(!dir)
-			throw runtime_error("handleData: cannot open directory");
-		dirent* ent;
-
+uintmax_t handleData(const boost::filesystem::path& dirPath, DataSet& buffer,
+                     vector<AbstractEventHandler*> handlers) {
+	if( is_directory(dirPath) ) {
+		vector<path> filePaths;
+		std::copy(directory_iterator(dirPath), directory_iterator(), back_inserter(filePaths));
 		uintmax_t eventCount = 0;
-		while((ent = readdir(dir))) {
-			string fileName(path);
-			fileName.append("/");
-			fileName.append(ent->d_name);
+		for(const auto& filePath : filePaths) {
+			const auto& fileName = filePath.native();
 			if(DataSet::checkExtension(fileName)) {
 				try {
 					buffer.read(fileName);
 				} catch(const exception& e) {
-					std::cout << "Failed read " << ent->d_name << ": " << e.what() << '\n';
+					std::cout << "Failed read " << fileName << ": " << e.what() << '\n';
 				}
 				eventCount += buffer.size();
 				for(auto& handler : handlers) {
@@ -81,14 +79,13 @@ uintmax_t handleData(const string& path, DataSet& buffer, std::vector<AbstractEv
 						for(const auto& event : buffer)
 							handler->handleEvent(event);
 					} catch(const exception& e) {
-						std::cout << "Failed handle "<< ent->d_name << ": " << e.what() << '\n';
+						std::cout << "Failed handle " << fileName << ": " << e.what() << '\n';
 					}
 				}
 			}
 		}
 		for(auto& handler : handlers)
 			handler->flush();
-		closedir(dir);
 		return eventCount;
 	} else
 		throw runtime_error("handleData: path does not indicate directory");

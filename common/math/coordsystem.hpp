@@ -44,9 +44,9 @@ class TCoordSystem3 {
 		auto sinA = std::sin(mAlpha), sinB = std::sin(mBeta), sinY = std::sin(mGama);
 		auto cosA = std::cos(mAlpha), cosB = std::cos(mBeta), cosY = std::cos(mGama);
 
-		V1[0] = cosA*cosY - sinA*cosB*sinY, V1[1] = -cosA*sinY - sinA*cosB*cosY, V1[2] = sinA*sinB;
-		V2[0] = sinA*cosY + cosA*cosB*sinY, V2[1] = -sinA*sinY + cosA*cosB*cosY, V2[2] = -cosA*sinB;
-		V3[0] = sinB*sinY,					V3[1] = sinB*cosY,				     V3[2] = cosB;
+		V1[0] = cosA * cosY - sinA * cosB * sinY, V1[1] = -cosA * sinY - sinA * cosB * cosY, V1[2] = sinA * sinB;
+		V2[0] = sinA * cosY + cosA * cosB * sinY, V2[1] = -sinA * sinY + cosA * cosB * cosY, V2[2] = -cosA * sinB;
+		V3[0] = sinB * sinY,					V3[1] = sinB * cosY,				     V3[2] = cosB;
 	}
 	void convertTo(Vec3& vec) const {
 		vec -= mOffset;

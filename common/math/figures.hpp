@@ -16,7 +16,7 @@ class TPlane {
   public:
 	TPlane() {}
 	TPlane(const Vec3& dot1, const Vec3& dot2, const Vec3& dot3) {
-		mNorm = ((dot2 - dot1)&(dot3 - dot1)).ort();
+		mNorm = ((dot2 - dot1) & (dot3 - dot1)).ort();
 		mD = -(mNorm * dot1);
 	}
 
@@ -65,8 +65,8 @@ class TPlane {
 	T d() const { return mD; }
 
 	Vec3 getIntersectionPoint(const Line3& line) {
-		auto t = -((mNorm*line.dot()) + mD)/(mNorm*line.vec());
-		return (line.vec()*t) + line.dot();
+		auto t = -((mNorm * line.dot()) + mD) / (mNorm * line.vec());
+		return (line.vec() * t) + line.dot();
 	}
   private:
 	Vec3 mNorm;
@@ -78,11 +78,11 @@ class TQuadrangle2 {
 	using Quadrangle2 = TQuadrangle2<T>;
 	using Vec2 = TVec2<T>;
   public:
-	TQuadrangle2(const Vec2& vtx1,const Vec2& vtx2, const Vec2& vtx3 ,const Vec2& vtx4)
-		:mVertices{{vtx1,vtx2,vtx3,vtx4}} {}
+	TQuadrangle2(const Vec2& vtx1, const Vec2& vtx2, const Vec2& vtx3 , const Vec2& vtx4)
+		: mVertices{{vtx1, vtx2, vtx3, vtx4}} {}
 	bool checkDot(const Vec2& dot) {
 		Vec2 cen( (mVertices[0] + mVertices[1] + mVertices[2] + mVertices[3]) * 0.25 );
-		for(short k = 0, l = 1 ; k < 4; ++k,++l) {
+		for(short k = 0, l = 1 ; k < 4; ++k, ++l) {
 			if(l == 4) l = 0;
 			Vec2 norm{
 				mVertices[l].y() - mVertices[k].y(),
@@ -114,13 +114,13 @@ class TQuadrangle3 {
 	using Vec2  = TVec2<T>;
 	using Vec3  = TVec3<T>;
   public:
-	TQuadrangle3(const Vec3& vtx1,const Vec3& vtx2, const Vec3& vtx3 ,const Vec3& vtx4)
-		:mVertices{{vtx1,vtx2,vtx3,vtx4}} {}
+	TQuadrangle3(const Vec3& vtx1, const Vec3& vtx2, const Vec3& vtx3 , const Vec3& vtx4)
+		: mVertices{{vtx1, vtx2, vtx3, vtx4}} {}
 	Vec3&	operator[](std::size_t i) {
 		return mVertices.at(i);
 	}
 	bool checkPoint(const Vec3& vec) {
-		for(short i = 0,j = 1 ; i < 3; ++i,++j) {
+		for(short i = 0, j = 1 ; i < 3; ++i, ++j) {
 			if(j == 3) j = 0;
 			Quadrangle2 tmpRect(
 			    Vec2{ mVertices[0][i] , mVertices[0][j] },
@@ -128,7 +128,7 @@ class TQuadrangle3 {
 			    Vec2{ mVertices[2][i] , mVertices[2][j] },
 			    Vec2{ mVertices[3][i] , mVertices[3][j] }
 			);
-			Vec2 tmpDot(vec[i],vec[j]);
+			Vec2 tmpDot(vec[i], vec[j]);
 			if(!tmpRect.checkDot(tmpDot))
 				return false;
 		}
@@ -142,8 +142,8 @@ class TQuadrangle3 {
 
 	Plane getPlane() {
 		Plane plane;
-		plane.norm() = ((mVertices[1] - mVertices[0])&(mVertices[2] - mVertices[0])).ort();
-		plane.d()    = -(plane.norm()*mVertices[0]);
+		plane.norm() = ((mVertices[1] - mVertices[0]) & (mVertices[2] - mVertices[0])).ort();
+		plane.d()    = -(plane.norm() * mVertices[0]);
 		return plane;
 	}
   private:
@@ -164,33 +164,33 @@ class TOctahedron {
 	std::vector<Vec3> checkIntersection(const Line3& line) const {
 		Vec3 inPoint;
 		std::vector<Vec3> retVec;
-		Quadrangle3 plg(mVertices[0],mVertices[1],mVertices[2],mVertices[3]);
-		if(plg.checkIntersection(line,inPoint))
+		Quadrangle3 plg(mVertices[0], mVertices[1], mVertices[2], mVertices[3]);
+		if(plg.checkIntersection(line, inPoint))
 			retVec.push_back(inPoint);
 
 		for(auto i = 4 ; i < 8 ; ++i)
 			plg[i - 4] = mVertices[i];
-		if(plg.checkIntersection(line,inPoint))
+		if(plg.checkIntersection(line, inPoint))
 			retVec.push_back(inPoint);
 
 		plg[2] = mVertices[1];
 		plg[3] = mVertices[0];
-		if(plg.checkIntersection(line,inPoint))
+		if(plg.checkIntersection(line, inPoint))
 			retVec.push_back(inPoint);
 
 		plg[0] = mVertices[6];
 		plg[3] = mVertices[2];
-		if(plg.checkIntersection(line,inPoint))
+		if(plg.checkIntersection(line, inPoint))
 			retVec.push_back(inPoint);
 
 		plg[1] = mVertices[7];
 		plg[2] = mVertices[3];
-		if(plg.checkIntersection(line,inPoint))
+		if(plg.checkIntersection(line, inPoint))
 			retVec.push_back(inPoint);
 
 		plg[0] = mVertices[4];
 		plg[3] = mVertices[0];
-		if(plg.checkIntersection(line,inPoint))
+		if(plg.checkIntersection(line, inPoint))
 			retVec.push_back(inPoint);
 
 		return retVec;

@@ -17,18 +17,18 @@ void TDCEvent::loadTrekEvent(TrekEvent& trekEvent) const {
 		auto wire = getWire(word);
 		auto msr  = getMsr(word);
 		if( !trekEvent.count(cham) )
-			trekEvent.insert({cham,ChamberEvent()});
+			trekEvent.insert({cham, EventTimes()});
 		trekEvent[cham][wire].push_back(msr);
 	}
 }
 
-TDCEvent::ChamberEvent TDCEvent::getChamberEvent(size_t cham) const {
-	ChamberEvent chamEvent;
+TDCEvent::EventTimes TDCEvent::getChamberEvent(size_t cham) const {
+	EventTimes chamEvent;
 	loadChamberEvent(chamEvent, cham);
 	return chamEvent;
 }
 
-void TDCEvent::loadChamberEvent(TUEvent::ChamberEvent& chamEvent, size_t cham) const {
+void TDCEvent::loadChamberEvent(TUEvent::EventTimes& chamEvent, size_t cham) const {
 	for(auto word : mTrekEvent) {
 		if(getChamber(word) != cham)
 			continue;
