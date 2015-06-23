@@ -61,6 +61,10 @@ Plane Chamber::getTrackPlane() const {
 	return getTrackPlane(mTrack.line, mDescription.getPoints());
 }
 
+bool Chamber::hasHit() const { return mHasHit; }
+
+bool Chamber::hasTrack() const { return mHasTrack; }
+
 Line2 Chamber::getUraganProjection(const Line3& track) const {
 	return getUraganProjection(track, mChamberSystem);
 }

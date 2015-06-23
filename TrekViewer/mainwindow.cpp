@@ -3,25 +3,19 @@
 #include <iostream>
 #include "mainwindow.hpp"
 
+using trek::ChamberConfig;
+using trek::TrekHandler;
+
 using std::exception;
 using nlohmann::json;
 using std::cout;
 using std::endl;
 
-MainWindow::MainWindow(const ChamberConfig& chamberConfig, const json& appConfig,
-                       QWidget* parent)
+MainWindow::MainWindow(const ChamberConfig& chamberConfig,
+					   QWidget* parent)
 	: QMainWindow(parent), mCurrentEvent(0) {
 
-	double speed = 0;
-	uint32_t pedestal = 0;
-	try {
-		speed    = appConfig.at("speed");
-		pedestal = appConfig.at("pedestal");
-	} catch(const exception& e) {
-		errorMessage("Exception", QString("TrekViewer Config: ") + e.what());
-	}
-
-	mTrekHandler = new TrekHandler(chamberConfig, pedestal, speed);
+	mTrekHandler = new TrekHandler(chamberConfig);
 	mTrekWidget  = new TrekGLWidget(mTrekHandler, this);
 
 	QSurfaceFormat glf;
@@ -99,9 +93,9 @@ void MainWindow::createAction() {
 	quitAppAction->setShortcuts(QKeySequence::Quit);
 
 	connect(openEvtAction,	&QAction::triggered,
-	        this,			&MainWindow::openData);
+			this,			&MainWindow::openData);
 	connect(quitAppAction,	&QAction::triggered,
-	        qApp,			&QApplication::quit);
+			qApp,			&QApplication::quit);
 }
 
 void MainWindow::createMenues() {

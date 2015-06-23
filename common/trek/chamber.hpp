@@ -22,9 +22,10 @@ class Chamber {
 	uint32_t getChamberPlane() const {return mDescription.getPlane();}
 	uint32_t getChamberGroup() const {return mDescription.getGroup();}
 	const ChamberPoints& getChamberPoints() const { return mDescription.getPoints(); }
+	const vecmath::Octahedron& getOctahedron() const {return mOctahedron;}
 
-	bool hasHit()		 const { return mHasHit; }
-	bool hasTrack()		 const { return mHasTrack; }
+	bool hasHit()   const;
+	bool hasTrack() const;
 
 	vecmath::Line2 getUraganProjection(const vecmath::Line3& track) const;
 	vecmath::Line2 getUraganProjection(vecmath::Vec3 p1, vecmath::Vec3 p2) const;

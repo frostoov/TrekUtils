@@ -17,13 +17,9 @@
 #include "json.hpp"
 
 class MainWindow : public QMainWindow {
-	using DataSet       = tdcdata::DataSet;
-	using ChamberConfig = trek::ChamberConfig;
-	using TrekHandler   = trek::TrekHandler;
 	Q_OBJECT
   public:
-	explicit MainWindow(const ChamberConfig& chamberConfig, const nlohmann::json& appConfig,
-	                    QWidget* parent = nullptr);
+	explicit MainWindow(const trek::ChamberConfig& chamberConfig,	QWidget* parent = nullptr);
 	~MainWindow();
   protected:
 	virtual void keyPressEvent(QKeyEvent* ke);
@@ -34,9 +30,9 @@ class MainWindow : public QMainWindow {
   protected slots:
 	void openData();
   private:
-	TrekHandler*   mTrekHandler;
-	TrekGLWidget*  mTrekWidget;
-	DataSet		  mBuffer;
+	trek::TrekHandler* mTrekHandler;
+	TrekGLWidget*      mTrekWidget;
+	tdcdata::DataSet   mBuffer;
 
 	QAction* openEvtAction;
 	QAction* quitAppAction;

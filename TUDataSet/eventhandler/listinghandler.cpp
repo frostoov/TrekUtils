@@ -18,6 +18,8 @@ ListingHandler::~ListingHandler() {
 	mStreams.clear();
 }
 
+void ListingHandler::setPath(const std::string& dirPath) {mDirPath = dirPath;}
+
 void ListingHandler::handleEvent(const TUEvent& event) {
 	printListing(event);
 }
@@ -64,8 +66,8 @@ void ListingHandler::createListingStream(uintmax_t cham) {
 		*str << "Chamber №" << cham + 1 << '\n';
 		for(auto i = 0; i < 4 ; ++i)
 			*str << setw(6) << setfill(' ') << "WIRE "
-			     << setw(2) << setfill('0') << i
-			     << setw(1) << setfill(' ') << '\t';
+				 << setw(2) << setfill('0') << i
+				 << setw(1) << setfill(' ') << '\t';
 		*str << '\n';
 
 		mStreams.insert({cham, str});

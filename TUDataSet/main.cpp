@@ -18,6 +18,8 @@
 
 #include "tools.hpp"
 
+using boost::filesystem::path;
+using boost::filesystem::current_path;
 using tdcdata::DataSet;
 using tdcdata::AbstractEventHandler;
 using std::ios_base;
@@ -27,13 +29,13 @@ using std::cin;
 using std::endl;
 using std::flush;
 using std::string;
+using std::vector;
 
-string createDir(const string& dirPath) {
+string createDir(const path& dirPath) {
 	using namespace boost::filesystem;
-	path bDirPath(dirPath);
-	if(!is_directory(bDirPath))
-		create_directory(bDirPath);
-	return absolute(bDirPath).native();
+	if(!is_directory(dirPath))
+		create_directory(dirPath);
+	return absolute(dirPath).native();
 }
 
 int main(int argc, char* argv[]) {
@@ -54,13 +56,12 @@ int main(int argc, char* argv[]) {
 		help();
 		exit(0);
 	}
+
 	struct AppConfig {
 		double   defaultSpeed;
 		uint32_t defaultOffset;
 		bool     needFindParams;
-	} appConfig = {
-		0, 0, false
-	};
+	} appConfig{0, 0, false};
 
 	AppConfigParser appParser({
 		{"speed",  appConfig.defaultSpeed},
@@ -93,7 +94,7 @@ int main(int argc, char* argv[]) {
 	DataSet buffer;
 	if( (appConfig.needFindParams && (flags.matrix || flags.projections)) || flags.parameters) {
 		auto parameterHandler = new ParametersHandler;
-		std::vector<AbstractEventHandler*> handlers{parameterHandler};
+		vector<AbstractEventHandler*> handlers{parameterHandler};
 		try {
 			handleData(flags.dirPath, buffer, handlers);
 			auto chamberConfig = parser.getConfig();
@@ -108,7 +109,7 @@ int main(int argc, char* argv[]) {
 			parser.setConfig(chamberConfig);
 			cout << "Parameter was found" << endl;
 			if(flags.parameters) {
-				cout << "writing new config to chambers.new.conf" << endl;
+				cout << "Writing new config to chambers.new.conf" << endl;
 				parser.save("chambers.new.conf");
 			}
 		} catch(const exception& e) {
@@ -118,21 +119,26 @@ int main(int argc, char* argv[]) {
 		delete parameterHandler;
 	}
 	for(const auto& desc : parser.getConfig()) {
+		const auto& params = desc.second.getParameters();
 		cout << "Chamber : " << desc.first + 1 << endl;
-		for(size_t wireNumber = 0; wireNumber < desc.second.getParameters().size(); ++wireNumber) {
-			const auto& wireParams = desc.second.getParameters().at(wireNumber);
-			cout << "  Wire : " << wireNumber << endl;
-			cout << "    Offset : " << wireParams.getOffset() << endl;
-			cout << "    Speed  : " << wireParams.getSpeed() << endl;
-		}
+		cout << "Offset  : [" << params.at(0).getOffset() << ", "
+							  << params.at(1).getOffset() << ", "
+							  << params.at(2).getOffset() << ", "
+							  << params.at(3).getOffset() << "]\n";
+		cout << "Speed   : [" << params.at(0).getSpeed() << ", "
+							  << params.at(1).getSpeed() << ", "
+							  << params.at(2).getSpeed() << ", "
+							  << params.at(3).getSpeed() << "]\n";
 		cout << "====" << endl;
 	}
 
-	std::vector<AbstractEventHandler*> handlers;
-	if(flags.listing) handlers.push_back(new ListingHandler(createDir("listings")));
-	if(flags.matrix ) handlers.push_back(new MatrixHandler(parser.getConfig(), createDir("matrices")));
+	vector<AbstractEventHandler*> handlers;
+	if(flags.listing)
+		handlers.push_back(new ListingHandler(createDir(current_path().native() + "/listings")));
+	if(flags.matrix )
+		handlers.push_back(new MatrixHandler(parser.getConfig(), createDir(current_path().native() + "/matrices")));
 	if(flags.projections || flags.tracks) {
-		auto tracksHandler = new TracksHandler(parser.getConfig(), createDir("tracks"));
+		auto tracksHandler = new TracksHandler(parser.getConfig(), createDir(current_path().native() + "/tracks"));
 		tracksHandler->needProjection(flags.projections);
 		tracksHandler->needTracks(flags.tracks);
 		handlers.push_back(tracksHandler);

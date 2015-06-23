@@ -17,19 +17,19 @@
 #include "trek/trekhandler.hpp"
 
 struct RenderData {
-	std::vector<float> vertex;
-	std::vector<float> colorPlg;
-	std::vector<float> colorLine;
-	std::vector<unsigned> facePlg;
-	std::vector<unsigned> faceLine;
+	std::vector<GLfloat> vertices;
+	std::vector<GLfloat> polygonColors;
+	std::vector<GLfloat> lineColors;
+	std::vector<GLuint> polygonFace;
+	std::vector<GLuint> lineFaces;
 };
 
-struct vertexBuffers {
-	GLuint vertex;
-	GLuint colorPlg;
-	GLuint colorLine;
-	GLuint facePlg;
-	GLuint faceLine;
+struct VertexBuffers {
+	GLuint vertices;
+	GLuint polygonColors;
+	GLuint lineColors;
+	GLuint polygonFace;
+	GLuint lineFace;
 };
 
 struct CursorStat {
@@ -57,27 +57,35 @@ struct CameraPosition {
 };
 
 class TrekGLWidget : public QOpenGLWidget {
-	using ChamberEventHandler = trek::ChamberHandler;
-	using Chamber     = trek::Chamber;
-	using Line3		  = vecmath::Line3;
-	using TrekHandler = trek::TrekHandler;
   public:
-	using VertexArray = std::array<float, 8>;
-	using ColorArray  = std::array<float, 24>;
   public:
-	TrekGLWidget(TrekHandler* handler = nullptr, QWidget* parent = nullptr);
+	TrekGLWidget(trek::TrekHandler* handler = nullptr, QWidget* parent = nullptr);
 
 	void loadObjects();
   protected:
+
+	void loadChamber(const trek::Chamber& chamber, size_t start);
+	void loadChamberVertices(const trek::Chamber& chamber);
+	void loadChamberColors(const trek::Chamber& chamber);
+	void loadChamberPolygonColors(const trek::Chamber& chamber);
+	void loadChamberLineColors(const trek::Chamber& chamber);
+	void loadChamberFaces(size_t start);
+	void loadChamberPolygonFaces(size_t start);
+	void loadChamberLineFaces(size_t start);
+
+	void loadTrackVertices(const trek::TrekHandler& handler);
+	void loadTrackLineColors(const trek::TrekHandler& handler);
+	void loadTrackLineFaces(const trek::TrekHandler& handler, size_t start);
+
 	void paintGL() override;
 	void initializeGL() override;
 	void resizeGL(int w, int h) override;
 	void mousePressEvent(QMouseEvent* me) override;
 	void mouseMoveEvent(QMouseEvent* me) override;
 	void wheelEvent(QWheelEvent* we) override;
-	Line3 expandLine(QPoint point, const glm::mat4& model,
-	                 const glm::mat4& proj, const glm::vec4& viewPort);
-	void  selectObject(const Line3& line);
+	vecmath::Line3 expandLine(QPoint point, const glm::mat4& model,
+							  const glm::mat4& proj, const glm::vec4& viewPort);
+	void  selectObject(const vecmath::Line3& line);
 
 	void loadTrack();
 
@@ -100,10 +108,10 @@ class TrekGLWidget : public QOpenGLWidget {
 	void loadFacePlgVBO();
 	void loadFaceLineVBO();
   private:
-	QOpenGLFunctions* glFuncs;
-	TrekHandler*	mTrekHandler;
-	RenderData rData;
-	vertexBuffers vbo;
+	QOpenGLFunctions*   glFuncs;
+	trek::TrekHandler*	mTrekHandler;
+	RenderData mRenderData;
+	VertexBuffers vbo;
 	glm::mat4 mProjection;
 	glm::mat4 mModelView;
 
@@ -114,11 +122,11 @@ class TrekGLWidget : public QOpenGLWidget {
 	GLint mModelUniform;
 
 	bool mNeedLoad;
-	CursorStat	mCursor;
-	CameraPosition mCamPosition;
-	size_t		mPlgSize;
-	size_t		mPineSize;
-	Chamber*	mSelectedChamber;
+	CursorStat	    mCursor;
+	CameraPosition  mCamPosition;
+	size_t		    mPlgSize;
+	size_t		    mPineSize;
+	trek::Chamber*	mSelectedChamber;
 };
 
 #endif // TRACKGLWIDGET_HPP

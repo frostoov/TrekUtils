@@ -25,8 +25,8 @@ void ParametersHandler::handleEvent(const TUEvent& event) {
 void ParametersHandler::flush() {
 	mChamParams.clear();
 	for(const auto& chamHistogramPair : mHistograms) {
-		auto chamNumber     = chamHistogramPair.first;
-		auto& chamHistogram = chamHistogramPair.second;
+		auto  chamNumber     = chamHistogramPair.first;
+		auto& chamHistogram  = chamHistogramPair.second;
 		for(size_t wireNumber = 0; wireNumber < chamHistogram.size(); ++wireNumber) {
 			const auto& wireHistogram = chamHistogram.at(wireNumber);
 			auto maxTime = wireHistogram.maxValue();

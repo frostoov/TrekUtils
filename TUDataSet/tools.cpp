@@ -4,7 +4,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <system_error>
-#include <boost/filesystem.hpp>
+#include <boost/filesystem/operations.hpp>
 
 #include "configparser/flagparser.hpp"
 #include "tdcdata/dataset.hpp"
@@ -34,13 +34,13 @@ void panic(const string& message) {
 
 void help() {
 	cout << "Использование: TUDataSet [ПАРАМЕТРЫ]\n"
-	     << "-path=                 директория с данными\n"
-	     << "-matrix                вывод матриц\n"
-	     << "-tracks                вывод текстового описания проекций между треками\n"
-	     << "-projections           вывод разницы углов между треками\n"
-	     << "-listing               вывод листинга событий\n"
-	     << "-parameters            нахождение характеристки дрейфовых камер\n"
-	     << endl;
+		 << "-path=                 директория с данными\n"
+		 << "-matrix                вывод матриц\n"
+		 << "-tracks                вывод текстового описания проекций между треками\n"
+		 << "-projections           вывод разницы углов между треками\n"
+		 << "-listing               вывод листинга событий\n"
+		 << "-parameters            нахождение характеристки дрейфовых камер\n"
+		 << endl;
 }
 
 AppFlags loadFlags(int argc, char* argv[]) {
@@ -60,10 +60,10 @@ AppFlags loadFlags(int argc, char* argv[]) {
 }
 
 uintmax_t handleData(const boost::filesystem::path& dirPath, DataSet& buffer,
-                     vector<AbstractEventHandler*> handlers) {
+					 vector<AbstractEventHandler*> handlers) {
 	if( is_directory(dirPath) ) {
 		vector<path> filePaths;
-		std::copy(directory_iterator(dirPath), directory_iterator(), back_inserter(filePaths));
+		copy(directory_iterator(dirPath), directory_iterator(), back_inserter(filePaths) );
 		uintmax_t eventCount = 0;
 		for(const auto& filePath : filePaths) {
 			const auto& fileName = filePath.native();
