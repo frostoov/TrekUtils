@@ -4,16 +4,14 @@
 #include <iostream>
 #include <stdexcept>
 #include <system_error>
-#include <boost/filesystem/operations.hpp>
+
+#include <QString>
+#include <QDir>
 
 #include "configparser/flagparser.hpp"
 #include "tdcdata/dataset.hpp"
 #include "tools.hpp"
 
-using boost::filesystem::is_directory;
-using boost::filesystem::directory_iterator;
-using boost::filesystem::exists;
-using boost::filesystem::path;
 using std::string;
 using std::vector;
 using std::ios_base;
@@ -59,14 +57,15 @@ AppFlags loadFlags(int argc, char* argv[]) {
 	return flags;
 }
 
-uintmax_t handleData(const boost::filesystem::path& dirPath, DataSet& buffer,
+uintmax_t handleData(const string& dirPath, DataSet& buffer,
 					 vector<AbstractEventHandler*> handlers) {
-	if( is_directory(dirPath) ) {
-		vector<path> filePaths;
-		copy(directory_iterator(dirPath), directory_iterator(), back_inserter(filePaths) );
+
+    QDir director(QString::fromStdString(dirPath));
+    if(director.exists()) {
+        QStringList fileList = director.entryList();
 		uintmax_t eventCount = 0;
-		for(const auto& filePath : filePaths) {
-			const auto& fileName = filePath.native();
+        for(const auto& filePath : fileList) {
+            const auto fileName = filePath.toStdString();
 			if(DataSet::checkExtension(fileName)) {
 				try {
 					buffer.read(fileName);

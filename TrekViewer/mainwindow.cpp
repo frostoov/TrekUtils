@@ -18,16 +18,6 @@ MainWindow::MainWindow(const ChamberConfig& chamberConfig,
 	mTrekHandler = new TrekHandler(chamberConfig);
 	mTrekWidget  = new TrekGLWidget(mTrekHandler, this);
 
-	QSurfaceFormat glf;
-	glf.setSamples(16);
-	glf.setDepthBufferSize(24);
-	glf.setStencilBufferSize(8);
-	glf.setVersion(2, 1);
-	glf.setProfile(QSurfaceFormat::CoreProfile);
-	glf.setRenderableType(QSurfaceFormat::OpenGL);
-	glf.setSwapBehavior(QSurfaceFormat::TripleBuffer);
-	mTrekWidget->setFormat(glf);
-
 	createAction();
 	createMenues();
 

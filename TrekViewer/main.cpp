@@ -27,8 +27,8 @@ int main(int argc, char* argv[]) {
 	AppConfig appConfig{0, 0};
 
 	AppConfigParser appParser{{
-		{"speed", 0},
-		{"offset", 0},
+			{"speed", 0},
+			{"offset", 0},
 	}};
 	try {
 		cout << "Reading TrekViewer.conf: " << flush;
@@ -54,6 +54,15 @@ int main(int argc, char* argv[]) {
 	}
 
 	QApplication a(argc, argv);
+
+	QSurfaceFormat glf;
+	glf.setDepthBufferSize(24);
+	glf.setStencilBufferSize(8);
+	glf.setVersion(2, 0);
+	glf.setProfile(QSurfaceFormat::CoreProfile);
+	glf.setRenderableType(QSurfaceFormat::OpenGL);
+	QSurfaceFormat::setDefaultFormat(glf);
+
 	MainWindow w(chambersParser.getConfig());
 	w.show();
 	return a.exec();

@@ -1,13 +1,15 @@
-TEMPLATE = app
+QT = core
 TARGET   = TUDataSet
-CONFIG   = exceptions c++11 warn_on
+
+TEMPLATE = app
+
+CONFIG   += exceptions c++11 warn_on
 CONFIG   -= debug_and_release
 
 QMAKE_CXXFLAGS_RELEASE -= -O1
 QMAKE_CXXFLAGS_RELEASE -= -O2
 QMAKE_CXXFLAGS_RELEASE += -O3
 
-LIBS += -lboost_filesystem -lboost_system
 INCLUDEPATH += ../common
 
 HEADERS += \
@@ -34,4 +36,3 @@ OBJECTS += \
 	../common/event.o \
 	../common/chamber.o \
 	../common/trekhandler.o \
-

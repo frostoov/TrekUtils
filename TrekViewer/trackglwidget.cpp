@@ -3,7 +3,6 @@
 
 
 static constexpr double PI    = 3.14159265358979323846;
-//static constexpr double todeg = 180/PI;
 static constexpr double torad = PI / 180;
 
 using trek::TrekHandler;

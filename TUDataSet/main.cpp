@@ -2,6 +2,8 @@
 #include <iostream>
 #include <cstring>
 
+#include <QDir>
+
 #include "tdcdata/dataset.hpp"
 
 #include "eventhandler/matrixhandler.hpp"
@@ -13,13 +15,8 @@
 #include "configparser/appconfigparser.hpp"
 #include "configparser/flagparser.hpp"
 
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem/operations.hpp>
-
 #include "tools.hpp"
 
-using boost::filesystem::path;
-using boost::filesystem::current_path;
 using tdcdata::DataSet;
 using tdcdata::AbstractEventHandler;
 using std::ios_base;
@@ -31,11 +28,12 @@ using std::flush;
 using std::string;
 using std::vector;
 
-string createDir(const path& dirPath) {
-	using namespace boost::filesystem;
-	if(!is_directory(dirPath))
-		create_directory(dirPath);
-	return absolute(dirPath).native();
+string createDir(const std::string& dirPath) {
+    QDir directory(QDir::currentPath());
+    if(directory.mkpath(QString::fromStdString(dirPath)) == false) {
+        throw std::runtime_error("Cannot create directory: " + dirPath);
+    }
+    return QDir(QString::fromStdString(dirPath)).absolutePath().toStdString();
 }
 
 int main(int argc, char* argv[]) {
@@ -134,11 +132,11 @@ int main(int argc, char* argv[]) {
 
 	vector<AbstractEventHandler*> handlers;
 	if(flags.listing)
-		handlers.push_back(new ListingHandler(createDir(current_path().native() + "/listings")));
+        handlers.push_back(new ListingHandler(createDir(QDir::currentPath().toStdString() + "/listings")));
 	if(flags.matrix )
-		handlers.push_back(new MatrixHandler(parser.getConfig(), createDir(current_path().native() + "/matrices")));
+        handlers.push_back(new MatrixHandler(parser.getConfig(), createDir(QDir::currentPath().toStdString() + "/matrices")));
 	if(flags.projections || flags.tracks) {
-		auto tracksHandler = new TracksHandler(parser.getConfig(), createDir(current_path().native() + "/tracks"));
+        auto tracksHandler = new TracksHandler(parser.getConfig(), createDir(QDir::currentPath().toStdString() + "/tracks"));
 		tracksHandler->needProjection(flags.projections);
 		tracksHandler->needTracks(flags.tracks);
 		handlers.push_back(tracksHandler);
