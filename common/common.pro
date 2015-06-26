@@ -1,5 +1,5 @@
 TEMPLATE = lib
-CONFIG  += qt exceptions c++11
+CONFIG  += exceptions c++11
 CONFIG  -= debug_and_release
 
 QMAKE_CXXFLAGS_RELEASE -= -O1
@@ -25,7 +25,8 @@ HEADERS += \
 	configparser/flagparser.hpp \
 	json.hpp \
 	trek/trektypes.hpp \
-    tdcdata/tdcdatatypes.hpp
+	tdcdata/tdcdatatypes.hpp \
+	math/general.hpp
 
 SOURCES += \
 	configparser/appconfigparser.cpp \

@@ -5,6 +5,9 @@
 #include <QOpenGLFunctions>
 #include <QMouseEvent>
 #include <QWheelEvent>
+#include <QOpenGLShader>
+#include <QOpenGLBuffer>
+
 #include <array>
 
 #include <glm/matrix.hpp>
@@ -60,6 +63,7 @@ class TrekGLWidget : public QOpenGLWidget {
   public:
   public:
 	TrekGLWidget(trek::TrekHandler* handler = nullptr, QWidget* parent = nullptr);
+	~TrekGLWidget();
 
 	void loadObjects();
   protected:
@@ -83,10 +87,6 @@ class TrekGLWidget : public QOpenGLWidget {
 	void mousePressEvent(QMouseEvent* me) override;
 	void mouseMoveEvent(QMouseEvent* me) override;
 	void wheelEvent(QWheelEvent* we) override;
-	vecmath::Line3 expandLine(QPoint point, const glm::mat4& model,
-							  const glm::mat4& proj, const glm::vec4& viewPort);
-	void  selectObject(const vecmath::Line3& line);
-
 	void loadTrack();
 
 	void clearVerticesData();
@@ -109,24 +109,24 @@ class TrekGLWidget : public QOpenGLWidget {
 	void loadFaceLineVBO();
   private:
 	QOpenGLFunctions*   glFuncs;
+	QOpenGLShaderProgram* mShaderProgram;
 	trek::TrekHandler*	mTrekHandler;
 	RenderData mRenderData;
 	VertexBuffers vbo;
 	glm::mat4 mProjection;
 	glm::mat4 mModelView;
 
-	GLint mVertexAttrib;
-	GLint mColorAttrib;
+	GLint mVertexLocation;
+	GLint mColorLocation;
 
-	GLint mProjUniform;
-	GLint mModelUniform;
+	GLint mProjectionLocation;
+	GLint mModelViewLocation;
 
 	bool mNeedLoad;
 	CursorStat	    mCursor;
-	CameraPosition  mCamPosition;
-	size_t		    mPlgSize;
-	size_t		    mPineSize;
-	trek::Chamber*	mSelectedChamber;
+	CameraPosition  mCameraPosition;
+	size_t		    mPolygonSize;
+	size_t		    mLineSize;
 };
 
 #endif // TRACKGLWIDGET_HPP

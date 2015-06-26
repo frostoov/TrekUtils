@@ -14,12 +14,12 @@ struct AppFlags {
 	bool   matrix;
 	bool   listing;
 	bool   parameters;
-    std::string	dirPath;
+	std::string	dirPath;
 };
 
 void panic(const std::string& message);
 void help();
-uintmax_t handleData(const std::string &dirPath, tdcdata::DataSet& buffer,
+uintmax_t handleData(const std::string& dirPath, tdcdata::DataSet& buffer,
                      std::vector<tdcdata::AbstractEventHandler*> handlers);
 AppFlags loadFlags(int argc, char* argv[]);
 

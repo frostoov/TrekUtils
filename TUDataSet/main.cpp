@@ -29,11 +29,10 @@ using std::string;
 using std::vector;
 
 string createDir(const std::string& dirPath) {
-    QDir directory(QDir::currentPath());
-    if(directory.mkpath(QString::fromStdString(dirPath)) == false) {
-        throw std::runtime_error("Cannot create directory: " + dirPath);
-    }
-    return QDir(QString::fromStdString(dirPath)).absolutePath().toStdString();
+	QDir directory(QDir::currentPath());
+	if(directory.mkpath(QString::fromStdString(dirPath)) == false)
+		throw std::runtime_error("Cannot create directory: " + dirPath);
+	return QDir(QString::fromStdString(dirPath)).absolutePath().toStdString();
 }
 
 int main(int argc, char* argv[]) {
@@ -120,23 +119,23 @@ int main(int argc, char* argv[]) {
 		const auto& params = desc.second.getParameters();
 		cout << "Chamber : " << desc.first + 1 << endl;
 		cout << "Offset  : [" << params.at(0).getOffset() << ", "
-							  << params.at(1).getOffset() << ", "
-							  << params.at(2).getOffset() << ", "
-							  << params.at(3).getOffset() << "]\n";
+		     << params.at(1).getOffset() << ", "
+		     << params.at(2).getOffset() << ", "
+		     << params.at(3).getOffset() << "]\n";
 		cout << "Speed   : [" << params.at(0).getSpeed() << ", "
-							  << params.at(1).getSpeed() << ", "
-							  << params.at(2).getSpeed() << ", "
-							  << params.at(3).getSpeed() << "]\n";
+		     << params.at(1).getSpeed() << ", "
+		     << params.at(2).getSpeed() << ", "
+		     << params.at(3).getSpeed() << "]\n";
 		cout << "====" << endl;
 	}
 
 	vector<AbstractEventHandler*> handlers;
 	if(flags.listing)
-        handlers.push_back(new ListingHandler(createDir(QDir::currentPath().toStdString() + "/listings")));
+		handlers.push_back(new ListingHandler(createDir(QDir::currentPath().toStdString() + "/listings")));
 	if(flags.matrix )
-        handlers.push_back(new MatrixHandler(parser.getConfig(), createDir(QDir::currentPath().toStdString() + "/matrices")));
+		handlers.push_back(new MatrixHandler(parser.getConfig(), createDir(QDir::currentPath().toStdString() + "/matrices")));
 	if(flags.projections || flags.tracks) {
-        auto tracksHandler = new TracksHandler(parser.getConfig(), createDir(QDir::currentPath().toStdString() + "/tracks"));
+		auto tracksHandler = new TracksHandler(parser.getConfig(), createDir(QDir::currentPath().toStdString() + "/tracks"));
 		tracksHandler->needProjection(flags.projections);
 		tracksHandler->needTracks(flags.tracks);
 		handlers.push_back(tracksHandler);

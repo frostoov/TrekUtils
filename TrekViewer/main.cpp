@@ -29,7 +29,7 @@ int main(int argc, char* argv[]) {
 	AppConfigParser appParser{{
 			{"speed", 0},
 			{"offset", 0},
-	}};
+		}};
 	try {
 		cout << "Reading TrekViewer.conf: " << flush;
 		appParser.load("TrekViewer.conf");
@@ -56,6 +56,7 @@ int main(int argc, char* argv[]) {
 	QApplication a(argc, argv);
 
 	QSurfaceFormat glf;
+	glf.setSamples(8);
 	glf.setDepthBufferSize(24);
 	glf.setStencilBufferSize(8);
 	glf.setVersion(2, 0);

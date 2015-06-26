@@ -23,7 +23,7 @@ const std::array<vecmath::Vec2, 4> ChamberHandler::mWires{{
 	}};
 
 TrackDescription ChamberHandler::createTrackDescription(const ChamberTimes& eventTimes,
-		const ChamberDescription& chamDesc) {
+        const ChamberDescription& chamDesc) {
 	ChamberDistances eventDistances(getDistances(eventTimes, chamDesc));
 	if(getDepth(eventDistances) == 1) {
 		TrackDescription trackDesc;
@@ -48,7 +48,7 @@ TrackDescription ChamberHandler::createTrackDescription(const ChamberTimes& even
 }
 
 ChamberDistances ChamberHandler::getDistances(const ChamberTimes& eventTimes,
-		const ChamberDescription& chamDesc) {
+        const ChamberDescription& chamDesc) {
 	ChamberDistances distances;
 	for(size_t wire = 0; wire < eventTimes.size(); ++wire)
 		for(auto msr :  eventTimes.at(wire)) {
@@ -92,7 +92,7 @@ double ChamberHandler::getSystemError(double r, double ang) {
 }
 
 TrackDistances ChamberHandler::createTrackDistances(const ChamberDistances& eventDistances,
-		const Indecies& indices) {
+        const Indecies& indices) {
 	TrackDistances trackDistances;
 	for(size_t i = 0; i < trackDistances.size(); ++i)
 		trackDistances.at(i) = eventDistances.at(i).at(indices.at(i) % eventDistances.at(i).size());
@@ -100,7 +100,7 @@ TrackDistances ChamberHandler::createTrackDistances(const ChamberDistances& even
 }
 
 TrackTimes ChamberHandler::createTrackTimes(const ChamberTimes& eventTimes,
-		const Indecies& indices) {
+        const Indecies& indices) {
 	TrackTimes trackTimes;
 	for(size_t i = 0; i < trackTimes.size(); ++i)
 		trackTimes.at(i) = eventTimes.at(i).at(indices.at(i) % eventTimes.at(i).size());

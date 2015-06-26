@@ -12,7 +12,7 @@ using std::cout;
 using std::endl;
 
 MainWindow::MainWindow(const ChamberConfig& chamberConfig,
-					   QWidget* parent)
+                       QWidget* parent)
 	: QMainWindow(parent), mCurrentEvent(0) {
 
 	mTrekHandler = new TrekHandler(chamberConfig);
@@ -83,9 +83,9 @@ void MainWindow::createAction() {
 	quitAppAction->setShortcuts(QKeySequence::Quit);
 
 	connect(openEvtAction,	&QAction::triggered,
-			this,			&MainWindow::openData);
+	        this,			&MainWindow::openData);
 	connect(quitAppAction,	&QAction::triggered,
-			qApp,			&QApplication::quit);
+	        qApp,			&QApplication::quit);
 }
 
 void MainWindow::createMenues() {
