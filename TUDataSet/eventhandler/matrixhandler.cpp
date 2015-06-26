@@ -7,11 +7,10 @@ using std::acos;
 using tdcdata::TUEvent;
 using tdcdata::UIntVector;
 using vecmath::PI;
-using vecmath::todeg;
+using vecmath::toDeg;
 using std::cout;
 using std::endl;
 using std::to_string;
-using vecmath::todeg;
 using std::atan;
 
 MatrixHandler::MatrixHandler(const trek::ChamberConfig& config, const std::string& dirPath)
@@ -54,7 +53,7 @@ void MatrixHandler::handleEvent(const TUEvent& rawEvent) {
 	dx /= r;
 	dy /= r;
 	dz /= r;
-	auto ThetaG = std::acos(dz) * todeg; // зенитный угол
+	auto ThetaG = toDeg( std::acos(dz) ); // зенитный угол
 
 	if(ThetaG >= 0. && ThetaG < 20.) {
 		//Найдём пересечение треком горизонтальной плоскости
@@ -83,8 +82,8 @@ void MatrixHandler::handleEvent(const TUEvent& rawEvent) {
 					auto uragan = chamber.getUraganProjection(rawEvent.getUraganEvent().chp0,
 					              rawEvent.getUraganEvent().chp1);
 					auto track = chamber.getTrackDescription();
-					auto trackAngle = atan(track.line.k()) * todeg;
-					auto uraganAngle = atan(uragan.k()) * todeg;
+					auto trackAngle  = toDeg( std::atan(track.line.k()) );
+					auto uraganAngle = toDeg( std::atan(uragan.k()) );
 					auto deltaB      = track.line.b() - uragan.b();
 					auto deltaA      = trackAngle - uraganAngle;
 					if(mMatricesDev.count(chamNumber) == 0)

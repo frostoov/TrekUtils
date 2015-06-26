@@ -4,6 +4,8 @@
 #include <cmath>
 #include <stdexcept>
 
+#include "general.hpp"
+
 namespace vecmath {
 
 template<typename T>
@@ -326,9 +328,6 @@ class TVec3 {
 
 using Vec2 = TVec2<double>;
 using Vec3 = TVec3<double>;
-
-static constexpr double PI    = 3.14159265358979323846;
-static constexpr double todeg = 180. / PI;
 
 }
 #endif // VECMATH_VEC3_HPP

@@ -10,7 +10,7 @@ using std::to_string;
 using std::atan;
 using tdcdata::TUEvent;
 using tdcdata::UraganEvent;
-using vecmath::todeg;
+using vecmath::toDeg;
 using vecmath::Line3;
 
 TracksHandler::TracksHandler(const ChamberConfig& config, const std::string& dirPath)
@@ -62,13 +62,13 @@ void TracksHandler::printChamberTracks(uintmax_t chamNum, const Chamber& chamber
 
 	for(auto distance : track.times)
 		str << setw(8) << setfill(' ') << distance << '\t';
-	auto trackAngle = atan(track.line.k()) * todeg;
+	auto trackAngle = toDeg( atan(track.line.k()) );
 	str << setw(8)  << setfill(' ') << k1 << '\t'
 	    << setw(8)  << setfill(' ') << k2 << '\t'
 	    << setw(8)  << setfill(' ') << track.deviation << '\t'
 	    << setw(8)  << setfill(' ') << trackAngle << '\t'
 	    << setw(8)  << setfill(' ') << track.line.b();
-	auto uraganAngle = atan(uragan.k()) * todeg;
+	auto uraganAngle = toDeg( atan(uragan.k()));
 	str << '\t';
 	str << setw(8)  << setfill(' ') << uraganAngle << '\t'
 	    << setw(8)  << setfill(' ') << uragan.b() << '\t'
@@ -82,7 +82,7 @@ void TracksHandler::printTrack(const Line3& tTrack, const Line3& uTrack) {
 	auto uVec = uTrack.vec().ort();
 	auto tVec = tTrack.vec().ort();
 
-	double angle = uVec.angle(tVec) * todeg;
+	double angle = toDeg( uVec.angle(tVec) );
 	if(angle > 90)
 		angle = 180 - angle;
 
