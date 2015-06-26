@@ -44,14 +44,14 @@ using ChamberParameters = std::array<WireParameters, 4>;
 class ChamberDescription {
   public:
 	ChamberDescription(const ChamberPoints& points,
-	                   const ChamberParameters& parameters,
-	                   uint32_t plane, uint32_t group) :
+					   const ChamberParameters& parameters,
+					   uint32_t plane, uint32_t group) :
 		mPoints(points),
 		mParameters(parameters),
 		mPlane(plane),
 		mGroup(group) {}
 	const ChamberPoints& getPoints() const {return mPoints;}
-	const ChamberParameters getParameters() const {return mParameters;}
+	const ChamberParameters& getParameters() const {return mParameters;}
 	uint32_t getPlane() const {return mPlane;}
 	uint32_t getGroup() const {return mGroup;}
 	void setParameters(const ChamberParameters& parameters) {mParameters = parameters;}

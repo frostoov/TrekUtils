@@ -23,9 +23,10 @@ const std::array<vecmath::Vec2, 4> ChamberHandler::mWires{{
 	}};
 
 TrackDescription ChamberHandler::createTrackDescription(const ChamberTimes& eventTimes,
-		const ChamberDescription& chamDesc) {
+														const ChamberDescription& chamDesc) {
 	ChamberDistances eventDistances(getDistances(eventTimes, chamDesc));
-	if(getDepth(eventDistances) == 1) {
+	auto depth = getDepth(eventDistances);
+	if(depth == 1) {
 		TrackDescription trackDesc;
 		trackDesc.deviation = numeric_limits<double>::infinity();
 		Indecies ind;
@@ -47,8 +48,8 @@ TrackDescription ChamberHandler::createTrackDescription(const ChamberTimes& even
 		throw runtime_error("ChamberHandler: createTrackDescription: cannot create track");
 }
 
-ChamberDistances ChamberHandler::getDistances(const ChamberTimes& eventTimes,
-		const ChamberDescription& chamDesc) {
+ChamberDistances ChamberHandler::getDistances(const ChamberTimes& eventTimes, const ChamberDescription& chamDesc) {
+
 	ChamberDistances distances;
 	for(size_t wire = 0; wire < eventTimes.size(); ++wire)
 		for(auto msr :  eventTimes.at(wire)) {

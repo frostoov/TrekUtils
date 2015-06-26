@@ -1,4 +1,3 @@
-#include <iostream>
 #include "chamber.hpp"
 #include "chamberhandler.hpp"
 
@@ -17,7 +16,7 @@ Chamber::Chamber(const ChamberDescription& chamberDescription)
 	: mDescription(chamberDescription),
 	  mChamberSystem(getChamberSystem(chamberDescription.getPoints())),
 	  mOctahedron(getOctahedron(chamberDescription.getPoints())),
-	  mHasHit(false), mHasTrack(false) { }
+	  mHasHit(false), mHasTrack(false) {}
 
 bool Chamber::createTrack(const ChamberTimes& eventTimes) {
 	try {

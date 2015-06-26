@@ -1,6 +1,5 @@
 #include <QMessageBox>
 #include <QApplication>
-#include <iostream>
 #include "mainwindow.hpp"
 
 using trek::ChamberConfig;
@@ -8,8 +7,6 @@ using trek::TrekHandler;
 
 using std::exception;
 using nlohmann::json;
-using std::cout;
-using std::endl;
 
 MainWindow::MainWindow(const ChamberConfig& chamberConfig,
 					   QWidget* parent)

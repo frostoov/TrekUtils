@@ -295,8 +295,6 @@ void TrekGLWidget::loadTrackVertices(const trek::TrekHandler& handler)
 		vec = vec/vec.z();
 		auto dot = mTTrack.dot() + vec*delta;
 
-		std::cout << dot.z() << std::endl;
-
 		Vec3 point1(dot + mTTrack.vec().ort()*10000);
 		Vec3 point2(dot - mTTrack.vec().ort()*10000);
 
@@ -308,8 +306,6 @@ void TrekGLWidget::loadTrackVertices(const trek::TrekHandler& handler)
 	auto vec = mUTrack.vec().ort();
 	vec = vec/vec.z();
 	auto dot = mUTrack.dot() + vec*delta;
-
-	std::cout << dot.z() << std::endl;
 
 	Vec3 point1(dot + mUTrack.vec()*10000);
 	Vec3 point2(dot - mUTrack.vec()*10000);

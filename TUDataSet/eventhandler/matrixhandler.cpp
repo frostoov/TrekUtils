@@ -1,4 +1,3 @@
-#include <iostream>
 #include <fstream>
 #include "matrixhandler.hpp"
 
@@ -8,8 +7,6 @@ using tdcdata::TUEvent;
 using tdcdata::UIntVector;
 using vecmath::PI;
 using vecmath::todeg;
-using std::cout;
-using std::endl;
 using std::to_string;
 using vecmath::todeg;
 using std::atan;
@@ -73,7 +70,7 @@ void MatrixHandler::handleEvent(const TUEvent& rawEvent) {
 					mMatricesT[cham] = Matrix(rows, cols);
 				auto& tMatrix = mMatricesT.at(cham);
 				if(eventChecker(rawEvent.getTrekEventRaw(), cham) &&
-				        iy < tMatrix.rows() && ix < tMatrix.cols())
+						iy < tMatrix.rows() && ix < tMatrix.cols())
 					++tMatrix(iy, ix);
 			}
 			for(const auto& chamberPair : mTrekHandler.getChambers()) {
@@ -81,7 +78,7 @@ void MatrixHandler::handleEvent(const TUEvent& rawEvent) {
 				auto& chamber     = chamberPair.second;
 				if(chamber.hasTrack()) {
 					auto uragan = chamber.getUraganProjection(rawEvent.getUraganEvent().chp0,
-					              rawEvent.getUraganEvent().chp1);
+								  rawEvent.getUraganEvent().chp1);
 					auto track = chamber.getTrackDescription();
 					auto trackAngle = atan(track.line.k()) * todeg;
 					auto uraganAngle = atan(uragan.k()) * todeg;
@@ -170,7 +167,7 @@ void MatrixHandler::outputMatrix(const vecmath::TMatrix<T>& mat, const std::stri
 template<typename T>
 void MatrixHandler::outputMatrix(std::ostream& str, const vecmath::TMatrix<T>& matrix) {
 	str << "!Xmin=0.,Xmax=" << matrix.cols()
-	    << ".,Ymin=0.,Ymax=" << matrix.rows() << ".\n";
+		<< ".,Ymin=0.,Ymax=" << matrix.rows() << ".\n";
 	str << std::fixed;
 	for(size_t iy = 0; iy < matrix.rows(); iy++) {
 		for(size_t ix = 0; ix < matrix.cols(); ix++) {
