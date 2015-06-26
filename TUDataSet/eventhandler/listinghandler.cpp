@@ -39,7 +39,7 @@ void ListingHandler::printListing(const TUEvent& event) {
 			createListingStream(chamEvent.first);
 
 		auto& str = *mStreams.at(chamEvent.first);
-		str << "Event #" << event.getUraganEvent().nEvent << '\n';
+//		str << "Event #" << event.getUraganEvent().nEvent << '\n';
 		size_t depth = 0;
 		for(const auto& wireData : chamEvent.second) {
 			if(wireData.size() > depth)

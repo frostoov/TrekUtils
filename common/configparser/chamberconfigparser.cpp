@@ -82,7 +82,7 @@ json ChamberConfigParser::createJson(const ChamberDescription& chamberDescriptio
 	const auto& params = chamberDescription.getParameters();
 	const auto& points = chamberDescription.getPoints();
 	return {
-		{"number", number},
+		{"number", number+1},
 		{"group",  chamberDescription.getGroup()},
 		{"plane",  chamberDescription.getPlane()},
 		{"point1", {points.at(0).x(), points.at(0).y(), points.at(0).z()}},

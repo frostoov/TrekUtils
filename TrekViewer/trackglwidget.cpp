@@ -109,7 +109,7 @@ void TrekGLWidget::loadVBOs() {
 void TrekGLWidget::loadVerticesVBO() {
 	glFuncs->glBindBuffer(GL_ARRAY_BUFFER, vbo.vertices);
 	glFuncs->glBufferData(GL_ARRAY_BUFFER, mRenderData.vertices.size() * sizeof(GLfloat),
-	                      mRenderData.vertices.data(), GL_STATIC_DRAW);
+						  mRenderData.vertices.data(), GL_STATIC_DRAW);
 	clearVerticesData();
 }
 
@@ -122,13 +122,13 @@ void TrekGLWidget::loadColorVBOs() {
 void TrekGLWidget::loadColorPlgVBO() {
 	glFuncs->glBindBuffer(GL_ARRAY_BUFFER, vbo.polygonColors);
 	glFuncs->glBufferData(GL_ARRAY_BUFFER, mRenderData.polygonColors.size() * sizeof(GLfloat),
-	                      mRenderData.polygonColors.data(), GL_STATIC_DRAW);
+						  mRenderData.polygonColors.data(), GL_STATIC_DRAW);
 }
 
 void TrekGLWidget::loadColorLineVBO() {
 	glFuncs->glBindBuffer(GL_ARRAY_BUFFER, vbo.lineColors);
 	glFuncs->glBufferData(GL_ARRAY_BUFFER, mRenderData.lineColors.size() * sizeof(GLfloat),
-	                      mRenderData.lineColors.data(), GL_STATIC_DRAW);
+						  mRenderData.lineColors.data(), GL_STATIC_DRAW);
 }
 
 void TrekGLWidget::loadFaceVBOs() {
@@ -143,12 +143,12 @@ void TrekGLWidget::loadFaceVBOs() {
 void TrekGLWidget::loadFacePlgVBO() {
 	glFuncs->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo.polygonFace);
 	glFuncs->glBufferData(GL_ELEMENT_ARRAY_BUFFER, mRenderData.polygonFace.size() * sizeof(GLuint),
-	                      mRenderData.polygonFace.data(), GL_STATIC_DRAW);
+						  mRenderData.polygonFace.data(), GL_STATIC_DRAW);
 }
 void TrekGLWidget::loadFaceLineVBO() {
 	glFuncs->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo.lineFace);
 	glFuncs->glBufferData(GL_ELEMENT_ARRAY_BUFFER, mRenderData.lineFaces.size() * sizeof(GLuint),
-	                      mRenderData.lineFaces.data(), GL_STATIC_DRAW);
+						  mRenderData.lineFaces.data(), GL_STATIC_DRAW);
 }
 
 void TrekGLWidget::clearVerticesData() {
@@ -278,11 +278,11 @@ void TrekGLWidget::loadTrackVertices(const trek::TrekHandler& handler) {
 		const auto& mTTrack = handler.getTTrack();
 		double delta = 10900 - mTTrack.dot().z();
 		auto vec = mTTrack.vec().ort();
-		vec = vec / vec.z();
-		auto dot = mTTrack.dot() + vec * delta;
+		vec = vec/vec.z();
+		auto dot = mTTrack.dot() + vec*delta;
 
-		Vec3 point1(dot + mTTrack.vec().ort() * 10000);
-		Vec3 point2(dot - mTTrack.vec().ort() * 10000);
+		Vec3 point1(dot + mTTrack.vec().ort()*10000);
+		Vec3 point2(dot - mTTrack.vec().ort()*10000);
 
 		data.insert(end(data), begin(point1), end(point1));
 		data.insert(end(data), begin(point2), end(point2));
@@ -293,8 +293,9 @@ void TrekGLWidget::loadTrackVertices(const trek::TrekHandler& handler) {
 	vec = vec / vec.z();
 	auto dot = mUTrack.dot() + vec * delta;
 
-	Vec3 point1(dot + mUTrack.vec() * 10000);
-	Vec3 point2(dot - mUTrack.vec() * 10000);
+
+	Vec3 point1(dot + mUTrack.vec()*10000);
+	Vec3 point2(dot - mUTrack.vec()*10000);
 	data.insert(end(data), begin(point1), end(point1));
 	data.insert(end(data), begin(point2), end(point2));
 }
@@ -347,8 +348,8 @@ void TrekGLWidget::initializeGL() {
 	glFuncs->glDepthFunc( GL_LEQUAL );
 
 	glFuncs->glHint( GL_PERSPECTIVE_CORRECTION_HINT	|
-	                 GL_LINE_SMOOTH_HINT			|
-	                 GL_POLYGON_SMOOTH, GL_NICEST );
+					 GL_LINE_SMOOTH_HINT			|
+					 GL_POLYGON_SMOOTH, GL_NICEST );
 	initShaders();
 	genBuffers();
 }
@@ -361,26 +362,26 @@ void TrekGLWidget::resizeGL(int w, int h) {
 
 void TrekGLWidget::initShaders() {
 	const char* vertexShaderSource =
-	    "#version 120\n"
-	    "uniform mat4 projection_matrix;\n"
-	    "uniform mat4 modelview_matrix;\n"
+		"#version 120\n"
+		"uniform mat4 projection_matrix;\n"
+		"uniform mat4 modelview_matrix;\n"
 
-	    "attribute vec3 vertex;\n"
-	    "attribute vec4 aColor;\n"
-	    "varying vec4 color;\n"
+		"attribute vec3 vertex;\n"
+		"attribute vec4 aColor;\n"
+		"varying vec4 color;\n"
 
-	    "void main() {\n"
-	    "	gl_Position = projection_matrix * modelview_matrix * vec4(vertex, 1.0);\n"
-	    "	color = aColor;\n"
-	    "}\n";
+		"void main() {\n"
+		"	gl_Position = projection_matrix * modelview_matrix * vec4(vertex, 1.0);\n"
+		"	color = aColor;\n"
+		"}\n";
 
 	const char* fragmentShaderSource =
-	    "#version 120\n"
-	    "varying vec4 color;\n"
+		"#version 120\n"
+		"varying vec4 color;\n"
 
-	    "void main() {\n"
-	    "	gl_FragColor = color;\n"
-	    "}\n";
+		"void main() {\n"
+		"	gl_FragColor = color;\n"
+		"}\n";
 
 	mShaderProgram = new QOpenGLShaderProgram(this->context());
 	mShaderProgram->addShaderFromSourceCode(QOpenGLShader::Vertex, vertexShaderSource);

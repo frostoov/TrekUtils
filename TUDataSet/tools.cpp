@@ -32,13 +32,13 @@ void panic(const string& message) {
 
 void help() {
 	cout << "Использование: TUDataSet [ПАРАМЕТРЫ]\n"
-	     << "-path=                 директория с данными\n"
-	     << "-matrix                вывод матриц\n"
-	     << "-tracks                вывод текстового описания проекций между треками\n"
-	     << "-projections           вывод разницы углов между треками\n"
-	     << "-listing               вывод листинга событий\n"
-	     << "-parameters            нахождение характеристки дрейфовых камер\n"
-	     << endl;
+		 << "-path=                 директория с данными\n"
+		 << "-matrix                вывод матриц\n"
+		 << "-tracks                вывод текстового описания проекций между треками\n"
+		 << "-projections           вывод разницы углов между треками\n"
+		 << "-listing               вывод листинга событий\n"
+		 << "-parameters            нахождение характеристки дрейфовых камер\n"
+		 << endl;
 }
 
 AppFlags loadFlags(int argc, char* argv[]) {
@@ -58,14 +58,13 @@ AppFlags loadFlags(int argc, char* argv[]) {
 }
 
 uintmax_t handleData(const string& dirPath, DataSet& buffer,
-                     vector<AbstractEventHandler*> handlers) {
-
-	QDir director(QString::fromStdString(dirPath));
-	if(director.exists()) {
-		QStringList fileList = director.entryList();
+					 vector<AbstractEventHandler*> handlers) {
+	QDir directory(QString::fromStdString(dirPath));
+	if(directory.exists()) {
+		QStringList fileList = directory.entryList();
 		uintmax_t eventCount = 0;
 		for(const auto& filePath : fileList) {
-			const auto fileName = filePath.toStdString();
+			const auto fileName = directory.absoluteFilePath(filePath).toStdString();
 			if(DataSet::checkExtension(fileName)) {
 				try {
 					buffer.read(fileName);
