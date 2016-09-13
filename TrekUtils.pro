@@ -5,5 +5,4 @@ CONFIG  += oredered
 CONFIG  -= debug_and_release
 
 SUBDIRS += \
-	TUDataSet \
-	TrekViewer
+	TUDataSet

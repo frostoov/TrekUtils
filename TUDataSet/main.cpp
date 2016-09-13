@@ -1,4 +1,4 @@
-#include <stdexcept>
+﻿#include <stdexcept>
 #include <iostream>
 #include <cstring>
 
@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
 
 	AppFlags flags;
 	try {
-		cout << "Parsing Flags: " << flush;
+        cout << "Parsing flags: " << flush;
 		flags = loadFlags(argc, argv);
 		cout << "success" << endl;
 	} catch(const exception& e) {
@@ -150,8 +150,7 @@ int main(int argc, char* argv[]) {
 			cout << e.what() << endl;
 		}
 	}
-	for(auto& handler : handlers) delete handler;
-	cout << "Press [enter] to exit" << endl;
-	cin.ignore();
+    for(auto& handler : handlers)
+        delete handler;
 	return 0;
 }

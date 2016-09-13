@@ -61,19 +61,19 @@ void TracksHandler::printChamberTracks(uintmax_t chamNum, const Chamber& chamber
 	int32_t k2 = track.times[0] - 3 * track.times[1] + 3 * track.times[2] - track.times[3];
 
 	for(auto distance : track.times)
-		str << setw(8) << setfill(' ') << distance << '\t';
+        str << distance << '\t';
 	auto trackAngle = toDeg( atan(track.line.k()) );
-	str << setw(8)  << setfill(' ') << k1 << '\t'
-		<< setw(8)  << setfill(' ') << k2 << '\t'
-		<< setw(8)  << setfill(' ') << track.deviation << '\t'
-		<< setw(8)  << setfill(' ') << trackAngle << '\t'
-		<< setw(8)  << setfill(' ') << track.line.b();
+    str << k1 << '\t'
+        << k2 << '\t'
+        << track.deviation << '\t'
+        << trackAngle << '\t'
+        << track.line.b();
 	auto uraganAngle = toDeg( atan(uragan.k()));
 	str << '\t';
-	str << setw(8)  << setfill(' ') << uraganAngle << '\t'
-		<< setw(8)  << setfill(' ') << uragan.b() << '\t'
-		<< setw(8)  << setfill(' ') << trackAngle - uraganAngle << '\t'
-		<< setw(8)  << setfill(' ') << track.line.b() - uragan.b();
+    str << uraganAngle << '\t'
+        << uragan.b() << '\t'
+        << trackAngle - uraganAngle << '\t'
+        << track.line.b() - uragan.b();
 	str << '\n';
 
 }
@@ -101,19 +101,17 @@ void TracksHandler::createProjectionStream(uintmax_t chamNum) {
 
 		*str << "Chamber №" << chamNum + 1 << '\n';
 		for(auto i = 0; i < 4 ; ++i)
-			*str << setw(6) << setfill(' ') << "WIRE "
-				 << setw(2) << setfill('0') << i
-				 << setw(1) << setfill(' ') << '\t';
-		*str << setw(8)  << setfill(' ') << "k1" << '\t'
-			 << setw(8)  << setfill(' ') << "k2" << '\t'
-			 << setw(8)  << setfill(' ') << "dev" << '\t'
-			 << setw(8)  << setfill(' ') << "ang" << '\t'
-			 << setw(8)  << setfill(' ') << "b";
+            *str << "WIRE" << setw(2) << setfill('0') << i << '\t';
+        *str << "k1" << '\t'
+             << "k2" << '\t'
+             << "dev" << '\t'
+             << "ang" << '\t'
+             << "b";
 		*str << '\t';
-		*str << setw(8)  << setfill(' ') << "ang[u]" << '\t'
-			 << setw(8)  << setfill(' ') << "b[u]"   << '\t'
-			 << setw(8)  << setfill(' ') << "dang"   << '\t'
-			 << setw(8)  << setfill(' ') << "db";
+        *str << "ang[u]" << '\t'
+             << "b[u]"   << '\t'
+             << "dang"   << '\t'
+             << "db";
 		*str << '\n';
 		mProjectionStreams.insert({chamNum, str});
 	}
