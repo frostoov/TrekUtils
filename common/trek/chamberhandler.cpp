@@ -73,10 +73,10 @@ bool ChamberHandler::systemError(TrackDescription& track) {
 		auto trackSign = sign(track.points[i].y());
 		switch ( trackSign * sign(mWires[i].y()) ) {
 			case 1:
-				r = (std::abs(track.points[i].y()) > 6.2) ? 6.2 : track.points[i].y();
+                r = (std::abs(track.points[i].y()) > 6.2) ? 6.2 : track.points[i].y();
 				break;
 			case -1:
-				r = (std::abs(track.points[i].y()) > 3.6) ? 3.6 : track.points[i].y();
+                r = (std::abs(track.points[i].y()) > 3.6) ? 3.6 : track.points[i].y();
 				break;
 			default:
 				return false;

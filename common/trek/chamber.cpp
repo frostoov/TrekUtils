@@ -37,7 +37,8 @@ void Chamber::resetData() {
 CoordSystem3 Chamber::getChamberSystem(const ChamberPoints& pos) {
 	auto xAxis = (pos[1] - pos[0]).ort();
 	auto zAxis = (pos[2] - pos[0]).ort();
-	return CoordSystem3(pos[0], xAxis, zAxis);
+    auto yAxis = zAxis & xAxis;
+    return CoordSystem3(pos[0], xAxis, yAxis, zAxis);
 }
 
 const Line2& Chamber::getTrackLine() const {
